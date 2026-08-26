@@ -25,6 +25,18 @@ pnpm install
    - `supabase/migrations/0002_rls_and_functions.sql` — RLS, funciones de
      negocio y el bucket de imágenes.
    - `supabase/seed.sql` — opcional, datos de ejemplo para maquetar.
+     Alternativa: pegar de una sola vez `supabase/setup-completo.sql`, que junta
+     las tres migraciones.
+
+   Para aplicarlas desde la terminal con `psql` hay que usar el **pooler**, no
+   la conexión directa: `db.<ref>.supabase.co` solo resuelve por IPv6 y la
+   mayoría de redes domésticas no llegan. La cadena del pooler sale del botón
+   _Connect_ del dashboard y se ve así:
+
+   ```
+   postgresql://postgres.<ref>:PASSWORD@aws-0-<region>.pooler.supabase.com:5432/postgres
+   ```
+
 3. Crea la cuenta de la administradora en **Authentication → Users** y luego
    dale acceso al panel:
 
