@@ -26,6 +26,7 @@
 
 	let element = $state<HTMLImageElement | null>(null);
 	let loaded = $state(false);
+	let failed = $state(false);
 
 	/**
 	 * Una imagen ya cacheada termina de cargar antes de que Svelte hidrate, y el
@@ -34,7 +35,8 @@
 	 */
 	$effect(() => {
 		void src;
-		loaded = element?.complete === true;
+		failed = false;
+		loaded = element?.complete === true && element.naturalWidth > 0;
 	});
 
 	const ratioClass = {
@@ -57,19 +59,23 @@
 		/>
 	{/if}
 
-	<img
-		bind:this={element}
-		{src}
-		{alt}
-		{srcset}
-		{sizes}
-		loading={eager ? 'eager' : 'lazy'}
-		fetchpriority={eager ? 'high' : 'auto'}
-		decoding="async"
-		onload={() => (loaded = true)}
-		class={cn(
-			'h-full w-full object-cover transition-opacity duration-700',
-			loaded ? 'opacity-100' : 'opacity-0'
-		)}
-	/>
+	<!-- Si la foto no carga se deja el fondo liso: mejor eso que el texto roto. -->
+	{#if !failed}
+		<img
+			bind:this={element}
+			{src}
+			{alt}
+			{srcset}
+			{sizes}
+			loading={eager ? 'eager' : 'lazy'}
+			fetchpriority={eager ? 'high' : 'auto'}
+			decoding="async"
+			onload={() => (loaded = true)}
+			onerror={() => (failed = true)}
+			class={cn(
+				'h-full w-full object-cover transition-opacity duration-700',
+				loaded ? 'opacity-100' : 'opacity-0'
+			)}
+		/>
+	{/if}
 </div>
