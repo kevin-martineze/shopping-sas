@@ -16,6 +16,13 @@
 	const heroImage = $derived(
 		hero?.hero_image_url ?? data.newest.at(0)?.images.at(0)?.url_card ?? null
 	);
+
+	// Manda la colección elegida; si no hay, los textos de ajustes.
+	const heroTitle = $derived(
+		hero?.name ?? data.settings.hero_title ?? 'Prendas que duran más de una temporada'
+	);
+
+	const heroSubtitle = $derived(hero?.description ?? data.settings.hero_subtitle ?? '');
 </script>
 
 <svelte:head>
@@ -52,13 +59,12 @@
 				</p>
 
 				<h1 class="text-5xl leading-[0.95] text-balance text-white md:text-7xl">
-					{hero ? hero.name : 'Prendas que duran más de una temporada'}
+					{heroTitle}
 				</h1>
 
-				<p class="max-w-md text-sm text-white/85 md:text-base">
-					{hero?.description ??
-						'Selección corta, materiales nobles y tallas reales. Escríbenos por WhatsApp y coordinamos tu pedido.'}
-				</p>
+				{#if heroSubtitle}
+					<p class="max-w-md text-sm text-white/85 md:text-base">{heroSubtitle}</p>
+				{/if}
 
 				<div class="flex flex-wrap gap-3 pt-2">
 					<Button href="/tienda" size="lg" class="bg-white text-black hover:bg-white/90">
@@ -102,35 +108,19 @@
 	</section>
 {/if}
 
-<section class="bg-secondary/60">
-	<div class="mx-auto grid max-w-7xl gap-10 px-4 py-20 sm:px-6 md:grid-cols-3">
-		<div class="space-y-2" use:reveal>
-			<p class="eyebrow">Pedidos</p>
-			<h3 class="text-2xl">Se cierra por WhatsApp</h3>
-			<p class="text-muted-foreground text-sm">
-				Armas tu carrito acá y el pedido llega listo al chat, con tallas, colores y total.
-			</p>
+{#if data.highlights.length > 0}
+	<section class="bg-secondary/60">
+		<div class="mx-auto grid max-w-7xl gap-10 px-4 py-20 sm:px-6 md:grid-cols-3">
+			{#each data.highlights as highlight, index (highlight.id)}
+				<div class="space-y-2" use:reveal={{ delay: index * 80 }}>
+					<p class="eyebrow">{highlight.eyebrow}</p>
+					<h3 class="text-2xl">{highlight.title}</h3>
+					<p class="text-muted-foreground text-sm">{highlight.body}</p>
+				</div>
+			{/each}
 		</div>
-
-		<div class="space-y-2" use:reveal={{ delay: 80 }}>
-			<p class="eyebrow">Stock real</p>
-			<h3 class="text-2xl">Sin sorpresas de talla</h3>
-			<p class="text-muted-foreground text-sm">
-				Cada talla y color tiene su inventario. Si aparece disponible, está disponible.
-			</p>
-		</div>
-
-		<div class="space-y-2" use:reveal={{ delay: 160 }}>
-			<p class="eyebrow">Envíos</p>
-			<h3 class="text-2xl">A todo el país</h3>
-			<p class="text-muted-foreground text-sm">
-				{data.settings.free_shipping_threshold
-					? `Envío gratis desde $${data.settings.free_shipping_threshold.toLocaleString('es-CO')}.`
-					: 'Calculamos el costo según tu ciudad antes de confirmar.'}
-			</p>
-		</div>
-	</div>
-</section>
+	</section>
+{/if}
 
 {#if data.newest.length > 0}
 	<section class="mx-auto max-w-7xl px-4 py-20 sm:px-6">

@@ -37,6 +37,14 @@ function publicUrl(path: string): string {
  * (base64 diminuto) que se pinta borroso mientras carga la imagen real.
  */
 export async function uploadProductImage(file: File, productSlug: string): Promise<UploadedImage> {
+	return uploadImage(file, productSlug);
+}
+
+/**
+ * Sube una imagen a la carpeta indicada del bucket, en tres anchos más el LQIP.
+ * La usan tanto las fotos de prenda como la portada de una colección.
+ */
+export async function uploadImage(file: File, folder: string): Promise<UploadedImage> {
 	if (!file.type.startsWith('image/')) {
 		throw new ImageUploadError('El archivo no es una imagen.');
 	}
@@ -47,7 +55,7 @@ export async function uploadProductImage(file: File, productSlug: string): Promi
 
 	const original = Buffer.from(await file.arrayBuffer());
 	const stamp = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-	const basePath = `${productSlug}/${stamp}`;
+	const basePath = `${folder}/${stamp}`;
 	const storage = supabaseAdmin().storage.from(BUCKET);
 
 	const urls: Record<string, string> = {};

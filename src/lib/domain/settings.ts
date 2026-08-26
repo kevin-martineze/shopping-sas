@@ -4,6 +4,20 @@ export interface StoreSettings {
 	instagram_url: string | null;
 	announcement: string | null;
 	free_shipping_threshold: number | null;
+	/** Si hay colección elegida manda ella; si no, mandan estos textos. */
+	hero_collection_id: string | null;
+	hero_title: string | null;
+	hero_subtitle: string | null;
+}
+
+/** Bloques cortos que van bajo el hero de la portada. */
+export interface HomeHighlight {
+	id: string;
+	eyebrow: string;
+	title: string;
+	body: string;
+	sort_order: number;
+	active: boolean;
 }
 
 export interface ShippingZone {
@@ -55,6 +69,7 @@ export interface Collection {
 	name: string;
 	description: string | null;
 	hero_image_url: string | null;
+	hero_storage_path: string | null;
 	active: boolean;
 	sort_order: number;
 }

@@ -171,3 +171,8 @@ join (values
 	('pantalon-sastre-noa', 1, 44.0, 70.0),
 	('blusa-seda-lena', 2, 68.0, 42.0)
 ) as t(slug, sort_order, x, y) on t.slug = p.slug;
+
+-- La colección de ejemplo encabeza la portada.
+update settings
+set hero_collection_id = (select id from collections where slug = 'temporada-clara')
+where hero_collection_id is null;

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ImagePlus from '@lucide/svelte/icons/image-plus';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
 
 	import { enhance } from '$app/forms';
@@ -40,7 +41,13 @@
 <section class="border-border bg-background mb-8 border p-6">
 	<h2 class="mb-4 text-lg">Nueva colección</h2>
 
-	<form method="POST" action="?/crear" class="grid gap-4 sm:grid-cols-2" use:enhance>
+	<form
+		method="POST"
+		action="?/crear"
+		enctype="multipart/form-data"
+		class="grid gap-4 sm:grid-cols-2"
+		use:enhance
+	>
 		<div class="space-y-2">
 			<Label for="name">Nombre</Label>
 			<Input id="name" name="name" required placeholder="Temporada clara" />
@@ -52,10 +59,10 @@
 		</div>
 
 		<div class="space-y-2 sm:col-span-2">
-			<Label for="heroImageUrl">Foto principal (URL)</Label>
-			<Input id="heroImageUrl" name="heroImageUrl" type="url" placeholder="https://…" />
+			<Label for="file">Foto principal</Label>
+			<Input id="file" name="file" type="file" accept="image/*" />
 			<p class="text-muted-foreground text-xs">
-				Sube la foto a una prenda y copia su enlace, o usa cualquier URL pública.
+				Se guarda en tres tamaños para que cargue rápido. Máximo 12 MB.
 			</p>
 		</div>
 
@@ -102,6 +109,27 @@
 					<Button href="/colecciones/{collection.slug}" target="_blank" size="sm" variant="outline">
 						Ver
 					</Button>
+
+					<form
+						method="POST"
+						action="?/cambiarFoto"
+						enctype="multipart/form-data"
+						class="flex items-center gap-2"
+						use:enhance
+					>
+						<input type="hidden" name="id" value={collection.id} />
+						<Input
+							name="file"
+							type="file"
+							accept="image/*"
+							class="w-48"
+							aria-label="Nueva foto de {collection.name}"
+						/>
+						<Button type="submit" size="sm" variant="outline">
+							<ImagePlus class="mr-1 size-3" />
+							Cambiar foto
+						</Button>
+					</form>
 
 					<form method="POST" action="?/eliminar" use:enhance>
 						<input type="hidden" name="id" value={collection.id} />

@@ -35,6 +35,13 @@ export default ts.config(
 		}
 	},
 	{
+		// Scripts de terminal: su salida por consola es la interfaz de la herramienta.
+		files: ['scripts/**/*.mjs'],
+		rules: {
+			'no-console': 'off'
+		}
+	},
+	{
 		// Primitivas generadas por shadcn-svelte: no se editan a mano.
 		files: ['src/lib/components/ui/**'],
 		rules: {

@@ -15,16 +15,22 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 
 	const [categories, colors, sizes] = await Promise.all([
 		listCategories(locals.supabase),
-		supabaseAdmin()
-			.from('colors')
-			.select('*')
-			.order('sort_order')
-			.returns<{ id: string; slug: string; name: string; hex: string; sort_order: number }[]>(),
+		supabaseAdmin().from('colors').select('*').eq('active', true).order('sort_order').returns<
+			{
+				id: string;
+				slug: string;
+				name: string;
+				hex: string;
+				sort_order: number;
+				active: boolean;
+			}[]
+		>(),
 		supabaseAdmin()
 			.from('sizes')
 			.select('*')
+			.eq('active', true)
 			.order('sort_order')
-			.returns<{ id: string; label: string; sort_order: number }[]>()
+			.returns<{ id: string; label: string; sort_order: number; active: boolean }[]>()
 	]);
 
 	return {

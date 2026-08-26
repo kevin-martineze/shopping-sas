@@ -40,7 +40,7 @@ const PRODUCT_SELECT = `
 	id, slug, name, description, material, care, base_price, compare_at_price, created_at,
 	categories ( name, slug ),
 	product_images ( id, product_id, color_id, storage_path, url_full, url_card, url_thumb, lqip, alt, sort_order ),
-	variants ( id, color_id, size_id, sku, stock, price_override, colors ( id, slug, name, hex, sort_order ), sizes ( id, label, sort_order ) )
+	variants ( id, color_id, size_id, sku, stock, price_override, colors ( id, slug, name, hex, sort_order, active ), sizes ( id, label, sort_order, active ) )
 `;
 
 /** Lee los filtros desde la URL: son la fuente de verdad, no el estado local. */
@@ -250,8 +250,8 @@ export async function getProductBySlug(
 export async function getFacets(supabase: SupabaseClient): Promise<CatalogFacets> {
 	const [categories, colors, sizes, prices] = await Promise.all([
 		supabase.from('categories').select('*').order('sort_order').returns<Category[]>(),
-		supabase.from('colors').select('*').order('sort_order').returns<Color[]>(),
-		supabase.from('sizes').select('*').order('sort_order').returns<Size[]>(),
+		supabase.from('colors').select('*').eq('active', true).order('sort_order').returns<Color[]>(),
+		supabase.from('sizes').select('*').eq('active', true).order('sort_order').returns<Size[]>(),
 		supabase
 			.from('products')
 			.select('base_price')

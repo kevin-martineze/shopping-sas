@@ -17,12 +17,14 @@ export interface Color {
 	name: string;
 	hex: string;
 	sort_order: number;
+	active: boolean;
 }
 
 export interface Size {
 	id: string;
 	label: string;
 	sort_order: number;
+	active: boolean;
 }
 
 export interface ProductImage {

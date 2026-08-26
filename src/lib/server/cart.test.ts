@@ -9,7 +9,10 @@ const settings: StoreSettings = {
 	whatsapp_phone: '573000000000',
 	instagram_url: null,
 	announcement: null,
-	free_shipping_threshold: null
+	free_shipping_threshold: null,
+	hero_collection_id: null,
+	hero_title: null,
+	hero_subtitle: null
 };
 
 const zone: ShippingZone = {

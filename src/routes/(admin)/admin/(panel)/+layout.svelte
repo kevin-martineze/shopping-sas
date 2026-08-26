@@ -4,7 +4,9 @@
 	import BellRing from '@lucide/svelte/icons/bell-ring';
 	import Boxes from '@lucide/svelte/icons/boxes';
 	import Images from '@lucide/svelte/icons/images';
+	import LayoutTemplate from '@lucide/svelte/icons/layout-template';
 	import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
+	import Palette from '@lucide/svelte/icons/palette';
 	import LogOut from '@lucide/svelte/icons/log-out';
 	import Receipt from '@lucide/svelte/icons/receipt';
 	import Settings from '@lucide/svelte/icons/settings';
@@ -32,6 +34,8 @@
 		{ href: '/admin/productos', label: 'Productos', icon: Shirt },
 		{ href: '/admin/inventario', label: 'Inventario', icon: Boxes },
 		{ href: '/admin/colecciones', label: 'Colecciones', icon: Images },
+		{ href: '/admin/portada', label: 'Portada', icon: LayoutTemplate },
+		{ href: '/admin/catalogos', label: 'Catálogos', icon: Palette },
 		{ href: '/admin/cupones', label: 'Cupones', icon: Ticket },
 		{ href: '/admin/envios', label: 'Envíos', icon: Truck },
 		{ href: '/admin/avisos', label: 'Avisos', icon: BellRing },

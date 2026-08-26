@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-import type { Collection, ShippingZone, StoreSettings } from '$lib/domain/settings';
+import type { Collection, HomeHighlight, ShippingZone, StoreSettings } from '$lib/domain/settings';
 import type { Category, ProductCard } from '$lib/domain/catalog';
 
 const FALLBACK_SETTINGS: StoreSettings = {
@@ -8,17 +8,36 @@ const FALLBACK_SETTINGS: StoreSettings = {
 	whatsapp_phone: '573000000000',
 	instagram_url: null,
 	announcement: null,
-	free_shipping_threshold: null
+	free_shipping_threshold: null,
+	hero_collection_id: null,
+	hero_title: null,
+	hero_subtitle: null
 };
 
 export async function getSettings(supabase: SupabaseClient): Promise<StoreSettings> {
 	const { data, error } = await supabase
 		.from('settings')
-		.select('store_name, whatsapp_phone, instagram_url, announcement, free_shipping_threshold')
+		.select(
+			'store_name, whatsapp_phone, instagram_url, announcement, free_shipping_threshold, hero_collection_id, hero_title, hero_subtitle'
+		)
 		.maybeSingle<StoreSettings>();
 
 	if (error) throw error;
 	return data ?? FALLBACK_SETTINGS;
+}
+
+/** Bloques de la portada, en el orden en que se muestran. */
+export async function listHomeHighlights(
+	supabase: SupabaseClient,
+	includeHidden = false
+): Promise<HomeHighlight[]> {
+	let query = supabase.from('home_highlights').select('*').order('sort_order');
+	if (!includeHidden) query = query.eq('active', true);
+
+	const { data, error } = await query.returns<HomeHighlight[]>();
+
+	if (error) throw error;
+	return data ?? [];
 }
 
 export async function listShippingZones(
