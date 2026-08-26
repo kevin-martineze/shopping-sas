@@ -42,7 +42,10 @@
 		method="POST"
 		bind:this={loadForm}
 		class="hidden"
-		use:enhance={() => {
+		use:enhance={({ formData }) => {
+			// Igual que el carrito: la lista vive en localStorage, así que se adjunta
+			// al enviar y no como valor renderizado en el servidor.
+			formData.set('slugs', favorites.slugs.join(','));
 			loading = true;
 
 			return async ({ update }) => {
@@ -51,7 +54,7 @@
 			};
 		}}
 	>
-		<input type="hidden" name="slugs" value={favorites.slugs.join(',')} />
+		<input type="hidden" name="slugs" value="" />
 	</form>
 
 	{#if favorites.count === 0}

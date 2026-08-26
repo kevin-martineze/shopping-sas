@@ -206,7 +206,9 @@ begin
 		variant_id uuid primary key,
 		qty integer not null
 	) on commit drop;
-	delete from tmp_order_lines;
+	-- `truncate`, no `delete`: Supabase activa safeupdate, que rechaza un DELETE
+	-- sin WHERE aunque la tabla sea temporal.
+	truncate table tmp_order_lines;
 
 	insert into tmp_order_lines (variant_id, qty)
 	select (e ->> 'variant_id')::uuid, (e ->> 'qty')::integer

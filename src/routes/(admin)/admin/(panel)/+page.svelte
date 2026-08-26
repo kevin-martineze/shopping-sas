@@ -42,6 +42,8 @@
 				<p class="text-sale text-xs">
 					{stats.stalePendingOrders} llevan más de 24 h reteniendo stock.
 				</p>
+			{:else if stats.pendingOrders > 0}
+				<p class="text-muted-foreground text-xs">Ninguno lleva más de 24 h esperando.</p>
 			{:else}
 				<p class="text-muted-foreground text-xs">Todo al día.</p>
 			{/if}
@@ -83,9 +85,11 @@
 
 <div class="mt-8 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
 	<Card.Root>
-		<Card.Header class="flex-row items-center justify-between space-y-0">
-			<Card.Title>Últimos pedidos</Card.Title>
-			<Button href="/admin/pedidos" variant="ghost" size="sm">Ver todos</Button>
+		<Card.Header>
+			<div class="flex items-center justify-between gap-3">
+				<Card.Title>Últimos pedidos</Card.Title>
+				<Button href="/admin/pedidos" variant="ghost" size="sm">Ver todos</Button>
+			</div>
 		</Card.Header>
 
 		<Card.Content>
@@ -118,9 +122,11 @@
 	</Card.Root>
 
 	<Card.Root>
-		<Card.Header class="flex-row items-center justify-between space-y-0">
-			<Card.Title>Reponer pronto</Card.Title>
-			<Button href="/admin/inventario" variant="ghost" size="sm">Inventario</Button>
+		<Card.Header>
+			<div class="flex items-center justify-between gap-3">
+				<Card.Title>Reponer pronto</Card.Title>
+				<Button href="/admin/inventario" variant="ghost" size="sm">Inventario</Button>
+			</div>
 		</Card.Header>
 
 		<Card.Content>

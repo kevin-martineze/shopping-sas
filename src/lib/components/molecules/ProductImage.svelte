@@ -24,7 +24,18 @@
 		ratio = 'portrait'
 	}: Props = $props();
 
+	let element = $state<HTMLImageElement | null>(null);
 	let loaded = $state(false);
+
+	/**
+	 * Una imagen ya cacheada termina de cargar antes de que Svelte hidrate, y el
+	 * evento `load` se pierde: sin esto la foto se quedaría invisible para
+	 * siempre. Al cambiar de foto se vuelve a esperar la nueva.
+	 */
+	$effect(() => {
+		void src;
+		loaded = element?.complete === true;
+	});
 
 	const ratioClass = {
 		portrait: 'aspect-[3/4]',
@@ -47,6 +58,7 @@
 	{/if}
 
 	<img
+		bind:this={element}
 		{src}
 		{alt}
 		{srcset}

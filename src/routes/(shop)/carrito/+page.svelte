@@ -51,10 +51,6 @@
 
 		prepareForm?.requestSubmit();
 	});
-
-	function serializedCart(): string {
-		return cart.serialize();
-	}
 </script>
 
 <svelte:head>
@@ -77,7 +73,12 @@
 		action="?/preparar"
 		bind:this={prepareForm}
 		class="hidden"
-		use:enhance={() => {
+		use:enhance={({ formData }) => {
+			// El carrito se serializa aquí, no en un input: el HTML del servidor se
+			// renderiza sin localStorage y llegaría vacío.
+			formData.set('cart', cart.serialize());
+			formData.set('couponCode', couponCode);
+			formData.set('shippingZoneId', zoneId);
 			preparing = true;
 
 			return async ({ update }) => {
@@ -86,9 +87,9 @@
 			};
 		}}
 	>
-		<input type="hidden" name="cart" value={serializedCart()} />
-		<input type="hidden" name="couponCode" value={couponCode} />
-		<input type="hidden" name="shippingZoneId" value={zoneId} />
+		<input type="hidden" name="cart" value="[]" />
+		<input type="hidden" name="couponCode" value="" />
+		<input type="hidden" name="shippingZoneId" value="" />
 	</form>
 
 	{#if cart.isEmpty}
@@ -194,7 +195,8 @@
 					method="POST"
 					action="?/confirmar"
 					class="border-border space-y-5 border p-5"
-					use:enhance={() => {
+					use:enhance={({ formData }) => {
+						formData.set('cart', cart.serialize());
 						submitting = true;
 
 						return async ({ update }) => {
@@ -203,7 +205,7 @@
 						};
 					}}
 				>
-					<input type="hidden" name="cart" value={serializedCart()} />
+					<input type="hidden" name="cart" value="[]" />
 
 					<h2 class="font-display text-2xl">Resumen</h2>
 

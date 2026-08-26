@@ -48,11 +48,11 @@
 		>
 			<div class="max-w-xl space-y-5 text-white" use:reveal>
 				<p class="eyebrow text-white/80">
-					{hero ? hero.name : 'Nueva temporada'}
+					{hero ? 'Colección en curso' : 'Nueva temporada'}
 				</p>
 
 				<h1 class="text-5xl leading-[0.95] text-balance text-white md:text-7xl">
-					{hero?.description ? hero.name : 'Prendas que duran más de una temporada'}
+					{hero ? hero.name : 'Prendas que duran más de una temporada'}
 				</h1>
 
 				<p class="max-w-md text-sm text-white/85 md:text-base">
