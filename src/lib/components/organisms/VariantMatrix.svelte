@@ -10,6 +10,7 @@
 	import { Checkbox } from '$lib/components/atoms/checkbox';
 	import { Input } from '$lib/components/atoms/input';
 	import { Label } from '$lib/components/atoms/label';
+	import CheckboxField from '$lib/components/molecules/CheckboxField.svelte';
 	import { formatMoney } from '$lib/utils/money';
 
 	interface Props {
@@ -190,15 +191,12 @@
 									{formatMoney(variant.price_override ?? basePrice)}
 								</span>
 
-								<label class="flex items-center gap-2 text-xs">
-									<input
-										type="checkbox"
-										name="active"
-										checked={variant.active}
-										class="accent-primary size-4"
-									/>
-									Activa
-								</label>
+								<CheckboxField
+									id="variante-activa-{variant.id}"
+									name="active"
+									label="Activa"
+									checked={variant.active}
+								/>
 
 								<div class="ml-auto flex items-center gap-2">
 									<Button type="submit" size="sm" variant="outline">Guardar</Button>

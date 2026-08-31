@@ -67,26 +67,24 @@
 </header>
 
 <div class="mb-4 flex flex-wrap items-center gap-2">
-	<button
+	<Button
 		type="button"
-		class="border-border border px-3 py-1.5 text-xs {data.filters.status === null
-			? 'bg-primary text-primary-foreground'
-			: 'hover:bg-accent'}"
+		size="sm"
+		variant={data.filters.status === null ? 'default' : 'outline'}
 		onclick={() => setStatus(null)}
 	>
 		Todos
-	</button>
+	</Button>
 
 	{#each ORDER_STATUSES as status (status)}
-		<button
+		<Button
 			type="button"
-			class="border-border border px-3 py-1.5 text-xs {data.filters.status === status
-				? 'bg-primary text-primary-foreground'
-				: 'hover:bg-accent'}"
+			size="sm"
+			variant={data.filters.status === status ? 'default' : 'outline'}
 			onclick={() => setStatus(status)}
 		>
 			{ORDER_STATUS_LABEL[status]}
-		</button>
+		</Button>
 	{/each}
 
 	<form onsubmit={submitSearch} class="ml-auto flex gap-2">

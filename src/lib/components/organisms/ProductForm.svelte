@@ -10,6 +10,7 @@
 	import { Label } from '$lib/components/atoms/label';
 	import { Switch } from '$lib/components/atoms/switch';
 	import { Textarea } from '$lib/components/atoms/textarea';
+	import SelectField from '$lib/components/molecules/SelectField.svelte';
 	import { slugify } from '$lib/utils/slug';
 
 	interface ProductValues {
@@ -52,6 +53,11 @@
 	);
 	let slugTouched = $state(untrack(() => values.slug !== ''));
 	let submitting = $state(false);
+
+	const categoryOptions = $derived([
+		{ value: '', label: 'Sin categoría' },
+		...categories.map((category) => ({ value: category.id, label: category.name }))
+	]);
 
 	// El slug se deriva del nombre hasta que alguien lo escriba a mano.
 	$effect(() => {
@@ -117,31 +123,27 @@
 
 		<div class="space-y-2">
 			<Label for="categoryId">Categoría</Label>
-			<select
+			<SelectField
 				id="categoryId"
 				name="categoryId"
 				bind:value={form.categoryId}
-				class="border-border bg-background w-full border px-3 py-2 text-sm"
-			>
-				<option value="">Sin categoría</option>
-				{#each categories as category (category.id)}
-					<option value={category.id}>{category.name}</option>
-				{/each}
-			</select>
+				placeholder="Sin categoría"
+				options={categoryOptions}
+			/>
 		</div>
 
 		<div class="space-y-2">
 			<Label for="status">Estado</Label>
-			<select
+			<SelectField
 				id="status"
 				name="status"
 				bind:value={form.status}
-				class="border-border bg-background w-full border px-3 py-2 text-sm"
-			>
-				<option value="draft">Borrador</option>
-				<option value="active">Publicado</option>
-				<option value="archived">Archivado</option>
-			</select>
+				options={[
+					{ value: 'draft', label: 'Borrador' },
+					{ value: 'active', label: 'Publicado' },
+					{ value: 'archived', label: 'Archivado' }
+				]}
+			/>
 		</div>
 
 		<div class="space-y-2 sm:col-span-2">

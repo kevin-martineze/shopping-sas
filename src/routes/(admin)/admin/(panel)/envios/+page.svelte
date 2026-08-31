@@ -7,6 +7,8 @@
 	import { Button } from '$lib/components/atoms/button';
 	import { Input } from '$lib/components/atoms/input';
 	import { Label } from '$lib/components/atoms/label';
+	import CheckboxField from '$lib/components/molecules/CheckboxField.svelte';
+	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 
 	interface Props {
 		data: PageData;
@@ -27,9 +29,7 @@
 	</p>
 </header>
 
-{#if form?.error}
-	<p class="text-destructive mb-4 text-sm">{form.error}</p>
-{/if}
+<FormFeedback error={form?.error ?? null} />
 
 <section class="border-border bg-background mb-8 border p-6">
 	<h2 class="mb-4 text-lg">Nueva zona</h2>
@@ -50,9 +50,8 @@
 			<Input id="etaDays" name="etaDays" type="number" min="0" max="60" />
 		</div>
 
-		<div class="flex items-center gap-2 sm:col-span-4">
-			<input id="active" name="active" type="checkbox" checked class="accent-primary size-4" />
-			<Label for="active">Disponible en el carrito</Label>
+		<div class="sm:col-span-4">
+			<CheckboxField id="active" name="active" label="Disponible en el carrito" checked />
 		</div>
 
 		<div class="sm:col-span-4">
@@ -103,10 +102,14 @@
 				/>
 			</div>
 
-			<label class="flex items-center gap-2 pb-2 text-xs">
-				<input type="checkbox" name="active" checked={zone.active} class="accent-primary size-4" />
-				Activa
-			</label>
+			<div class="pb-2">
+				<CheckboxField
+					id="zona-activa-{zone.id}"
+					name="active"
+					label="Activa"
+					checked={zone.active}
+				/>
+			</div>
 
 			<div class="ml-auto flex gap-2">
 				<Button type="submit" size="sm" variant="outline">Guardar</Button>

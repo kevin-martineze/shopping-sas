@@ -10,6 +10,9 @@
 	import { Input } from '$lib/components/atoms/input';
 	import { Label } from '$lib/components/atoms/label';
 	import { Textarea } from '$lib/components/atoms/textarea';
+	import CheckboxField from '$lib/components/molecules/CheckboxField.svelte';
+	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
+	import SelectField from '$lib/components/molecules/SelectField.svelte';
 
 	interface Props {
 		data: PageData;
@@ -17,6 +20,10 @@
 	}
 
 	let { data, form }: Props = $props();
+
+	const productOptions = $derived(
+		data.products.map((product) => ({ value: product.id, label: product.name }))
+	);
 
 	function linksOf(collectionId: string) {
 		return data.links.filter((link) => link.collection_id === collectionId);
@@ -34,9 +41,7 @@
 	</p>
 </header>
 
-{#if form?.error}
-	<p class="text-destructive mb-4 text-sm">{form.error}</p>
-{/if}
+<FormFeedback error={form?.error ?? null} />
 
 <section class="border-border bg-background mb-8 border p-6">
 	<h2 class="mb-4 text-lg">Nueva colección</h2>
@@ -71,9 +76,8 @@
 			<Textarea id="description" name="description" rows={2} />
 		</div>
 
-		<div class="flex items-center gap-2 sm:col-span-2">
-			<input id="active" name="active" type="checkbox" checked class="accent-primary size-4" />
-			<Label for="active">Publicada</Label>
+		<div class="sm:col-span-2">
+			<CheckboxField id="active" name="active" label="Publicada" checked />
 		</div>
 
 		<div class="sm:col-span-2">
@@ -175,15 +179,13 @@
 
 						<div class="space-y-1">
 							<Label class="text-xs" for="product-{collection.id}">Prenda</Label>
-							<select
+							<SelectField
 								id="product-{collection.id}"
 								name="productId"
-								class="border-border bg-background border px-3 py-2 text-sm"
-							>
-								{#each data.products as product (product.id)}
-									<option value={product.id}>{product.name}</option>
-								{/each}
-							</select>
+								class="w-56"
+								placeholder="Elige una prenda"
+								options={productOptions}
+							/>
 						</div>
 
 						<div class="space-y-1">

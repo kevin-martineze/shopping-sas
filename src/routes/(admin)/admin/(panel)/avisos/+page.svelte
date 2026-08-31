@@ -7,6 +7,7 @@
 	import type { ActionData, PageData } from './$types';
 	import { Badge } from '$lib/components/atoms/badge';
 	import { Button } from '$lib/components/atoms/button';
+	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 
 	interface Props {
 		data: PageData;
@@ -32,9 +33,7 @@
 	</p>
 </header>
 
-{#if form?.error}
-	<p class="text-destructive mb-4 text-sm">{form.error}</p>
-{/if}
+<FormFeedback error={form?.error ?? null} />
 
 {#if pending.length === 0}
 	<p

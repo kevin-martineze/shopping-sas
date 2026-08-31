@@ -10,6 +10,8 @@
 	import { Button } from '$lib/components/atoms/button';
 	import { Input } from '$lib/components/atoms/input';
 	import { Label } from '$lib/components/atoms/label';
+	import CheckboxField from '$lib/components/molecules/CheckboxField.svelte';
+	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 
 	interface Props {
 		data: PageData;
@@ -53,11 +55,7 @@
 	</p>
 </header>
 
-{#if error}
-	<p class="text-destructive mb-4 text-sm">{error}</p>
-{:else if message}
-	<p class="text-success mb-4 text-sm">{message}</p>
-{/if}
+<FormFeedback {error} {message} />
 
 <div class="space-y-10">
 	<section class="space-y-4">
@@ -105,10 +103,9 @@
 				/>
 			</div>
 
-			<label class="flex items-center gap-2 pb-2 text-xs">
-				<input type="checkbox" name="active" checked class="accent-primary size-4" />
-				Visible
-			</label>
+			<div class="pb-2">
+				<CheckboxField id="nuevo-color" name="active" label="Visible" checked />
+			</div>
 
 			<Button type="submit" size="sm">Agregar color</Button>
 		</form>
@@ -145,15 +142,12 @@
 							aria-label="Orden"
 						/>
 
-						<label class="flex items-center gap-2 text-xs">
-							<input
-								type="checkbox"
-								name="active"
-								checked={color.active}
-								class="accent-primary size-4"
-							/>
-							Visible
-						</label>
+						<CheckboxField
+							id="color-visible-{color.id}"
+							name="active"
+							label="Visible"
+							checked={color.active}
+						/>
 
 						{#if !color.active}
 							<Badge variant="outline">
@@ -219,10 +213,9 @@
 				/>
 			</div>
 
-			<label class="flex items-center gap-2 pb-2 text-xs">
-				<input type="checkbox" name="active" checked class="accent-primary size-4" />
-				Visible
-			</label>
+			<div class="pb-2">
+				<CheckboxField id="nueva-talla" name="active" label="Visible" checked />
+			</div>
 
 			<Button type="submit" size="sm">Agregar talla</Button>
 		</form>
@@ -251,15 +244,12 @@
 							aria-label="Orden"
 						/>
 
-						<label class="flex items-center gap-2 text-xs">
-							<input
-								type="checkbox"
-								name="active"
-								checked={size.active}
-								class="accent-primary size-4"
-							/>
-							Visible
-						</label>
+						<CheckboxField
+							id="size-visible-{size.id}"
+							name="active"
+							label="Visible"
+							checked={size.active}
+						/>
 
 						{#if !size.active}
 							<Badge variant="outline">
@@ -320,10 +310,9 @@
 				/>
 			</div>
 
-			<label class="flex items-center gap-2 pb-2 text-xs">
-				<input type="checkbox" name="active" checked class="accent-primary size-4" />
-				Visible
-			</label>
+			<div class="pb-2">
+				<CheckboxField id="nueva-categoria" name="active" label="Visible" checked />
+			</div>
 
 			<Button type="submit" size="sm">Agregar categoría</Button>
 		</form>
@@ -356,15 +345,12 @@
 							aria-label="Orden"
 						/>
 
-						<label class="flex items-center gap-2 text-xs">
-							<input
-								type="checkbox"
-								name="active"
-								checked={category.active}
-								class="accent-primary size-4"
-							/>
-							Visible
-						</label>
+						<CheckboxField
+							id="cat-visible-{category.id}"
+							name="active"
+							label="Visible"
+							checked={category.active}
+						/>
 
 						{#if enUso > 0}
 							<Badge variant="secondary">{enUso} prendas</Badge>

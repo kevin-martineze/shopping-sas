@@ -9,6 +9,9 @@
 	import { Input } from '$lib/components/atoms/input';
 	import { Label } from '$lib/components/atoms/label';
 	import * as Table from '$lib/components/atoms/table';
+	import CheckboxField from '$lib/components/molecules/CheckboxField.svelte';
+	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
+	import SelectField from '$lib/components/molecules/SelectField.svelte';
 	import { formatMoney } from '$lib/utils/money';
 
 	interface Props {
@@ -34,9 +37,7 @@
 	</p>
 </header>
 
-{#if form?.error}
-	<p class="text-destructive mb-4 text-sm">{form.error}</p>
-{/if}
+<FormFeedback error={form?.error ?? null} />
 
 <section class="border-border bg-background mb-8 border p-6">
 	<h2 class="mb-4 text-lg">Nuevo cupón</h2>
@@ -49,15 +50,15 @@
 
 		<div class="space-y-2">
 			<Label for="type">Tipo</Label>
-			<select
+			<SelectField
 				id="type"
 				name="type"
 				bind:value={type}
-				class="border-border bg-background w-full border px-3 py-2 text-sm"
-			>
-				<option value="percent">Porcentaje</option>
-				<option value="fixed">Monto fijo</option>
-			</select>
+				options={[
+					{ value: 'percent', label: 'Porcentaje' },
+					{ value: 'fixed', label: 'Monto fijo' }
+				]}
+			/>
 		</div>
 
 		<div class="space-y-2">
@@ -87,9 +88,8 @@
 			<Input id="endsAt" name="endsAt" type="date" />
 		</div>
 
-		<div class="flex items-center gap-2 sm:col-span-3">
-			<input id="active" name="active" type="checkbox" checked class="accent-primary size-4" />
-			<Label for="active">Activo desde ya</Label>
+		<div class="sm:col-span-3">
+			<CheckboxField id="active" name="active" label="Activo desde ya" checked />
 		</div>
 
 		<div class="sm:col-span-3">

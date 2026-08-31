@@ -13,6 +13,8 @@
 	import * as Tabs from '$lib/components/atoms/tabs';
 	import ProductForm from '$lib/components/organisms/ProductForm.svelte';
 	import VariantMatrix from '$lib/components/organisms/VariantMatrix.svelte';
+	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
+	import SelectField from '$lib/components/molecules/SelectField.svelte';
 
 	interface Props {
 		data: PageData;
@@ -25,6 +27,11 @@
 	const images = $derived([...product.product_images].sort((a, b) => a.sort_order - b.sort_order));
 
 	let uploadColorId = $state('');
+
+	const colorOptions = $derived([
+		{ value: '', label: 'Todas' },
+		...data.colors.map((color) => ({ value: color.id, label: color.name }))
+	]);
 	let uploading = $state(false);
 </script>
 
@@ -50,9 +57,7 @@
 	</Button>
 </header>
 
-{#if form?.error}
-	<p class="text-destructive mb-4 text-sm">{form.error}</p>
-{/if}
+<FormFeedback error={form?.error ?? null} />
 
 <Tabs.Root value="datos">
 	<Tabs.List>
@@ -121,17 +126,14 @@
 
 				<div class="space-y-2">
 					<Label for="colorId">Color (opcional)</Label>
-					<select
+					<SelectField
 						id="colorId"
 						name="colorId"
 						bind:value={uploadColorId}
-						class="border-border bg-background border px-3 py-2 text-sm"
-					>
-						<option value="">Todas</option>
-						{#each data.colors as color (color.id)}
-							<option value={color.id}>{color.name}</option>
-						{/each}
-					</select>
+						class="w-44"
+						placeholder="Todas"
+						options={colorOptions}
+					/>
 				</div>
 
 				<Button type="submit" disabled={uploading}>

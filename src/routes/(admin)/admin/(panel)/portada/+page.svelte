@@ -11,6 +11,9 @@
 	import { Input } from '$lib/components/atoms/input';
 	import { Label } from '$lib/components/atoms/label';
 	import { Textarea } from '$lib/components/atoms/textarea';
+	import CheckboxField from '$lib/components/molecules/CheckboxField.svelte';
+	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
+	import SelectField from '$lib/components/molecules/SelectField.svelte';
 
 	interface Props {
 		data: PageData;
@@ -29,6 +32,11 @@
 		data.highlights.reduce((max, highlight) => Math.max(max, highlight.sort_order), 0) + 1
 	);
 
+	const collectionOptions = $derived([
+		{ value: '', label: 'Ninguna: usar mi propio título' },
+		...data.collections.map((collection) => ({ value: collection.id, label: collection.name }))
+	]);
+
 	const chosenCollection = $derived(
 		data.collections.find((collection) => collection.id === heroCollectionId) ?? null
 	);
@@ -46,11 +54,7 @@
 	</p>
 </header>
 
-{#if error}
-	<p class="text-destructive mb-4 text-sm">{error}</p>
-{:else if message}
-	<p class="text-success mb-4 text-sm">{message}</p>
-{/if}
+<FormFeedback {error} {message} />
 
 <section class="border-border bg-background mb-10 border p-6">
 	<h2 class="mb-1 text-xl">Imagen de arriba</h2>
@@ -62,17 +66,14 @@
 	<form method="POST" action="?/hero" class="space-y-5" use:enhance>
 		<div class="space-y-2">
 			<Label for="heroCollectionId">Colección destacada</Label>
-			<select
+			<SelectField
 				id="heroCollectionId"
 				name="heroCollectionId"
 				bind:value={heroCollectionId}
-				class="border-border bg-background w-full max-w-md border px-3 py-2 text-sm"
-			>
-				<option value="">Ninguna: usar mi propio título</option>
-				{#each data.collections as collection (collection.id)}
-					<option value={collection.id}>{collection.name}</option>
-				{/each}
-			</select>
+				class="max-w-md"
+				placeholder="Ninguna: usar mi propio título"
+				options={collectionOptions}
+			/>
 
 			{#if chosenCollection}
 				<div class="flex items-center gap-3 pt-1">
@@ -164,10 +165,7 @@
 		</div>
 
 		<div class="flex items-end gap-3 pb-1">
-			<label class="flex items-center gap-2 text-xs">
-				<input type="checkbox" name="active" checked class="accent-primary size-4" />
-				Visible
-			</label>
+			<CheckboxField id="nuevo-bloque-visible" name="active" label="Visible" checked />
 			<Button type="submit" size="sm">Agregar</Button>
 		</div>
 	</form>
@@ -216,15 +214,14 @@
 						/>
 					</div>
 
-					<label class="flex items-center gap-2 pb-2 text-xs">
-						<input
-							type="checkbox"
+					<div class="pb-2">
+						<CheckboxField
+							id="bloque-visible-{highlight.id}"
 							name="active"
+							label="Visible"
 							checked={highlight.active}
-							class="accent-primary size-4"
 						/>
-						Visible
-					</label>
+					</div>
 
 					<Button type="submit" size="sm" variant="outline">Guardar</Button>
 				</form>
