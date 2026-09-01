@@ -203,6 +203,53 @@
 }
 
 @layer utilities {
+	/*
+	 * Tablas de edición en móvil: cada fila se lee como una ficha, con el
+	 * nombre de la columna delante del dato. Una tabla con scroll horizontal
+	 * es inservible para editar desde el celular.
+	 */
+	@media (max-width: 767px) {
+		.table-stack thead {
+			display: none;
+		}
+
+		.table-stack tr {
+			display: block;
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			padding: 0.75rem;
+		}
+
+		.table-stack tr + tr {
+			margin-top: 0.75rem;
+		}
+
+		.table-stack td {
+			display: grid;
+			grid-template-columns: 6.5rem minmax(0, 1fr);
+			align-items: center;
+			gap: 0.75rem;
+			border: 0;
+			padding: 0.3rem 0;
+		}
+
+		.table-stack td::before {
+			content: attr(data-label);
+			color: var(--muted-foreground);
+			font-size: 0.75rem;
+		}
+
+		/* La celda de acciones no lleva etiqueta y ocupa toda la ficha. */
+		.table-stack td[data-label=''] {
+			display: block;
+			padding-top: 0.6rem;
+		}
+
+		.table-stack td[data-label='']::before {
+			content: none;
+		}
+	}
+
 	/* Reveal al hacer scroll — lo activa la action `use:reveal` */
 	.reveal {
 		opacity: 0;

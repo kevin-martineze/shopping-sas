@@ -66,7 +66,7 @@
 				</Card.Header>
 
 				<Card.Content>
-					<Table.Root>
+					<Table.Root class="table-stack">
 						<Table.Header>
 							<Table.Row>
 								<Table.Head class="w-10"></Table.Head>
@@ -81,7 +81,7 @@
 						<Table.Body>
 							{#each group.rows as row (row.id)}
 								<Table.Row>
-									<Table.Cell>
+									<Table.Cell data-label="">
 										<span
 											class="border-border block size-3.5 rounded-full border"
 											style="background-color: {row.colors?.hex ?? 'transparent'}"
@@ -89,20 +89,25 @@
 										></span>
 									</Table.Cell>
 
-									<Table.Cell class="text-sm">
+									<Table.Cell data-label="Color" class="text-sm">
 										{row.colors?.name ?? '—'}
 										{#if !row.active}
 											<span class="text-muted-foreground text-xs">· inactiva</span>
 										{/if}
 									</Table.Cell>
 
-									<Table.Cell class="text-sm font-medium">{row.sizes?.label ?? '—'}</Table.Cell>
+									<Table.Cell data-label="Talla" class="text-sm font-medium"
+										>{row.sizes?.label ?? '—'}</Table.Cell
+									>
 
-									<Table.Cell class="text-muted-foreground font-mono text-xs">
+									<Table.Cell
+										data-label="Referencia"
+										class="text-muted-foreground font-mono text-xs"
+									>
 										{row.sku ?? ''}
 									</Table.Cell>
 
-									<Table.Cell>
+									<Table.Cell data-label="Stock">
 										<NumberField
 											form="stock-{row.id}"
 											name="stock"
@@ -112,7 +117,7 @@
 										/>
 									</Table.Cell>
 
-									<Table.Cell>
+									<Table.Cell data-label="">
 										<Button type="submit" form="stock-{row.id}" size="sm" variant="outline">
 											Guardar
 										</Button>

@@ -70,7 +70,7 @@
 			<Button type="submit" size="sm">Agregar zona</Button>
 		</form>
 
-		<Table.Root>
+		<Table.Root class="table-stack">
 			<Table.Header>
 				<Table.Row>
 					<Table.Head>Zona</Table.Head>
@@ -85,11 +85,11 @@
 			<Table.Body>
 				{#each data.zones as zone (`${zone.id}:${zone.active}`)}
 					<Table.Row>
-						<Table.Cell>
+						<Table.Cell data-label="Zona">
 							<Input form="zona-{zone.id}" name="name" value={zone.name} aria-label="Nombre" />
 						</Table.Cell>
 
-						<Table.Cell>
+						<Table.Cell data-label="Costo">
 							<NumberField
 								form="zona-{zone.id}"
 								name="cost"
@@ -100,7 +100,7 @@
 							/>
 						</Table.Cell>
 
-						<Table.Cell>
+						<Table.Cell data-label="Días">
 							<NumberField
 								form="zona-{zone.id}"
 								name="etaDays"
@@ -110,7 +110,7 @@
 							/>
 						</Table.Cell>
 
-						<Table.Cell>
+						<Table.Cell data-label="Disponible">
 							<CheckboxField
 								id="zona-activa-{zone.id}"
 								form="zona-{zone.id}"
@@ -120,12 +120,12 @@
 							/>
 						</Table.Cell>
 
-						<Table.Cell class="text-muted-foreground text-xs">
+						<Table.Cell data-label="En la tienda" class="text-muted-foreground text-xs">
 							{zone.cost === 0 ? 'Gratis' : formatMoney(zone.cost)}
 							{zone.eta_days ? ` · ${zone.eta_days} días` : ''}
 						</Table.Cell>
 
-						<Table.Cell>
+						<Table.Cell data-label="">
 							<div class="flex items-center gap-1">
 								<Button type="submit" form="zona-{zone.id}" size="sm" variant="outline">
 									Guardar

@@ -55,13 +55,13 @@
 		<p class="text-muted-foreground text-sm">{data.products.length} prendas.</p>
 	</div>
 
-	<div class="flex items-center gap-2">
-		<form onsubmit={submitSearch} class="flex gap-2">
-			<Input bind:value={search} placeholder="Buscar prenda" class="w-48" />
+	<div class="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+		<form onsubmit={submitSearch} class="flex min-w-0 flex-1 gap-2 sm:flex-none">
+			<Input bind:value={search} placeholder="Buscar prenda" class="min-w-0 flex-1 sm:w-48" />
 			<Button type="submit" variant="outline">Buscar</Button>
 		</form>
 
-		<Button href="/admin/productos/nuevo">
+		<Button href="/admin/productos/nuevo" class="w-full sm:w-auto">
 			<Plus class="mr-2 size-4" />
 			Nueva prenda
 		</Button>
@@ -70,7 +70,7 @@
 
 {#if data.products.length === 0}
 	<div
-		class="border-border flex flex-col items-center gap-3 border border-dashed px-6 py-20 text-center"
+		class="border-border flex flex-col items-center gap-3 rounded-lg border border-dashed px-6 py-20 text-center"
 	>
 		<h2 class="text-xl">Todavía no hay prendas</h2>
 		<p class="text-muted-foreground max-w-sm text-sm">
@@ -80,7 +80,7 @@
 	</div>
 {:else}
 	<div class="border-border bg-background border">
-		<Table.Root>
+		<Table.Root class="table-stack">
 			<Table.Header>
 				<Table.Row>
 					<Table.Head class="w-16"></Table.Head>
@@ -99,7 +99,7 @@
 					)[0]}
 					{@const stock = totalStock(product.variants)}
 					<Table.Row>
-						<Table.Cell>
+						<Table.Cell data-label="">
 							{#if image}
 								<img src={image.url_thumb} alt="" class="bg-muted size-12 object-cover" />
 							{:else}
@@ -107,24 +107,26 @@
 							{/if}
 						</Table.Cell>
 
-						<Table.Cell>
+						<Table.Cell data-label="Prenda">
 							<a href="/admin/productos/{product.id}" class="font-medium">{product.name}</a>
 							<p class="text-muted-foreground text-xs">/{product.slug}</p>
 						</Table.Cell>
 
-						<Table.Cell class="text-muted-foreground text-sm">
+						<Table.Cell data-label="Categoría" class="text-muted-foreground text-sm">
 							{product.categories?.name ?? '—'}
 						</Table.Cell>
 
-						<Table.Cell class="tabular-nums">{formatMoney(product.base_price)}</Table.Cell>
+						<Table.Cell data-label="Precio" class="tabular-nums"
+							>{formatMoney(product.base_price)}</Table.Cell
+						>
 
-						<Table.Cell>
+						<Table.Cell data-label="Stock">
 							<span class={stock === 0 ? 'text-destructive' : stock <= 5 ? 'text-sale' : ''}>
 								{stock}
 							</span>
 						</Table.Cell>
 
-						<Table.Cell>
+						<Table.Cell data-label="Estado">
 							<Badge variant={product.status === 'active' ? 'secondary' : 'outline'}>
 								{statusLabel[product.status]}
 							</Badge>

@@ -154,7 +154,7 @@
 				</Card.Header>
 
 				<Card.Content>
-					<Table.Root>
+					<Table.Root class="table-stack">
 						<Table.Header>
 							<Table.Row>
 								<Table.Head class="w-20">Talla</Table.Head>
@@ -169,9 +169,11 @@
 						<Table.Body>
 							{#each group.rows as variant (`${variant.id}:${variant.active}`)}
 								<Table.Row>
-									<Table.Cell class="text-sm font-medium">{variant.sizes?.label ?? '—'}</Table.Cell>
+									<Table.Cell data-label="Talla" class="text-sm font-medium"
+										>{variant.sizes?.label ?? '—'}</Table.Cell
+									>
 
-									<Table.Cell>
+									<Table.Cell data-label="Stock">
 										<NumberField
 											form="variante-{variant.id}"
 											name="stock"
@@ -181,7 +183,7 @@
 										/>
 									</Table.Cell>
 
-									<Table.Cell>
+									<Table.Cell data-label="Precio propio">
 										<NumberField
 											form="variante-{variant.id}"
 											name="priceOverride"
@@ -192,11 +194,14 @@
 										/>
 									</Table.Cell>
 
-									<Table.Cell class="text-muted-foreground text-sm tabular-nums">
+									<Table.Cell
+										data-label="Se vende a"
+										class="text-muted-foreground text-sm tabular-nums"
+									>
 										{formatMoney(variant.price_override ?? basePrice)}
 									</Table.Cell>
 
-									<Table.Cell>
+									<Table.Cell data-label="Activa">
 										<CheckboxField
 											id="variante-activa-{variant.id}"
 											form="variante-{variant.id}"
@@ -206,7 +211,7 @@
 										/>
 									</Table.Cell>
 
-									<Table.Cell>
+									<Table.Cell data-label="">
 										<div class="flex items-center gap-1">
 											<Button
 												type="submit"

@@ -50,7 +50,7 @@
 			{#if pending.length === 0}
 				<p class="text-muted-foreground py-8 text-center text-sm">No hay avisos pendientes.</p>
 			{:else}
-				<Table.Root>
+				<Table.Root class="table-stack">
 					<Table.Header>
 						<Table.Row>
 							<Table.Head>Prenda</Table.Head>
@@ -64,7 +64,7 @@
 					<Table.Body>
 						{#each pending as request (request.id)}
 							<Table.Row>
-								<Table.Cell>
+								<Table.Cell data-label="Prenda">
 									<span class="block text-sm font-medium">
 										{request.variants?.products?.name ?? 'Prenda eliminada'}
 									</span>
@@ -73,13 +73,13 @@
 									</span>
 								</Table.Cell>
 
-								<Table.Cell class="text-sm">{request.contact}</Table.Cell>
+								<Table.Cell data-label="Contacto" class="text-sm">{request.contact}</Table.Cell>
 
-								<Table.Cell class="text-muted-foreground text-xs">
+								<Table.Cell data-label="Pedido el" class="text-muted-foreground text-xs">
 									{dateFormatter.format(new Date(request.created_at))}
 								</Table.Cell>
 
-								<Table.Cell>
+								<Table.Cell data-label="Estado">
 									{#if request.backInStock}
 										<Badge>Ya hay stock</Badge>
 									{:else}
@@ -87,7 +87,7 @@
 									{/if}
 								</Table.Cell>
 
-								<Table.Cell>
+								<Table.Cell data-label="">
 									<div class="flex items-center gap-1">
 										<Button
 											href={request.chatUrl}
@@ -123,7 +123,7 @@
 			</Card.Header>
 
 			<Card.Content>
-				<Table.Root>
+				<Table.Root class="table-stack">
 					<Table.Header>
 						<Table.Row>
 							<Table.Head>Prenda</Table.Head>
@@ -136,14 +136,16 @@
 					<Table.Body>
 						{#each done as request (request.id)}
 							<Table.Row>
-								<Table.Cell class="text-sm">
+								<Table.Cell data-label="Prenda" class="text-sm">
 									{request.variants?.products?.name ?? 'Prenda eliminada'}
 								</Table.Cell>
-								<Table.Cell class="text-muted-foreground text-sm">
+								<Table.Cell data-label="Talla" class="text-muted-foreground text-sm">
 									{request.variants?.sizes?.label ?? ''}
 								</Table.Cell>
-								<Table.Cell class="text-muted-foreground text-sm">{request.contact}</Table.Cell>
-								<Table.Cell class="text-muted-foreground text-xs">
+								<Table.Cell data-label="Contacto" class="text-muted-foreground text-sm"
+									>{request.contact}</Table.Cell
+								>
+								<Table.Cell data-label="Pedido el" class="text-muted-foreground text-xs">
 									{dateFormatter.format(new Date(request.created_at))}
 								</Table.Cell>
 							</Table.Row>

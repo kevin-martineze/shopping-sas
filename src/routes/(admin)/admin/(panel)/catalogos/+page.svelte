@@ -103,7 +103,7 @@
 				<Button type="submit" size="sm">Agregar color</Button>
 			</form>
 
-			<Table.Root>
+			<Table.Root class="table-stack">
 				<Table.Header>
 					<Table.Row>
 						<Table.Head class="w-32">Tono</Table.Head>
@@ -119,7 +119,7 @@
 					{#each data.colors as color (`${color.id}:${color.active}`)}
 						{@const enUso = usoColor(color.id)}
 						<Table.Row>
-							<Table.Cell>
+							<Table.Cell data-label="Tono">
 								<ColorField
 									id="tono-{color.id}"
 									name="hex"
@@ -128,7 +128,7 @@
 								/>
 							</Table.Cell>
 
-							<Table.Cell>
+							<Table.Cell data-label="Nombre">
 								<Input
 									form="color-{color.id}"
 									name="name"
@@ -137,7 +137,7 @@
 								/>
 							</Table.Cell>
 
-							<Table.Cell>
+							<Table.Cell data-label="Orden">
 								<NumberField
 									form="color-{color.id}"
 									name="sortOrder"
@@ -146,7 +146,7 @@
 								/>
 							</Table.Cell>
 
-							<Table.Cell>
+							<Table.Cell data-label="Visible">
 								<CheckboxField
 									id="color-visible-{color.id}"
 									form="color-{color.id}"
@@ -156,7 +156,7 @@
 								/>
 							</Table.Cell>
 
-							<Table.Cell class="text-muted-foreground text-xs">
+							<Table.Cell data-label="Uso" class="text-muted-foreground text-xs">
 								{#if !color.active}
 									<Badge variant="outline">
 										<EyeOff class="mr-1 size-3" />
@@ -169,7 +169,7 @@
 								{/if}
 							</Table.Cell>
 
-							<Table.Cell>
+							<Table.Cell data-label="">
 								<div class="flex items-center gap-1">
 									<Button type="submit" form="color-{color.id}" size="sm" variant="outline">
 										Guardar
@@ -230,7 +230,7 @@
 				<Button type="submit" size="sm">Agregar talla</Button>
 			</form>
 
-			<Table.Root>
+			<Table.Root class="table-stack">
 				<Table.Header>
 					<Table.Row>
 						<Table.Head>Talla</Table.Head>
@@ -245,7 +245,7 @@
 					{#each data.sizes as size (`${size.id}:${size.active}`)}
 						{@const enUso = usoTalla(size.id)}
 						<Table.Row>
-							<Table.Cell>
+							<Table.Cell data-label="Talla">
 								<Input
 									form="talla-{size.id}"
 									name="label"
@@ -255,7 +255,7 @@
 								/>
 							</Table.Cell>
 
-							<Table.Cell>
+							<Table.Cell data-label="Orden">
 								<NumberField
 									form="talla-{size.id}"
 									name="sortOrder"
@@ -264,7 +264,7 @@
 								/>
 							</Table.Cell>
 
-							<Table.Cell>
+							<Table.Cell data-label="Visible">
 								<CheckboxField
 									id="size-visible-{size.id}"
 									form="talla-{size.id}"
@@ -274,7 +274,7 @@
 								/>
 							</Table.Cell>
 
-							<Table.Cell class="text-muted-foreground text-xs">
+							<Table.Cell data-label="Uso" class="text-muted-foreground text-xs">
 								{#if !size.active}
 									<Badge variant="outline">
 										<EyeOff class="mr-1 size-3" />
@@ -287,7 +287,7 @@
 								{/if}
 							</Table.Cell>
 
-							<Table.Cell>
+							<Table.Cell data-label="">
 								<div class="flex items-center gap-1">
 									<Button type="submit" form="talla-{size.id}" size="sm" variant="outline">
 										Guardar
@@ -348,7 +348,7 @@
 				<Button type="submit" size="sm">Agregar categoría</Button>
 			</form>
 
-			<Table.Root>
+			<Table.Root class="table-stack">
 				<Table.Header>
 					<Table.Row>
 						<Table.Head>Nombre</Table.Head>
@@ -364,7 +364,7 @@
 					{#each data.categories as category (`${category.id}:${category.active}`)}
 						{@const enUso = usoCategoria(category.id)}
 						<Table.Row>
-							<Table.Cell>
+							<Table.Cell data-label="Nombre">
 								<Input
 									form="categoria-{category.id}"
 									name="name"
@@ -373,11 +373,11 @@
 								/>
 							</Table.Cell>
 
-							<Table.Cell class="text-muted-foreground font-mono text-xs">
+							<Table.Cell data-label="Enlace" class="text-muted-foreground font-mono text-xs">
 								/{category.slug}
 							</Table.Cell>
 
-							<Table.Cell>
+							<Table.Cell data-label="Orden">
 								<NumberField
 									form="categoria-{category.id}"
 									name="sortOrder"
@@ -386,7 +386,7 @@
 								/>
 							</Table.Cell>
 
-							<Table.Cell>
+							<Table.Cell data-label="Visible">
 								<CheckboxField
 									id="cat-visible-{category.id}"
 									form="categoria-{category.id}"
@@ -396,11 +396,11 @@
 								/>
 							</Table.Cell>
 
-							<Table.Cell class="text-muted-foreground text-xs">
+							<Table.Cell data-label="Uso" class="text-muted-foreground text-xs">
 								{enUso > 0 ? `${enUso} prendas` : 'sin usar'}
 							</Table.Cell>
 
-							<Table.Cell>
+							<Table.Cell data-label="">
 								<div class="flex items-center gap-1">
 									<Button type="submit" form="categoria-{category.id}" size="sm" variant="outline">
 										Guardar

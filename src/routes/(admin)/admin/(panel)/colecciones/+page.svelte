@@ -171,7 +171,7 @@
 
 				<Card.Content class="space-y-4">
 					{#if linksOf(collection.id).length > 0}
-						<Table.Root>
+						<Table.Root class="table-stack">
 							<Table.Header>
 								<Table.Row>
 									<Table.Head>Prenda</Table.Head>
@@ -183,9 +183,14 @@
 							<Table.Body>
 								{#each linksOf(collection.id) as link (link.product_id)}
 									<Table.Row>
-										<Table.Cell class="text-sm">{link.products?.name ?? 'Prenda'}</Table.Cell>
+										<Table.Cell data-label="Prenda" class="text-sm"
+											>{link.products?.name ?? 'Prenda'}</Table.Cell
+										>
 
-										<Table.Cell class="text-muted-foreground text-xs">
+										<Table.Cell
+											data-label="Etiqueta sobre la foto"
+											class="text-muted-foreground text-xs"
+										>
 											{#if link.hotspot_x !== null && link.hotspot_y !== null}
 												{link.hotspot_x}% / {link.hotspot_y}%
 											{:else}
@@ -193,7 +198,7 @@
 											{/if}
 										</Table.Cell>
 
-										<Table.Cell>
+										<Table.Cell data-label="">
 											<Button
 												type="submit"
 												form="quitar-{collection.id}-{link.product_id}"

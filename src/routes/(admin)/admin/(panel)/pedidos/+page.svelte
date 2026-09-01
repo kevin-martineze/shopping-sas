@@ -101,7 +101,7 @@
 	</p>
 {:else}
 	<div class="border-border bg-background border">
-		<Table.Root>
+		<Table.Root class="table-stack">
 			<Table.Header>
 				<Table.Row>
 					<Table.Head>Pedido</Table.Head>
@@ -115,22 +115,24 @@
 			<Table.Body>
 				{#each data.orders as order (order.id)}
 					<Table.Row>
-						<Table.Cell>
+						<Table.Cell data-label="Pedido">
 							<a href="/admin/pedidos/{order.id}" class="font-medium">#{order.number}</a>
 						</Table.Cell>
-						<Table.Cell>
+						<Table.Cell data-label="Clienta">
 							<span class="block">{order.customer_name}</span>
 							<span class="text-muted-foreground text-xs">{order.customer_phone}</span>
 						</Table.Cell>
-						<Table.Cell class="text-muted-foreground text-sm">
+						<Table.Cell data-label="Fecha" class="text-muted-foreground text-sm">
 							{dateFormatter.format(new Date(order.created_at))}
 						</Table.Cell>
-						<Table.Cell>
+						<Table.Cell data-label="Estado">
 							<Badge variant={order.status === 'cancelled' ? 'destructive' : 'secondary'}>
 								{ORDER_STATUS_LABEL[order.status]}
 							</Badge>
 						</Table.Cell>
-						<Table.Cell class="text-right tabular-nums">{formatMoney(order.total)}</Table.Cell>
+						<Table.Cell data-label="Total" class="text-right tabular-nums"
+							>{formatMoney(order.total)}</Table.Cell
+						>
 					</Table.Row>
 				{/each}
 			</Table.Body>

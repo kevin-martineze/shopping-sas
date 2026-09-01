@@ -187,7 +187,7 @@
 		</form>
 
 		{#if data.highlights.length > 0}
-			<Table.Root>
+			<Table.Root class="table-stack">
 				<Table.Header>
 					<Table.Row>
 						<Table.Head class="w-44">Etiqueta</Table.Head>
@@ -202,7 +202,7 @@
 				<Table.Body>
 					{#each data.highlights as highlight (`${highlight.id}:${highlight.active}`)}
 						<Table.Row>
-							<Table.Cell>
+							<Table.Cell data-label="Etiqueta">
 								<Input
 									form="bloque-{highlight.id}"
 									name="eyebrow"
@@ -211,7 +211,7 @@
 								/>
 							</Table.Cell>
 
-							<Table.Cell>
+							<Table.Cell data-label="Título">
 								<Input
 									form="bloque-{highlight.id}"
 									name="title"
@@ -220,7 +220,7 @@
 								/>
 							</Table.Cell>
 
-							<Table.Cell>
+							<Table.Cell data-label="Texto">
 								<Input
 									form="bloque-{highlight.id}"
 									name="body"
@@ -229,7 +229,7 @@
 								/>
 							</Table.Cell>
 
-							<Table.Cell>
+							<Table.Cell data-label="Orden">
 								<NumberField
 									form="bloque-{highlight.id}"
 									name="sortOrder"
@@ -239,7 +239,7 @@
 								/>
 							</Table.Cell>
 
-							<Table.Cell>
+							<Table.Cell data-label="Visible">
 								<CheckboxField
 									id="bloque-visible-{highlight.id}"
 									form="bloque-{highlight.id}"
@@ -249,7 +249,7 @@
 								/>
 							</Table.Cell>
 
-							<Table.Cell>
+							<Table.Cell data-label="">
 								<div class="flex items-center gap-1">
 									<Button type="submit" form="bloque-{highlight.id}" size="sm" variant="outline">
 										Guardar

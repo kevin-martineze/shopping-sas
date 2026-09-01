@@ -106,7 +106,7 @@
 	</p>
 {:else}
 	<div class="border-border bg-background border">
-		<Table.Root>
+		<Table.Root class="table-stack">
 			<Table.Header>
 				<Table.Row>
 					<Table.Head>Código</Table.Head>
@@ -121,30 +121,30 @@
 			<Table.Body>
 				{#each data.coupons as coupon (coupon.id)}
 					<Table.Row>
-						<Table.Cell>
+						<Table.Cell data-label="Código">
 							<span class="font-medium">{coupon.code}</span>
 							{#if !coupon.active}
 								<Badge variant="outline" class="ml-2">Inactivo</Badge>
 							{/if}
 						</Table.Cell>
 
-						<Table.Cell>
+						<Table.Cell data-label="Descuento">
 							{coupon.type === 'percent' ? `${coupon.value}%` : formatMoney(coupon.value)}
 						</Table.Cell>
 
-						<Table.Cell class="tabular-nums">
+						<Table.Cell data-label="Mínimo" class="tabular-nums">
 							{coupon.min_subtotal > 0 ? formatMoney(coupon.min_subtotal) : '—'}
 						</Table.Cell>
 
-						<Table.Cell class="tabular-nums">
+						<Table.Cell data-label="Usos" class="tabular-nums">
 							{coupon.uses}{coupon.max_uses ? ` / ${coupon.max_uses}` : ''}
 						</Table.Cell>
 
-						<Table.Cell class="text-muted-foreground text-sm">
+						<Table.Cell data-label="Vence" class="text-muted-foreground text-sm">
 							{coupon.ends_at ? dateFormatter.format(new Date(coupon.ends_at)) : '—'}
 						</Table.Cell>
 
-						<Table.Cell class="text-right">
+						<Table.Cell data-label="" class="text-right">
 							<div class="flex justify-end gap-1">
 								<form method="POST" action="?/alternar" use:enhance>
 									<input type="hidden" name="id" value={coupon.id} />
