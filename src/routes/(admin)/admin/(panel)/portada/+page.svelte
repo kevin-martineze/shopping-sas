@@ -37,6 +37,9 @@
 		...data.collections.map((collection) => ({ value: collection.id, label: collection.name }))
 	]);
 
+	/** Mismas columnas para la cabecera y cada fila, así todo queda alineado. */
+	const ROW = 'grid items-center gap-3 md:grid-cols-[9rem_13rem_minmax(0,1fr)_6rem_7rem_8rem]';
+
 	const chosenCollection = $derived(
 		data.collections.find((collection) => collection.id === heroCollectionId) ?? null
 	);
@@ -133,106 +136,118 @@
 		</span>
 	</div>
 
+	<!-- Alta: fondo distinto para que no se confunda con las filas existentes. -->
 	<form
 		method="POST"
 		action="?/crearBloque"
-		class="border-border bg-background grid gap-3 border p-4 md:grid-cols-[10rem_14rem_1fr_5rem_auto]"
+		class="border-border bg-muted/50 space-y-3 border p-4"
 		use:enhance
 	>
-		<div class="space-y-1">
-			<Label class="text-xs" for="new-eyebrow">Etiqueta</Label>
-			<Input id="new-eyebrow" name="eyebrow" required placeholder="Cambios" />
-		</div>
+		<p class="text-sm font-medium">Nuevo mensaje</p>
 
-		<div class="space-y-1">
-			<Label class="text-xs" for="new-title">Título</Label>
-			<Input id="new-title" name="title" required placeholder="Cambia sin problema" />
-		</div>
-
-		<div class="space-y-1">
-			<Label class="text-xs" for="new-body">Texto</Label>
+		<div class={ROW}>
+			<Input name="eyebrow" required placeholder="Cambios" aria-label="Etiqueta" />
+			<Input name="title" required placeholder="Cambia sin problema" aria-label="Título" />
 			<Input
-				id="new-body"
 				name="body"
 				required
 				placeholder="Tienes 8 días para cambiar tu prenda."
+				aria-label="Texto"
 			/>
-		</div>
-
-		<div class="space-y-1">
-			<Label class="text-xs" for="new-order">Orden</Label>
-			<Input id="new-order" name="sortOrder" type="number" min="0" max="999" value={nextOrder} />
-		</div>
-
-		<div class="flex items-end gap-3 pb-1">
+			<Input
+				name="sortOrder"
+				type="number"
+				min="0"
+				max="999"
+				value={nextOrder}
+				aria-label="Orden"
+			/>
 			<CheckboxField id="nuevo-bloque-visible" name="active" label="Visible" checked />
 			<Button type="submit" size="sm">Agregar</Button>
 		</div>
 	</form>
 
-	<div class="space-y-3">
-		{#each data.highlights as highlight (`${highlight.id}:${highlight.active}`)}
-			<div class="border-border bg-background flex flex-wrap items-end gap-3 border p-4">
-				<form
-					method="POST"
-					action="?/actualizarBloque"
-					class="flex flex-1 flex-wrap items-end gap-3"
-					use:enhance
-				>
-					<input type="hidden" name="id" value={highlight.id} />
+	{#if data.highlights.length > 0}
+		<div class="border-border bg-background border">
+			<!-- Los nombres de columna van una sola vez, no en cada fila. -->
+			<div
+				class="{ROW} border-border text-muted-foreground border-b px-4 py-2 text-xs tracking-wide uppercase"
+			>
+				<span>Etiqueta</span>
+				<span>Título</span>
+				<span>Texto</span>
+				<span>Orden</span>
+				<span>Visible</span>
+				<span></span>
+			</div>
 
-					<div class="space-y-1">
-						<Label class="text-xs" for="eyebrow-{highlight.id}">Etiqueta</Label>
+			<div class="divide-border divide-y">
+				{#each data.highlights as highlight (`${highlight.id}:${highlight.active}`)}
+					<div class="{ROW} px-4 py-3">
 						<Input
-							id="eyebrow-{highlight.id}"
+							form="bloque-{highlight.id}"
 							name="eyebrow"
 							value={highlight.eyebrow}
-							class="w-40"
+							aria-label="Etiqueta"
 						/>
-					</div>
-
-					<div class="space-y-1">
-						<Label class="text-xs" for="title-{highlight.id}">Título</Label>
-						<Input id="title-{highlight.id}" name="title" value={highlight.title} class="w-56" />
-					</div>
-
-					<div class="min-w-64 flex-1 space-y-1">
-						<Label class="text-xs" for="body-{highlight.id}">Texto</Label>
-						<Input id="body-{highlight.id}" name="body" value={highlight.body} />
-					</div>
-
-					<div class="space-y-1">
-						<Label class="text-xs" for="order-{highlight.id}">Orden</Label>
 						<Input
-							id="order-{highlight.id}"
+							form="bloque-{highlight.id}"
+							name="title"
+							value={highlight.title}
+							aria-label="Título"
+						/>
+						<Input
+							form="bloque-{highlight.id}"
+							name="body"
+							value={highlight.body}
+							aria-label="Texto"
+						/>
+						<Input
+							form="bloque-{highlight.id}"
 							name="sortOrder"
 							type="number"
 							min="0"
 							max="999"
 							value={highlight.sort_order}
-							class="w-20"
+							aria-label="Orden"
 						/>
-					</div>
 
-					<div class="pb-2">
 						<CheckboxField
 							id="bloque-visible-{highlight.id}"
+							form="bloque-{highlight.id}"
 							name="active"
 							label="Visible"
 							checked={highlight.active}
 						/>
+
+						<div class="flex items-center gap-1">
+							<Button type="submit" form="bloque-{highlight.id}" size="sm" variant="outline">
+								Guardar
+							</Button>
+
+							<Button
+								type="submit"
+								form="borrar-bloque-{highlight.id}"
+								size="sm"
+								variant="ghost"
+								class="text-destructive"
+								aria-label="Borrar mensaje"
+							>
+								<Trash2 class="size-3" />
+							</Button>
+						</div>
 					</div>
 
-					<Button type="submit" size="sm" variant="outline">Guardar</Button>
-				</form>
+					<!-- Los formularios viven fuera de la grilla para no romper la alineación. -->
+					<form id="bloque-{highlight.id}" method="POST" action="?/actualizarBloque" use:enhance>
+						<input type="hidden" name="id" value={highlight.id} />
+					</form>
 
-				<form method="POST" action="?/borrarBloque" use:enhance>
-					<input type="hidden" name="id" value={highlight.id} />
-					<Button type="submit" size="sm" variant="ghost" class="text-destructive">
-						<Trash2 class="size-3" />
-					</Button>
-				</form>
+					<form id="borrar-bloque-{highlight.id}" method="POST" action="?/borrarBloque" use:enhance>
+						<input type="hidden" name="id" value={highlight.id} />
+					</form>
+				{/each}
 			</div>
-		{/each}
-	</div>
+		</div>
+	{/if}
 </section>
