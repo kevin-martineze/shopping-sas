@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Check from '@lucide/svelte/icons/check';
+
 	import { Button } from '$lib/components/atoms/button';
 	import { Input } from '$lib/components/atoms/input';
 	import { Label } from '$lib/components/atoms/label';
@@ -17,7 +19,7 @@
 
 	let {
 		name,
-		value = $bindable('#c9c2b6'),
+		value = $bindable('#C9C2B6'),
 		id,
 		form,
 		label = 'Tono',
@@ -26,19 +28,42 @@
 
 	let open = $state(false);
 
-	/** Tonos frecuentes en ropa, para no pelear con el selector del sistema. */
-	const SUGERIDOS = [
+	/**
+	 * Neutros arriba porque son la base de casi cualquier prenda, y debajo la
+	 * rejilla de color con cinco luminosidades por matiz.
+	 */
+	const NEUTROS = [
 		'#FFFFFF',
-		'#EFE7DA',
-		'#D8C3A5',
-		'#C9C2B6',
-		'#B85C38',
-		'#6B705C',
-		'#2C3E50',
-		'#141414'
+		'#F5F5F4',
+		'#E7E5E4',
+		'#D6D3D1',
+		'#A8A29E',
+		'#78716C',
+		'#57534E',
+		'#292524',
+		'#141414',
+		'#000000'
+	];
+
+	const MATICES = [
+		['#FEE2E2', '#FCA5A5', '#EF4444', '#B91C1C', '#7F1D1D'],
+		['#FFEDD5', '#FDBA74', '#F97316', '#C2410C', '#7C2D12'],
+		['#FEF3C7', '#FCD34D', '#F59E0B', '#B45309', '#78350F'],
+		['#ECFCCB', '#BEF264', '#84CC16', '#4D7C0F', '#365314'],
+		['#DCFCE7', '#86EFAC', '#22C55E', '#15803D', '#14532D'],
+		['#CCFBF1', '#5EEAD4', '#14B8A6', '#0F766E', '#134E4A'],
+		['#DBEAFE', '#93C5FD', '#3B82F6', '#1D4ED8', '#1E3A8A'],
+		['#E0E7FF', '#A5B4FC', '#6366F1', '#4338CA', '#312E81'],
+		['#F3E8FF', '#D8B4FE', '#A855F7', '#7E22CE', '#581C87'],
+		['#FCE7F3', '#F9A8D4', '#EC4899', '#BE185D', '#831843'],
+		['#F5F0E6', '#E8DCC8', '#D8C3A5', '#A98E6B', '#6B5641']
 	];
 
 	const hex = $derived(value.toUpperCase());
+
+	function elegir(tono: string) {
+		value = tono;
+	}
 </script>
 
 <Popover.Root bind:open>
@@ -54,43 +79,75 @@
 		<span class="text-muted-foreground font-mono text-xs">{hex}</span>
 	</Popover.Trigger>
 
-	<Popover.Content class="w-60 space-y-3">
-		<div class="grid grid-cols-8 gap-1.5">
-			{#each SUGERIDOS as tono (tono)}
-				<button
-					type="button"
-					class={cn(
-						'border-border size-6 rounded-sm border transition-transform hover:scale-110',
-						hex === tono && 'ring-ring ring-2 ring-offset-2'
-					)}
-					style="background-color: {tono}"
-					onclick={() => (value = tono)}
-					aria-label="Usar {tono}"
-				></button>
-			{/each}
+	<Popover.Content class="w-auto space-y-3">
+		<div class="space-y-1.5">
+			<p class="text-muted-foreground text-xs">Neutros</p>
+			<div class="flex gap-1">
+				{#each NEUTROS as tono (tono)}
+					<button
+						type="button"
+						class={cn(
+							'border-border grid size-6 place-items-center rounded-sm border transition-transform hover:scale-110',
+							hex === tono && 'ring-ring ring-2 ring-offset-1'
+						)}
+						style="background-color: {tono}"
+						onclick={() => elegir(tono)}
+						aria-label="Usar {tono}"
+					>
+						{#if hex === tono}
+							<Check class="size-3" style="color: {tono === '#FFFFFF' ? '#000' : '#fff'}" />
+						{/if}
+					</button>
+				{/each}
+			</div>
 		</div>
 
-		<div class="space-y-1">
-			<Label class="text-xs" for="{id}-hex">Otro tono</Label>
+		<div class="space-y-1.5">
+			<p class="text-muted-foreground text-xs">Color</p>
+			<div class="flex gap-1">
+				{#each MATICES as columna, indice (indice)}
+					<div class="flex flex-col gap-1">
+						{#each columna as tono (tono)}
+							<button
+								type="button"
+								class={cn(
+									'border-border grid size-6 place-items-center rounded-sm border transition-transform hover:scale-110',
+									hex === tono && 'ring-ring ring-2 ring-offset-1'
+								)}
+								style="background-color: {tono}"
+								onclick={() => elegir(tono)}
+								aria-label="Usar {tono}"
+							>
+								{#if hex === tono}
+									<Check class="size-3 text-white mix-blend-difference" />
+								{/if}
+							</button>
+						{/each}
+					</div>
+				{/each}
+			</div>
+		</div>
+
+		<div class="border-border space-y-1.5 border-t pt-3">
+			<Label class="text-xs" for="{id}-hex">Tono exacto</Label>
 			<div class="flex items-center gap-2">
 				<input
 					id="{id}-picker"
 					type="color"
 					bind:value
 					class="border-input size-9 cursor-pointer rounded-md border bg-transparent"
-					aria-label="Elegir tono personalizado"
+					aria-label="Abrir el selector completo"
 				/>
 				<Input
 					id="{id}-hex"
 					bind:value
-					class="font-mono uppercase"
+					class="w-28 font-mono uppercase"
 					maxlength={7}
 					aria-label="Código del tono"
 				/>
+				<Button type="button" size="sm" onclick={() => (open = false)}>Listo</Button>
 			</div>
 		</div>
-
-		<Button type="button" size="sm" class="w-full" onclick={() => (open = false)}>Listo</Button>
 	</Popover.Content>
 </Popover.Root>
 
