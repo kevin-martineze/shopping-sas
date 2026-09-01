@@ -7,11 +7,17 @@
 	interface Props {
 		images: ProductImageType[];
 		productName: string;
+		/** Slug de la prenda: nombra la transición compartida con la grilla. */
+		productSlug?: string;
 		/** Al elegir color se salta a la primera foto de ese color. */
 		activeColorId: string | null;
 	}
 
-	let { images, productName, activeColorId }: Props = $props();
+	let { images, productName, productSlug, activeColorId }: Props = $props();
+
+	const transitionName = $derived(
+		productSlug ? `prenda-${productSlug.replace(/[^a-z0-9]/g, '-')}` : 'none'
+	);
 
 	// Fotos del color elegido; si ese color no tiene fotos propias, se muestran todas.
 	const visible = $derived.by(() => {
@@ -52,7 +58,7 @@
 		</div>
 	{/if}
 
-	<div class="order-1 md:order-2">
+	<div class="order-1 md:order-2" style="view-transition-name: {transitionName}">
 		{#if current}
 			<ProductImage
 				src={current.url_full}

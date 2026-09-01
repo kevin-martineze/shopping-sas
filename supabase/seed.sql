@@ -143,7 +143,7 @@ join (values
 	('vestido-midi-alba', 'arena', 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop', 1),
 	('pantalon-sastre-noa', 'negro', 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop', 0),
 	('pantalon-sastre-noa', 'negro', 'https://images.unsplash.com/photo-1552902865-b72c031ac5ea?auto=format&fit=crop', 1),
-	('falda-plisada-ines', 'terracota', 'https://images.unsplash.com/photo-1583496661160-fb5886a13d77?auto=format&fit=crop', 0),
+	('falda-plisada-ines', 'terracota', 'https://images.unsplash.com/photo-1551163943-3f6a855d1153?auto=format&fit=crop', 0),
 	('abrigo-lana-mira', 'arena', 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?auto=format&fit=crop', 0),
 	('abrigo-lana-mira', 'indigo', 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop', 1),
 	('blusa-seda-lena', 'crudo', 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop', 0)

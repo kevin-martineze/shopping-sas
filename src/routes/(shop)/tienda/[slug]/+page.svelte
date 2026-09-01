@@ -142,6 +142,7 @@
 		<ProductGallery
 			images={product.images}
 			productName={product.name}
+			productSlug={product.slug}
 			activeColorId={selectedColorId}
 		/>
 

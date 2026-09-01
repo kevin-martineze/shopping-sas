@@ -31,6 +31,25 @@
 
 	const currentPath = $derived(page.url.pathname);
 
+	let hidden = $state(false);
+
+	/**
+	 * Al bajar, el header se retira para dejar ver la foto; al subir vuelve.
+	 * Se ignora cerca del borde superior para que no parpadee.
+	 */
+	$effect(() => {
+		let last = window.scrollY;
+
+		function onScroll() {
+			const current = window.scrollY;
+			hidden = current > 120 && current > last && !menuOpen && !searchOpen;
+			last = current;
+		}
+
+		window.addEventListener('scroll', onScroll, { passive: true });
+		return () => window.removeEventListener('scroll', onScroll);
+	});
+
 	function submitSearch(event: SubmitEvent) {
 		event.preventDefault();
 
@@ -47,7 +66,12 @@
 	</div>
 {/if}
 
-<header class="bg-background/95 border-border sticky top-0 z-40 border-b backdrop-blur">
+<header
+	class={cn(
+		'bg-background/95 border-border sticky top-0 z-40 border-b backdrop-blur transition-transform duration-500 ease-[var(--ease-editorial)]',
+		hidden && '-translate-y-full'
+	)}
+>
 	<div class="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6">
 		<Button
 			type="button"

@@ -7,6 +7,7 @@
 	import PriceTag from '$lib/components/molecules/PriceTag.svelte';
 	import { favorites } from '$lib/stores/favorites.svelte';
 	import { cn } from '$lib/utils';
+	import { discountPercent } from '$lib/utils/money';
 
 	interface Props {
 		product: ProductCard;
@@ -18,11 +19,15 @@
 	const primary = $derived(product.images.at(0));
 	const secondary = $derived(product.images.at(1));
 	const isFavorite = $derived(favorites.has(product.slug));
+	const percent = $derived(discountPercent(product.price, product.compareAtPrice));
 </script>
 
 <article class="group relative">
 	<a href="/tienda/{product.slug}" class="block focus-visible:outline-none">
-		<div class="relative overflow-hidden">
+		<div
+			class="relative overflow-hidden"
+			style="view-transition-name: prenda-{product.slug.replace(/[^a-z0-9]/g, '-')}"
+		>
 			{#if primary}
 				<ProductImage
 					src={primary.url_card}
@@ -48,11 +53,28 @@
 
 			{#if !product.inStock}
 				<span
-					class="bg-background/90 text-foreground absolute top-3 left-3 px-2 py-1 text-[11px] tracking-wide uppercase"
+					class="bg-background/90 text-foreground absolute top-3 left-3 rounded-full px-3 py-1 text-[11px] tracking-wide uppercase"
 				>
 					Agotado
 				</span>
+			{:else if percent !== null}
+				<span
+					class="bg-sale text-sale-foreground absolute top-3 left-3 rounded-full px-3 py-1 text-[11px] font-medium tracking-wide"
+				>
+					-{percent}%
+				</span>
 			{/if}
+
+			<!-- Aparece al pasar el cursor: invita a entrar sin tapar la foto. -->
+			<div
+				class="pointer-events-none absolute inset-x-3 bottom-3 translate-y-2 opacity-0 transition-all duration-500 ease-[var(--ease-editorial)] group-hover:translate-y-0 group-hover:opacity-100"
+			>
+				<span
+					class="bg-background/95 text-foreground block rounded-full px-4 py-2 text-center text-xs font-medium backdrop-blur"
+				>
+					Ver prenda
+				</span>
+			</div>
 		</div>
 
 		<div class="mt-3 space-y-1">
