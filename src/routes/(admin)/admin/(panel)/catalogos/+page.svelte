@@ -7,10 +7,14 @@
 	import type { ActionData, PageData } from './$types';
 	import { Badge } from '$lib/components/atoms/badge';
 	import { Button } from '$lib/components/atoms/button';
+	import * as Card from '$lib/components/atoms/card';
 	import { Input } from '$lib/components/atoms/input';
 	import { Label } from '$lib/components/atoms/label';
+	import * as Table from '$lib/components/atoms/table';
 	import CheckboxField from '$lib/components/molecules/CheckboxField.svelte';
+	import ColorField from '$lib/components/molecules/ColorField.svelte';
 	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
+	import NumberField from '$lib/components/molecules/NumberField.svelte';
 
 	interface Props {
 		data: PageData;
@@ -19,20 +23,8 @@
 
 	let { data, form }: Props = $props();
 
-	let newColorHex = $state('#c9c2b6');
-
 	const message = $derived(form && 'message' in form ? form.message : null);
 	const error = $derived(form && 'error' in form ? form.error : null);
-
-	/**
-	 * Mismas columnas para la cabecera y para cada fila: si cambian aquí, la
-	 * lista entera sigue alineada.
-	 */
-	const COLOR_ROW =
-		'grid items-center gap-3 md:grid-cols-[2.5rem_minmax(0,1fr)_5rem_7rem_8rem_8rem]';
-	const SIZE_ROW = 'grid items-center gap-3 md:grid-cols-[minmax(0,1fr)_5rem_7rem_8rem_8rem]';
-	const CATEGORY_ROW =
-		'grid items-center gap-3 md:grid-cols-[minmax(0,1fr)_9rem_5rem_7rem_8rem_8rem]';
 
 	/** El siguiente lugar libre, para que dos filas no compartan orden. */
 	function nextOrder(rows: { sort_order: number }[]): number {
@@ -66,49 +58,41 @@
 
 <FormFeedback {error} {message} />
 
-<div class="space-y-12">
-	<section class="space-y-3">
-		<div class="flex items-baseline justify-between gap-3">
-			<h2 class="text-xl">Colores</h2>
-			<span class="text-muted-foreground text-xs">{data.colors.length} en total</span>
-		</div>
+<div class="space-y-8">
+	<Card.Root>
+		<Card.Header>
+			<div class="flex items-center justify-between gap-3">
+				<div>
+					<Card.Title>Colores</Card.Title>
+					<Card.Description>{data.colors.length} en el catálogo</Card.Description>
+				</div>
+			</div>
+		</Card.Header>
 
-		<!-- El alta va sobre fondo distinto para no confundirse con las filas. -->
-		<form
-			method="POST"
-			action="?/crearColor"
-			class="border-border bg-muted/50 space-y-3 border p-4"
-			use:enhance
-		>
-			<p class="text-sm font-medium">Nuevo color</p>
-
-			<div class="flex flex-wrap items-end gap-3">
-				<div class="space-y-1">
+		<Card.Content class="space-y-4">
+			<form
+				method="POST"
+				action="?/crearColor"
+				class="bg-muted/50 flex flex-wrap items-end gap-3 rounded-lg p-4"
+				use:enhance
+			>
+				<div class="space-y-1.5">
 					<Label class="text-xs" for="color-hex">Tono</Label>
-					<input
-						id="color-hex"
-						name="hex"
-						type="color"
-						bind:value={newColorHex}
-						class="border-border block size-9 cursor-pointer border bg-transparent"
-					/>
+					<ColorField id="color-hex" name="hex" />
 				</div>
 
-				<div class="space-y-1">
+				<div class="space-y-1.5">
 					<Label class="text-xs" for="color-name">Nombre</Label>
 					<Input id="color-name" name="name" required placeholder="Verde menta" class="w-52" />
 				</div>
 
-				<div class="space-y-1">
+				<div class="space-y-1.5">
 					<Label class="text-xs" for="color-order">Orden</Label>
-					<Input
+					<NumberField
 						id="color-order"
 						name="sortOrder"
-						type="number"
-						min="0"
-						max="999"
 						value={nextOrder(data.colors)}
-						class="w-20"
+						class="w-32"
 					/>
 				</div>
 
@@ -117,137 +101,125 @@
 				</div>
 
 				<Button type="submit" size="sm">Agregar color</Button>
-			</div>
-		</form>
+			</form>
 
-		<div class="border-border bg-background border">
-			<!-- Los nombres de columna van una vez, no repetidos en cada fila. -->
-			<div
-				class="{COLOR_ROW} border-border text-muted-foreground border-b px-4 py-2 text-xs tracking-wide uppercase"
+			<Table.Root>
+				<Table.Header>
+					<Table.Row>
+						<Table.Head class="w-32">Tono</Table.Head>
+						<Table.Head>Nombre</Table.Head>
+						<Table.Head class="w-36">Orden</Table.Head>
+						<Table.Head class="w-28">Visible</Table.Head>
+						<Table.Head class="w-32">Uso</Table.Head>
+						<Table.Head class="w-32"></Table.Head>
+					</Table.Row>
+				</Table.Header>
+
+				<Table.Body>
+					{#each data.colors as color (`${color.id}:${color.active}`)}
+						{@const enUso = usoColor(color.id)}
+						<Table.Row>
+							<Table.Cell>
+								<ColorField
+									id="tono-{color.id}"
+									name="hex"
+									form="color-{color.id}"
+									value={color.hex}
+								/>
+							</Table.Cell>
+
+							<Table.Cell>
+								<Input
+									form="color-{color.id}"
+									name="name"
+									value={color.name}
+									aria-label="Nombre del color"
+								/>
+							</Table.Cell>
+
+							<Table.Cell>
+								<NumberField
+									form="color-{color.id}"
+									name="sortOrder"
+									value={color.sort_order}
+									aria-label="Orden"
+								/>
+							</Table.Cell>
+
+							<Table.Cell>
+								<CheckboxField
+									id="color-visible-{color.id}"
+									form="color-{color.id}"
+									name="active"
+									label="Visible"
+									checked={color.active}
+								/>
+							</Table.Cell>
+
+							<Table.Cell class="text-muted-foreground text-xs">
+								{#if !color.active}
+									<Badge variant="outline">
+										<EyeOff class="mr-1 size-3" />
+										Oculto
+									</Badge>
+								{:else if enUso > 0}
+									{enUso} variantes
+								{:else}
+									sin usar
+								{/if}
+							</Table.Cell>
+
+							<Table.Cell>
+								<div class="flex items-center gap-1">
+									<Button type="submit" form="color-{color.id}" size="sm" variant="outline">
+										Guardar
+									</Button>
+
+									<Button
+										type="submit"
+										form="borrar-color-{color.id}"
+										size="sm"
+										variant="ghost"
+										class="text-destructive"
+										title={enUso > 0 ? 'Está en uso: se ocultará' : 'Borrar'}
+										aria-label="Borrar {color.name}"
+									>
+										<Trash2 class="size-3" />
+									</Button>
+								</div>
+							</Table.Cell>
+						</Table.Row>
+					{/each}
+				</Table.Body>
+			</Table.Root>
+		</Card.Content>
+	</Card.Root>
+
+	<Card.Root>
+		<Card.Header>
+			<Card.Title>Tallas</Card.Title>
+			<Card.Description>El orden manda sobre el alfabético: así XL queda tras L.</Card.Description>
+		</Card.Header>
+
+		<Card.Content class="space-y-4">
+			<form
+				method="POST"
+				action="?/crearTalla"
+				class="bg-muted/50 flex flex-wrap items-end gap-3 rounded-lg p-4"
+				use:enhance
 			>
-				<span>Tono</span>
-				<span>Nombre</span>
-				<span>Orden</span>
-				<span>Visible</span>
-				<span>Uso</span>
-				<span></span>
-			</div>
-
-			<div class="divide-border divide-y">
-				{#each data.colors as color (`${color.id}:${color.active}`)}
-					{@const enUso = usoColor(color.id)}
-					<div class="{COLOR_ROW} px-4 py-3">
-						<input
-							form="color-{color.id}"
-							name="hex"
-							type="color"
-							value={color.hex}
-							class="border-border block size-8 cursor-pointer border bg-transparent"
-							aria-label="Tono de {color.name}"
-						/>
-
-						<Input
-							form="color-{color.id}"
-							name="name"
-							value={color.name}
-							aria-label="Nombre del color"
-						/>
-
-						<Input
-							form="color-{color.id}"
-							name="sortOrder"
-							type="number"
-							min="0"
-							max="999"
-							value={color.sort_order}
-							aria-label="Orden"
-						/>
-
-						<CheckboxField
-							id="color-visible-{color.id}"
-							form="color-{color.id}"
-							name="active"
-							label="Visible"
-							checked={color.active}
-						/>
-
-						<span class="text-muted-foreground text-xs">
-							{#if !color.active}
-								<Badge variant="outline">
-									<EyeOff class="mr-1 size-3" />
-									Oculto
-								</Badge>
-							{:else if enUso > 0}
-								{enUso} variantes
-							{:else}
-								sin usar
-							{/if}
-						</span>
-
-						<div class="flex items-center gap-1">
-							<Button type="submit" form="color-{color.id}" size="sm" variant="outline">
-								Guardar
-							</Button>
-
-							<Button
-								type="submit"
-								form="borrar-color-{color.id}"
-								size="sm"
-								variant="ghost"
-								class="text-destructive"
-								title={enUso > 0 ? 'Está en uso: se ocultará' : 'Borrar'}
-								aria-label="Borrar {color.name}"
-							>
-								<Trash2 class="size-3" />
-							</Button>
-						</div>
-					</div>
-
-					<!-- Los formularios viven fuera de la grilla para no romper la alineación. -->
-					<form id="color-{color.id}" method="POST" action="?/actualizarColor" use:enhance>
-						<input type="hidden" name="id" value={color.id} />
-					</form>
-
-					<form id="borrar-color-{color.id}" method="POST" action="?/borrarColor" use:enhance>
-						<input type="hidden" name="id" value={color.id} />
-					</form>
-				{/each}
-			</div>
-		</div>
-	</section>
-
-	<section class="space-y-3">
-		<div class="flex items-baseline justify-between gap-3">
-			<h2 class="text-xl">Tallas</h2>
-			<span class="text-muted-foreground text-xs">
-				El orden manda sobre el alfabético: así XL queda después de L.
-			</span>
-		</div>
-
-		<form
-			method="POST"
-			action="?/crearTalla"
-			class="border-border bg-muted/50 space-y-3 border p-4"
-			use:enhance
-		>
-			<p class="text-sm font-medium">Nueva talla</p>
-
-			<div class="flex flex-wrap items-end gap-3">
-				<div class="space-y-1">
+				<div class="space-y-1.5">
 					<Label class="text-xs" for="size-label">Talla</Label>
 					<Input id="size-label" name="label" required placeholder="XXL" class="w-28 uppercase" />
 				</div>
 
-				<div class="space-y-1">
+				<div class="space-y-1.5">
 					<Label class="text-xs" for="size-order">Orden</Label>
-					<Input
+					<NumberField
 						id="size-order"
 						name="sortOrder"
-						type="number"
-						min="0"
-						max="999"
 						value={nextOrder(data.sizes)}
-						class="w-20"
+						class="w-32"
 					/>
 				</div>
 
@@ -256,124 +228,116 @@
 				</div>
 
 				<Button type="submit" size="sm">Agregar talla</Button>
-			</div>
-		</form>
+			</form>
 
-		<div class="border-border bg-background border">
-			<div
-				class="{SIZE_ROW} border-border text-muted-foreground border-b px-4 py-2 text-xs tracking-wide uppercase"
+			<Table.Root>
+				<Table.Header>
+					<Table.Row>
+						<Table.Head>Talla</Table.Head>
+						<Table.Head class="w-36">Orden</Table.Head>
+						<Table.Head class="w-28">Visible</Table.Head>
+						<Table.Head class="w-32">Uso</Table.Head>
+						<Table.Head class="w-32"></Table.Head>
+					</Table.Row>
+				</Table.Header>
+
+				<Table.Body>
+					{#each data.sizes as size (`${size.id}:${size.active}`)}
+						{@const enUso = usoTalla(size.id)}
+						<Table.Row>
+							<Table.Cell>
+								<Input
+									form="talla-{size.id}"
+									name="label"
+									value={size.label}
+									class="uppercase"
+									aria-label="Talla"
+								/>
+							</Table.Cell>
+
+							<Table.Cell>
+								<NumberField
+									form="talla-{size.id}"
+									name="sortOrder"
+									value={size.sort_order}
+									aria-label="Orden"
+								/>
+							</Table.Cell>
+
+							<Table.Cell>
+								<CheckboxField
+									id="size-visible-{size.id}"
+									form="talla-{size.id}"
+									name="active"
+									label="Visible"
+									checked={size.active}
+								/>
+							</Table.Cell>
+
+							<Table.Cell class="text-muted-foreground text-xs">
+								{#if !size.active}
+									<Badge variant="outline">
+										<EyeOff class="mr-1 size-3" />
+										Oculta
+									</Badge>
+								{:else if enUso > 0}
+									{enUso} variantes
+								{:else}
+									sin usar
+								{/if}
+							</Table.Cell>
+
+							<Table.Cell>
+								<div class="flex items-center gap-1">
+									<Button type="submit" form="talla-{size.id}" size="sm" variant="outline">
+										Guardar
+									</Button>
+
+									<Button
+										type="submit"
+										form="borrar-talla-{size.id}"
+										size="sm"
+										variant="ghost"
+										class="text-destructive"
+										title={enUso > 0 ? 'Está en uso: se ocultará' : 'Borrar'}
+										aria-label="Borrar talla {size.label}"
+									>
+										<Trash2 class="size-3" />
+									</Button>
+								</div>
+							</Table.Cell>
+						</Table.Row>
+					{/each}
+				</Table.Body>
+			</Table.Root>
+		</Card.Content>
+	</Card.Root>
+
+	<Card.Root>
+		<Card.Header>
+			<Card.Title>Categorías</Card.Title>
+			<Card.Description>Aparecen en el menú de la tienda.</Card.Description>
+		</Card.Header>
+
+		<Card.Content class="space-y-4">
+			<form
+				method="POST"
+				action="?/crearCategoria"
+				class="bg-muted/50 flex flex-wrap items-end gap-3 rounded-lg p-4"
+				use:enhance
 			>
-				<span>Talla</span>
-				<span>Orden</span>
-				<span>Visible</span>
-				<span>Uso</span>
-				<span></span>
-			</div>
-
-			<div class="divide-border divide-y">
-				{#each data.sizes as size (`${size.id}:${size.active}`)}
-					{@const enUso = usoTalla(size.id)}
-					<div class="{SIZE_ROW} px-4 py-3">
-						<Input
-							form="talla-{size.id}"
-							name="label"
-							value={size.label}
-							class="uppercase"
-							aria-label="Talla"
-						/>
-
-						<Input
-							form="talla-{size.id}"
-							name="sortOrder"
-							type="number"
-							min="0"
-							max="999"
-							value={size.sort_order}
-							aria-label="Orden"
-						/>
-
-						<CheckboxField
-							id="size-visible-{size.id}"
-							form="talla-{size.id}"
-							name="active"
-							label="Visible"
-							checked={size.active}
-						/>
-
-						<span class="text-muted-foreground text-xs">
-							{#if !size.active}
-								<Badge variant="outline">
-									<EyeOff class="mr-1 size-3" />
-									Oculta
-								</Badge>
-							{:else if enUso > 0}
-								{enUso} variantes
-							{:else}
-								sin usar
-							{/if}
-						</span>
-
-						<div class="flex items-center gap-1">
-							<Button type="submit" form="talla-{size.id}" size="sm" variant="outline">
-								Guardar
-							</Button>
-
-							<Button
-								type="submit"
-								form="borrar-talla-{size.id}"
-								size="sm"
-								variant="ghost"
-								class="text-destructive"
-								title={enUso > 0 ? 'Está en uso: se ocultará' : 'Borrar'}
-								aria-label="Borrar talla {size.label}"
-							>
-								<Trash2 class="size-3" />
-							</Button>
-						</div>
-					</div>
-
-					<form id="talla-{size.id}" method="POST" action="?/actualizarTalla" use:enhance>
-						<input type="hidden" name="id" value={size.id} />
-					</form>
-
-					<form id="borrar-talla-{size.id}" method="POST" action="?/borrarTalla" use:enhance>
-						<input type="hidden" name="id" value={size.id} />
-					</form>
-				{/each}
-			</div>
-		</div>
-	</section>
-
-	<section class="space-y-3">
-		<div class="flex items-baseline justify-between gap-3">
-			<h2 class="text-xl">Categorías</h2>
-			<span class="text-muted-foreground text-xs">Aparecen en el menú de la tienda.</span>
-		</div>
-
-		<form
-			method="POST"
-			action="?/crearCategoria"
-			class="border-border bg-muted/50 space-y-3 border p-4"
-			use:enhance
-		>
-			<p class="text-sm font-medium">Nueva categoría</p>
-
-			<div class="flex flex-wrap items-end gap-3">
-				<div class="space-y-1">
+				<div class="space-y-1.5">
 					<Label class="text-xs" for="cat-name">Nombre</Label>
 					<Input id="cat-name" name="name" required placeholder="Chaquetas" class="w-56" />
 				</div>
 
-				<div class="space-y-1">
+				<div class="space-y-1.5">
 					<Label class="text-xs" for="cat-order">Orden</Label>
-					<Input
+					<NumberField
 						id="cat-order"
 						name="sortOrder"
-						type="number"
-						min="0"
-						max="999"
 						value={nextOrder(data.categories)}
-						class="w-20"
+						class="w-32"
 					/>
 				</div>
 
@@ -382,93 +346,115 @@
 				</div>
 
 				<Button type="submit" size="sm">Agregar categoría</Button>
-			</div>
+			</form>
+
+			<Table.Root>
+				<Table.Header>
+					<Table.Row>
+						<Table.Head>Nombre</Table.Head>
+						<Table.Head class="w-40">Enlace</Table.Head>
+						<Table.Head class="w-36">Orden</Table.Head>
+						<Table.Head class="w-28">Visible</Table.Head>
+						<Table.Head class="w-28">Uso</Table.Head>
+						<Table.Head class="w-32"></Table.Head>
+					</Table.Row>
+				</Table.Header>
+
+				<Table.Body>
+					{#each data.categories as category (`${category.id}:${category.active}`)}
+						{@const enUso = usoCategoria(category.id)}
+						<Table.Row>
+							<Table.Cell>
+								<Input
+									form="categoria-{category.id}"
+									name="name"
+									value={category.name}
+									aria-label="Nombre"
+								/>
+							</Table.Cell>
+
+							<Table.Cell class="text-muted-foreground font-mono text-xs">
+								/{category.slug}
+							</Table.Cell>
+
+							<Table.Cell>
+								<NumberField
+									form="categoria-{category.id}"
+									name="sortOrder"
+									value={category.sort_order}
+									aria-label="Orden"
+								/>
+							</Table.Cell>
+
+							<Table.Cell>
+								<CheckboxField
+									id="cat-visible-{category.id}"
+									form="categoria-{category.id}"
+									name="active"
+									label="Visible"
+									checked={category.active}
+								/>
+							</Table.Cell>
+
+							<Table.Cell class="text-muted-foreground text-xs">
+								{enUso > 0 ? `${enUso} prendas` : 'sin usar'}
+							</Table.Cell>
+
+							<Table.Cell>
+								<div class="flex items-center gap-1">
+									<Button type="submit" form="categoria-{category.id}" size="sm" variant="outline">
+										Guardar
+									</Button>
+
+									<Button
+										type="submit"
+										form="borrar-categoria-{category.id}"
+										size="sm"
+										variant="ghost"
+										class="text-destructive"
+										aria-label="Borrar {category.name}"
+									>
+										<Trash2 class="size-3" />
+									</Button>
+								</div>
+							</Table.Cell>
+						</Table.Row>
+					{/each}
+				</Table.Body>
+			</Table.Root>
+		</Card.Content>
+	</Card.Root>
+</div>
+
+<!--
+	Los formularios de cada fila viven fuera de la tabla: el HTML no admite
+	<form> dentro de <tbody>, así que los campos lo referencian por id.
+-->
+<div hidden>
+	{#each data.colors as color (color.id)}
+		<form id="color-{color.id}" method="POST" action="?/actualizarColor" use:enhance>
+			<input type="hidden" name="id" value={color.id} />
 		</form>
+		<form id="borrar-color-{color.id}" method="POST" action="?/borrarColor" use:enhance>
+			<input type="hidden" name="id" value={color.id} />
+		</form>
+	{/each}
 
-		<div class="border-border bg-background border">
-			<div
-				class="{CATEGORY_ROW} border-border text-muted-foreground border-b px-4 py-2 text-xs tracking-wide uppercase"
-			>
-				<span>Nombre</span>
-				<span>Enlace</span>
-				<span>Orden</span>
-				<span>Visible</span>
-				<span>Uso</span>
-				<span></span>
-			</div>
+	{#each data.sizes as size (size.id)}
+		<form id="talla-{size.id}" method="POST" action="?/actualizarTalla" use:enhance>
+			<input type="hidden" name="id" value={size.id} />
+		</form>
+		<form id="borrar-talla-{size.id}" method="POST" action="?/borrarTalla" use:enhance>
+			<input type="hidden" name="id" value={size.id} />
+		</form>
+	{/each}
 
-			<div class="divide-border divide-y">
-				{#each data.categories as category (`${category.id}:${category.active}`)}
-					{@const enUso = usoCategoria(category.id)}
-					<div class="{CATEGORY_ROW} px-4 py-3">
-						<Input
-							form="categoria-{category.id}"
-							name="name"
-							value={category.name}
-							aria-label="Nombre"
-						/>
-
-						<span class="text-muted-foreground truncate font-mono text-xs">/{category.slug}</span>
-
-						<Input
-							form="categoria-{category.id}"
-							name="sortOrder"
-							type="number"
-							min="0"
-							max="999"
-							value={category.sort_order}
-							aria-label="Orden"
-						/>
-
-						<CheckboxField
-							id="cat-visible-{category.id}"
-							form="categoria-{category.id}"
-							name="active"
-							label="Visible"
-							checked={category.active}
-						/>
-
-						<span class="text-muted-foreground text-xs">
-							{enUso > 0 ? `${enUso} prendas` : 'sin usar'}
-						</span>
-
-						<div class="flex items-center gap-1">
-							<Button type="submit" form="categoria-{category.id}" size="sm" variant="outline">
-								Guardar
-							</Button>
-
-							<Button
-								type="submit"
-								form="borrar-categoria-{category.id}"
-								size="sm"
-								variant="ghost"
-								class="text-destructive"
-								aria-label="Borrar {category.name}"
-							>
-								<Trash2 class="size-3" />
-							</Button>
-						</div>
-					</div>
-
-					<form
-						id="categoria-{category.id}"
-						method="POST"
-						action="?/actualizarCategoria"
-						use:enhance
-					>
-						<input type="hidden" name="id" value={category.id} />
-					</form>
-
-					<form
-						id="borrar-categoria-{category.id}"
-						method="POST"
-						action="?/borrarCategoria"
-						use:enhance
-					>
-						<input type="hidden" name="id" value={category.id} />
-					</form>
-				{/each}
-			</div>
-		</div>
-	</section>
+	{#each data.categories as category (category.id)}
+		<form id="categoria-{category.id}" method="POST" action="?/actualizarCategoria" use:enhance>
+			<input type="hidden" name="id" value={category.id} />
+		</form>
+		<form id="borrar-categoria-{category.id}" method="POST" action="?/borrarCategoria" use:enhance>
+			<input type="hidden" name="id" value={category.id} />
+		</form>
+	{/each}
 </div>

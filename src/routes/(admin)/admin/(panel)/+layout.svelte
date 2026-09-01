@@ -51,11 +51,11 @@
 	<meta name="robots" content="noindex" />
 </svelte:head>
 
-<div class="bg-muted/40 flex min-h-screen">
+<div class="admin-shell bg-muted/40 flex min-h-screen">
 	<aside class="bg-sidebar border-sidebar-border hidden w-60 flex-none border-r lg:block">
 		<div class="sticky top-0 flex h-screen flex-col">
 			<div class="border-sidebar-border border-b px-5 py-4">
-				<a href="/" class="font-display text-xl">{data.settings.store_name}</a>
+				<a href="/" class="text-base font-semibold tracking-tight">{data.settings.store_name}</a>
 				<p class="text-muted-foreground text-xs">Panel</p>
 			</div>
 

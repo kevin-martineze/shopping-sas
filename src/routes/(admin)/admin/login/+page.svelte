@@ -21,7 +21,7 @@
 	<meta name="robots" content="noindex" />
 </svelte:head>
 
-<main class="grid min-h-screen place-items-center px-4">
+<main class="admin-shell grid min-h-screen place-items-center px-4">
 	<div class="w-full max-w-sm space-y-8">
 		<header class="space-y-2 text-center">
 			<p class="eyebrow">Panel</p>

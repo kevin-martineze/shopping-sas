@@ -3,8 +3,10 @@
 
 	import type { ActionData, PageData } from './$types';
 	import { Button } from '$lib/components/atoms/button';
+	import * as Card from '$lib/components/atoms/card';
+	import * as Table from '$lib/components/atoms/table';
 	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
-	import { Input } from '$lib/components/atoms/input';
+	import NumberField from '$lib/components/molecules/NumberField.svelte';
 
 	interface Props {
 		data: PageData;
@@ -43,62 +45,95 @@
 <FormFeedback error={form?.error ?? null} />
 
 {#if data.groups.length === 0}
-	<p
-		class="text-muted-foreground border-border border border-dashed px-6 py-16 text-center text-sm"
-	>
-		{data.onlyLow ? 'Nada con stock bajo.' : 'Todavía no hay variantes creadas.'}
-	</p>
+	<Card.Root>
+		<Card.Content class="text-muted-foreground py-16 text-center text-sm">
+			{data.onlyLow ? 'Nada con stock bajo.' : 'Todavía no hay variantes creadas.'}
+		</Card.Content>
+	</Card.Root>
 {:else}
 	<div class="space-y-6">
 		{#each data.groups as group (group.id)}
-			<section class="border-border bg-background border">
-				<header class="border-border flex items-center justify-between border-b px-4 py-3">
-					<a href="/admin/productos/{group.id}" class="text-sm font-medium">{group.name}</a>
-					<span class="text-muted-foreground text-xs">
-						{group.rows.reduce((sum, row) => sum + row.stock, 0)} unidades
-					</span>
-				</header>
+			<Card.Root>
+				<Card.Header>
+					<div class="flex items-center justify-between gap-3">
+						<Card.Title>
+							<a href="/admin/productos/{group.id}" class="hover:underline">{group.name}</a>
+						</Card.Title>
+						<Card.Description>
+							{group.rows.reduce((sum, row) => sum + row.stock, 0)} unidades
+						</Card.Description>
+					</div>
+				</Card.Header>
 
-				<div class="divide-border divide-y">
-					{#each group.rows as row (row.id)}
-						<form
-							method="POST"
-							action="?/stock"
-							class="flex flex-wrap items-center gap-3 px-4 py-2.5"
-							use:enhance
-						>
-							<input type="hidden" name="variantId" value={row.id} />
+				<Card.Content>
+					<Table.Root>
+						<Table.Header>
+							<Table.Row>
+								<Table.Head class="w-10"></Table.Head>
+								<Table.Head>Color</Table.Head>
+								<Table.Head class="w-20">Talla</Table.Head>
+								<Table.Head>Referencia</Table.Head>
+								<Table.Head class="w-44">Stock</Table.Head>
+								<Table.Head class="w-28"></Table.Head>
+							</Table.Row>
+						</Table.Header>
 
-							<span
-								class="border-border size-3.5 flex-none rounded-full border"
-								style="background-color: {row.colors?.hex ?? 'transparent'}"
-								title={row.colors?.name ?? ''}
-							></span>
+						<Table.Body>
+							{#each group.rows as row (row.id)}
+								<Table.Row>
+									<Table.Cell>
+										<span
+											class="border-border block size-3.5 rounded-full border"
+											style="background-color: {row.colors?.hex ?? 'transparent'}"
+											title={row.colors?.name ?? ''}
+										></span>
+									</Table.Cell>
 
-							<span class="w-28 truncate text-sm">{row.colors?.name ?? '—'}</span>
-							<span class="w-12 text-sm font-medium">{row.sizes?.label ?? '—'}</span>
-							<span class="text-muted-foreground w-40 truncate text-xs">{row.sku ?? ''}</span>
+									<Table.Cell class="text-sm">
+										{row.colors?.name ?? '—'}
+										{#if !row.active}
+											<span class="text-muted-foreground text-xs">· inactiva</span>
+										{/if}
+									</Table.Cell>
 
-							{#if !row.active}
-								<span class="text-muted-foreground text-xs">inactiva</span>
-							{/if}
+									<Table.Cell class="text-sm font-medium">{row.sizes?.label ?? '—'}</Table.Cell>
 
-							<div class="ml-auto flex items-center gap-2">
-								<Input
-									name="stock"
-									type="number"
-									min="0"
-									max="9999"
-									value={row.stock}
-									class="w-24 {row.stock === 0 ? 'border-destructive' : ''}"
-									aria-label="Stock de {row.colors?.name} talla {row.sizes?.label}"
-								/>
-								<Button type="submit" size="sm" variant="outline">Guardar</Button>
-							</div>
-						</form>
-					{/each}
-				</div>
-			</section>
+									<Table.Cell class="text-muted-foreground font-mono text-xs">
+										{row.sku ?? ''}
+									</Table.Cell>
+
+									<Table.Cell>
+										<NumberField
+											form="stock-{row.id}"
+											name="stock"
+											value={row.stock}
+											invalid={row.stock === 0}
+											aria-label="Stock de {row.colors?.name} talla {row.sizes?.label}"
+										/>
+									</Table.Cell>
+
+									<Table.Cell>
+										<Button type="submit" form="stock-{row.id}" size="sm" variant="outline">
+											Guardar
+										</Button>
+									</Table.Cell>
+								</Table.Row>
+							{/each}
+						</Table.Body>
+					</Table.Root>
+				</Card.Content>
+			</Card.Root>
 		{/each}
 	</div>
 {/if}
+
+<!-- El HTML no admite <form> dentro de <tbody>: viven aquí y se referencian por id. -->
+<div hidden>
+	{#each data.groups as group (group.id)}
+		{#each group.rows as row (row.id)}
+			<form id="stock-{row.id}" method="POST" action="?/stock" use:enhance>
+				<input type="hidden" name="variantId" value={row.id} />
+			</form>
+		{/each}
+	{/each}
+</div>

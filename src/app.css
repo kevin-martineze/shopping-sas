@@ -11,7 +11,8 @@
  * Todo color de la app sale de aquí. Nunca escribir hex en componentes.
  */
 :root {
-	--radius: 0rem;
+	/* Radio de fábrica de shadcn: botones, campos y tarjetas con esquina suave. */
+	--radius: 0.625rem;
 
 	--background: oklch(1 0 0);
 	--foreground: oklch(0.2 0 0);
@@ -170,6 +171,29 @@
 	h2,
 	h3 {
 		@apply font-display font-normal tracking-tight;
+	}
+
+	/*
+	 * El panel es una herramienta de trabajo: sus títulos van en la sans, no en
+	 * la serif de la tienda, que ahí se lee como decoración.
+	 */
+	.admin-shell :is(h1, h2, h3, h4) {
+		@apply font-sans font-semibold tracking-tight;
+	}
+
+	/*
+	 * Los contadores del panel llevan sus propios botones, así que se esconden
+	 * las flechas que pinta el navegador.
+	 */
+	.admin-shell input[type='number']::-webkit-outer-spin-button,
+	.admin-shell input[type='number']::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+
+	.admin-shell input[type='number'] {
+		-moz-appearance: textfield;
+		appearance: textfield;
 	}
 
 	/* Tipografía de apoyo: versalitas espaciadas para etiquetas y navegación */
