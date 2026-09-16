@@ -310,12 +310,12 @@ export function updateProduct(ctx: PanelContext, id: string, input: ProductInput
 	});
 }
 
-/** `archived`: estaba en pedidos. `storagePaths`: fotos que quedaron sin fila y hay que borrar. */
+/** `archived`: estaba en pedidos. Si se borró, la API borra también sus fotos. */
 export function removeProduct(ctx: PanelContext, id: string) {
 	return panelRequest(
 		ctx,
 		`/products/${segment(id)}`,
-		z.object({ result: z.enum(['deleted', 'archived']), storagePaths: z.array(z.string()) }),
+		z.object({ result: z.enum(['deleted', 'archived']) }),
 		{ method: 'DELETE' }
 	);
 }
@@ -358,22 +358,21 @@ export function removeVariant(ctx: PanelContext, id: string) {
 	);
 }
 
-export function addProductImage(
+/** La API convierte la foto a WebP en tres tamaños y la guarda; va al final de la lista. */
+export function uploadProductImage(
 	ctx: PanelContext,
 	productId: string,
-	input: {
-		storagePath: string;
-		urlFull: string;
-		urlCard: string;
-		urlThumb: string;
-		lqip: string | null;
-		alt: string | null;
-		colorId: string | null;
-	}
+	file: File,
+	colorId: string | null
 ) {
+	const formData = new FormData();
+
+	formData.set('file', file, file.name);
+	if (colorId) formData.set('colorId', colorId);
+
 	return panelRequest(ctx, `/products/${segment(productId)}/images`, idSchema, {
 		method: 'POST',
-		body: input
+		formData
 	});
 }
 
@@ -384,14 +383,11 @@ export function reorderProductImages(ctx: PanelContext, productId: string, image
 	});
 }
 
-/** Devuelve la ruta del archivo, para borrarlo del almacenamiento. */
+/** Borra la fila y sus archivos. */
 export function removeProductImage(ctx: PanelContext, imageId: string) {
-	return panelRequest(
-		ctx,
-		`/product-images/${segment(imageId)}`,
-		z.object({ storagePath: z.string() }),
-		{ method: 'DELETE' }
-	);
+	return panelRequest(ctx, `/product-images/${segment(imageId)}`, z.undefined(), {
+		method: 'DELETE'
+	});
 }
 
 // ---------------------------------------------------------------------------

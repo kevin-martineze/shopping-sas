@@ -170,8 +170,6 @@ export interface CollectionInput {
 	description: string | null;
 	active: boolean;
 	sortOrder: number;
-	heroImageUrl: string | null;
-	heroStoragePath: string | null;
 }
 
 export function listCollections(
@@ -187,28 +185,21 @@ export function createCollection(ctx: PanelContext, input: CollectionInput) {
 	});
 }
 
-/** Si la foto cambia, devuelve la ruta de la anterior para borrarla del almacenamiento. */
-export function updateCollectionPhoto(
-	ctx: PanelContext,
-	id: string,
-	photo: { heroImageUrl: string; heroStoragePath: string }
-) {
-	return panelRequest(
-		ctx,
-		`/collections/${segment(id)}`,
-		z.object({ replacedHeroStoragePath: z.string().nullable() }),
-		{ method: 'PATCH', body: photo }
-	);
+/** La API convierte la foto, la guarda y borra la anterior. */
+export function uploadCollectionHero(ctx: PanelContext, id: string, file: File) {
+	const formData = new FormData();
+
+	formData.set('file', file, file.name);
+
+	return panelRequest(ctx, `/collections/${segment(id)}/hero`, z.object({ id: z.string() }), {
+		method: 'PUT',
+		formData
+	});
 }
 
-/** Devuelve la ruta de su foto, para borrarla del almacenamiento. */
+/** Borra la colección y su foto. */
 export function removeCollection(ctx: PanelContext, id: string) {
-	return panelRequest(
-		ctx,
-		`/collections/${segment(id)}`,
-		z.object({ storagePaths: z.array(z.string()) }),
-		{ method: 'DELETE' }
-	);
+	return panelRequest(ctx, `/collections/${segment(id)}`, z.undefined(), { method: 'DELETE' });
 }
 
 export function setCollectionProduct(

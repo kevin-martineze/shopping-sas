@@ -1,6 +1,5 @@
 import { fail } from '@sveltejs/kit';
 
-import type { UploadedImage } from '$lib/server/images';
 import type { Actions, PageServerLoad } from './$types';
 import { collectionSchema } from '$lib/schemas/admin';
 import { listProducts } from '$lib/server/api/panel-catalog';
@@ -10,14 +9,10 @@ import {
 	removeCollection,
 	removeCollectionProduct,
 	setCollectionProduct,
-	updateCollectionPhoto
+	uploadCollectionHero
 } from '$lib/server/api/panel-content';
 import { failWith, orFail, panelContext } from '$lib/server/context';
-import { ImageUploadError, uploadImage } from '$lib/server/images';
-import { deleteStoredImages } from '$lib/server/storage';
 import { slugify } from '$lib/utils/slug';
-
-const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export const load: PageServerLoad = async (event) => {
 	const ctx = panelContext(event);
@@ -46,12 +41,6 @@ function readHotspot(value: FormDataEntryValue | null): number | null {
 	return Math.round(number * 100) / 100;
 }
 
-function uploadError(cause: unknown) {
-	return fail(400, {
-		error: cause instanceof ImageUploadError ? cause.message : 'No pudimos procesar la foto.'
-	});
-}
-
 export const actions: Actions = {
 	crear: async (event) => {
 		const ctx = panelContext(event);
@@ -71,32 +60,27 @@ export const actions: Actions = {
 			return fail(400, { error: parsed.error.issues.at(0)?.message ?? 'Revisa los datos.' });
 		}
 
-		const file = formData.get('file');
-		let hero: UploadedImage | null = null;
-
-		if (file instanceof File && file.size > 0) {
-			try {
-				hero = await uploadImage(file, `colecciones/${parsed.data.slug}`);
-			} catch (cause) {
-				return uploadError(cause);
-			}
-		}
-
 		const result = await createCollection(ctx, {
 			name: parsed.data.name,
 			slug: parsed.data.slug,
 			description: parsed.data.description || null,
 			active: parsed.data.active,
-			sortOrder: parsed.data.sortOrder,
-			heroImageUrl: hero?.urlFull ?? null,
-			heroStoragePath: hero?.storagePath ?? null
+			sortOrder: parsed.data.sortOrder
 		});
 
-		if (!result.ok) {
-			// La foto ya subió pero la colección no se creó: se borra para no dejarla huérfana.
-			if (hero) await deleteStoredImages([hero.storagePath]);
+		if (!result.ok) return failWith(result);
 
-			return failWith(result);
+		// La foto va aparte: la colección ya existe aunque la foto falle.
+		const file = formData.get('file');
+
+		if (file instanceof File && file.size > 0) {
+			const hero = await uploadCollectionHero(ctx, result.data.id, file);
+
+			if (!hero.ok) {
+				return fail(hero.status >= 400 && hero.status < 500 ? hero.status : 503, {
+					error: `La colección se creó, pero la foto no: ${hero.message}`
+				});
+			}
 		}
 
 		return { ok: true };
@@ -129,36 +113,14 @@ export const actions: Actions = {
 		const id = String(formData.get('id') ?? '');
 		const file = formData.get('file');
 
-		// Se valida antes de subir: un id malo dejaría la foto huérfana.
-		if (!UUID.test(id)) return fail(404, { error: 'Colección no encontrada.' });
-
 		if (!(file instanceof File) || file.size === 0) {
 			return fail(400, { error: 'Elige una foto.' });
 		}
 
-		let uploaded: UploadedImage;
+		// La API convierte la foto, guarda la nueva y borra la anterior.
+		const result = await uploadCollectionHero(ctx, id, file);
 
-		try {
-			uploaded = await uploadImage(file, `colecciones/${id}`);
-		} catch (cause) {
-			return uploadError(cause);
-		}
-
-		const result = await updateCollectionPhoto(ctx, id, {
-			heroImageUrl: uploaded.urlFull,
-			heroStoragePath: uploaded.storagePath
-		});
-
-		if (!result.ok) {
-			await deleteStoredImages([uploaded.storagePath]);
-
-			return failWith(result);
-		}
-
-		// La anterior se borra al final: si algo falla antes, no se pierde nada.
-		if (result.data.replacedHeroStoragePath) {
-			await deleteStoredImages([result.data.replacedHeroStoragePath]);
-		}
+		if (!result.ok) return failWith(result);
 
 		return { ok: true };
 	},
@@ -185,8 +147,6 @@ export const actions: Actions = {
 		const result = await removeCollection(ctx, String(formData.get('id') ?? ''));
 
 		if (!result.ok) return failWith(result);
-
-		await deleteStoredImages(result.data.storagePaths);
 
 		return { ok: true };
 	}

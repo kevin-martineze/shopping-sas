@@ -4,7 +4,7 @@ Léelo entero antes de generar código. Son las convenciones del proyecto, no
 sugerencias. Cualquier desviación necesita justificación explícita.
 
 Stack: **SvelteKit 2 + Svelte 5 (runes) + TypeScript strict + Tailwind v4 +
-shadcn-svelte + Supabase**.
+shadcn-svelte**, sobre la API propia `ecommerce-api`.
 
 ---
 
@@ -56,11 +56,12 @@ shadcn-svelte + Supabase**.
     `$lib/server/api/`.** Las páginas no conocen la forma de la API; si un campo
     cambia allá, se ajusta el esquema y no los componentes.
 
-### Supabase: solo fotos
+### Fotos
 
-Supabase Storage guarda las fotos hasta que la subida pase a la API
-(`$lib/server/images.ts`). La `SUPABASE_SERVICE_ROLE_KEY` nunca sale del
-servidor. `supabase/migrations/` es historia: el esquema vive en la API.
+Se reenvían a la API tal cual llegan del formulario (`uploadProductImage`,
+`uploadCollectionHero`): la API las convierte, las guarda y las borra. Este
+proyecto no procesa ni almacena imágenes. `supabase/` es historia: el
+esquema y los datos viven en la API.
 
 ### Cliente de la API
 
@@ -130,5 +131,5 @@ Lee un archivo equivalente que ya exista y replica el patrón:
 - Página de listado con filtros → `src/routes/(shop)/tienda/+page.svelte`
 - Página con form action → `src/routes/(shop)/carrito/+page.server.ts`
 - Pantalla de administración → `src/routes/(admin)/admin/(panel)/cupones/`
-- Consulta a Supabase → `src/lib/server/catalog.ts`
-- Función de negocio en SQL → `supabase/migrations/0002_rls_and_functions.sql`
+- Llamada a la API (tienda pública) → `src/lib/server/api/storefront.ts`
+- Llamada a la API (panel) → `src/lib/server/api/panel-catalog.ts`

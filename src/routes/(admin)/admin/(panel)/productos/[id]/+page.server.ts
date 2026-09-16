@@ -3,7 +3,6 @@ import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { productSchema, stockUpdateSchema, variantMatrixSchema } from '$lib/schemas/admin';
 import {
-	addProductImage,
 	generateVariants,
 	getProduct,
 	listCategories,
@@ -14,11 +13,10 @@ import {
 	removeVariant,
 	reorderProductImages,
 	updateProduct,
-	updateVariant
+	updateVariant,
+	uploadProductImage
 } from '$lib/server/api/panel-catalog';
 import { failWith, orFail, panelContext } from '$lib/server/context';
-import { ImageUploadError, uploadProductImage } from '$lib/server/images';
-import { deleteStoredImages } from '$lib/server/storage';
 import { slugify } from '$lib/utils/slug';
 
 export const load: PageServerLoad = async (event) => {
@@ -172,36 +170,10 @@ export const actions: Actions = {
 			return fail(400, { error: 'Elige una imagen.' });
 		}
 
-		const product = await getProduct(ctx, event.params.id);
+		// La API convierte la foto, la guarda y la registra: acá solo se reenvía.
+		const result = await uploadProductImage(ctx, event.params.id, file, colorId);
 
-		if (!product.ok) return failWith(product);
-
-		let uploaded;
-
-		try {
-			uploaded = await uploadProductImage(file, product.data.slug);
-		} catch (cause) {
-			const message =
-				cause instanceof ImageUploadError ? cause.message : 'No pudimos procesar la imagen.';
-			return fail(400, { error: message });
-		}
-
-		const result = await addProductImage(ctx, event.params.id, {
-			storagePath: uploaded.storagePath,
-			urlFull: uploaded.urlFull,
-			urlCard: uploaded.urlCard,
-			urlThumb: uploaded.urlThumb,
-			lqip: uploaded.lqip,
-			alt: product.data.name,
-			colorId
-		});
-
-		if (!result.ok) {
-			// La foto subió pero no quedó registrada: se borra para no dejarla huérfana.
-			await deleteStoredImages([uploaded.storagePath]);
-
-			return failWith(result);
-		}
+		if (!result.ok) return failWith(result);
 
 		return { ok: true };
 	},
@@ -213,10 +185,6 @@ export const actions: Actions = {
 		const result = await removeProductImage(ctx, String(formData.get('imageId') ?? ''));
 
 		if (!result.ok) return failWith(result);
-
-		// El archivo se borra después de la fila: nunca queda una prenda apuntando a
-		// una foto que ya no está.
-		await deleteStoredImages([result.data.storagePath]);
 
 		return { ok: true };
 	},
@@ -256,8 +224,6 @@ export const actions: Actions = {
 				error: 'Esta prenda está en pedidos, así que la archivamos en vez de borrarla.'
 			});
 		}
-
-		await deleteStoredImages(result.data.storagePaths);
 
 		redirect(303, '/admin/productos');
 	}

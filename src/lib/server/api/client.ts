@@ -43,6 +43,11 @@ export interface RequestOptions {
 	clientIp?: string | null;
 	/** Repetir la petición con la misma clave no repite el efecto (crear un pedido). */
 	idempotencyKey?: string;
+	/**
+	 * Cuerpo multipart (una foto y sus campos). Excluye `body`: `fetch` pone el
+	 * content-type con el boundary, y ponerlo a mano lo rompería.
+	 */
+	formData?: FormData;
 }
 
 /** Cualquier esquema cuya salida sea `T`, tenga o no `transform`. */
@@ -57,7 +62,7 @@ export async function apiRequest<T>(
 ): Promise<ApiResult<T>> {
 	const headers: Record<string, string> = { accept: 'application/json' };
 
-	if (options.body !== undefined) headers['content-type'] = 'application/json';
+	if (options.body !== undefined && !options.formData) headers['content-type'] = 'application/json';
 	if (options.accessToken) headers.authorization = `Bearer ${options.accessToken}`;
 	if (options.clientIp) headers['x-forwarded-for'] = options.clientIp;
 	if (options.idempotencyKey) headers['idempotency-key'] = options.idempotencyKey;
@@ -68,7 +73,8 @@ export async function apiRequest<T>(
 		response = await fetch(`${serverEnv().API_URL}${path}`, {
 			method: options.method ?? 'GET',
 			headers,
-			body: options.body === undefined ? undefined : JSON.stringify(options.body)
+			body:
+				options.formData ?? (options.body === undefined ? undefined : JSON.stringify(options.body))
 		});
 	} catch (cause) {
 		console.error(
