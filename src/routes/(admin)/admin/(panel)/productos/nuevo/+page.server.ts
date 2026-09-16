@@ -2,17 +2,18 @@ import { fail, redirect } from '@sveltejs/kit';
 
 import type { Actions, PageServerLoad } from './$types';
 import { productSchema } from '$lib/schemas/admin';
-import { listCategories } from '$lib/server/store';
-import { supabaseAdmin } from '$lib/server/supabase';
+import { createProduct, listCategories } from '$lib/server/api/panel-catalog';
+import { failWith, orFail, panelContext } from '$lib/server/context';
 import { slugify } from '$lib/utils/slug';
 
-export const load: PageServerLoad = async ({ locals }) => {
-	return { categories: await listCategories(locals.supabase) };
+export const load: PageServerLoad = async (event) => {
+	return { categories: orFail(await listCategories(panelContext(event))) };
 };
 
 export const actions: Actions = {
-	default: async ({ request }) => {
-		const formData = await request.formData();
+	default: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 		const name = String(formData.get('name') ?? '');
 		const rawSlug = String(formData.get('slug') ?? '').trim();
 
@@ -35,34 +36,22 @@ export const actions: Actions = {
 
 		const input = parsed.data;
 
-		const { data, error } = await supabaseAdmin()
-			.from('products')
-			.insert({
-				name: input.name,
-				slug: input.slug,
-				description: input.description || null,
-				material: input.material || null,
-				care: input.care || null,
-				category_id: input.categoryId ?? null,
-				base_price: input.basePrice,
-				compare_at_price: input.compareAtPrice || null,
-				status: input.status,
-				featured: input.featured
-			})
-			.select('id')
-			.maybeSingle<{ id: string }>();
+		const result = await createProduct(ctx, {
+			name: input.name,
+			slug: input.slug,
+			description: input.description,
+			material: input.material,
+			care: input.care,
+			categoryId: input.categoryId ?? null,
+			basePrice: input.basePrice,
+			compareAtPrice: input.compareAtPrice ?? null,
+			status: input.status,
+			featured: input.featured
+		});
 
-		if (error || !data) {
-			const duplicated = error?.code === '23505';
-
-			return fail(400, {
-				error: duplicated
-					? 'Ya existe una prenda con ese slug.'
-					: 'No pudimos crear la prenda. Intenta de nuevo.'
-			});
-		}
+		if (!result.ok) return failWith(result);
 
 		// Se sigue a la edición: ahí se cargan fotos y se arma la matriz de tallas.
-		redirect(303, `/admin/productos/${data.id}`);
+		redirect(303, `/admin/productos/${result.data.id}`);
 	}
 };

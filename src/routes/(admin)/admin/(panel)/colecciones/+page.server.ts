@@ -1,45 +1,61 @@
 import { fail } from '@sveltejs/kit';
 
+import type { UploadedImage } from '$lib/server/images';
 import type { Actions, PageServerLoad } from './$types';
 import { collectionSchema } from '$lib/schemas/admin';
-import { listAdminProducts } from '$lib/server/admin';
-import { ImageUploadError, deleteProductImage, uploadImage } from '$lib/server/images';
-import { listCollections } from '$lib/server/store';
-import { supabaseAdmin } from '$lib/server/supabase';
+import { listProducts } from '$lib/server/api/panel-catalog';
+import {
+	createCollection,
+	listCollections,
+	removeCollection,
+	removeCollectionProduct,
+	setCollectionProduct,
+	updateCollectionPhoto
+} from '$lib/server/api/panel-content';
+import { failWith, orFail, panelContext } from '$lib/server/context';
+import { ImageUploadError, uploadImage } from '$lib/server/images';
+import { deleteStoredImages } from '$lib/server/storage';
 import { slugify } from '$lib/utils/slug';
 
-interface CollectionProductRow {
-	collection_id: string;
-	product_id: string;
-	sort_order: number;
-	hotspot_x: number | null;
-	hotspot_y: number | null;
-	products: { name: string } | null;
-}
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export const load: PageServerLoad = async () => {
-	const client = supabaseAdmin();
+export const load: PageServerLoad = async (event) => {
+	const ctx = panelContext(event);
 
-	const [collections, products, links] = await Promise.all([
-		listCollections(client),
-		listAdminProducts(null),
-		client
-			.from('collection_products')
-			.select('collection_id, product_id, sort_order, hotspot_x, hotspot_y, products ( name )')
-			.order('sort_order')
-			.returns<CollectionProductRow[]>()
+	const [collectionsResult, productsResult] = await Promise.all([
+		listCollections(ctx),
+		listProducts(ctx, null)
 	]);
+
+	const { collections, links } = orFail(collectionsResult);
 
 	return {
 		collections,
-		products: products.map((product) => ({ id: product.id, name: product.name })),
-		links: links.data ?? []
+		products: orFail(productsResult).map((product) => ({ id: product.id, name: product.name })),
+		links
 	};
 };
 
+/** Posición sobre la foto: vacío o fuera de 0-100 la deja fuera de la imagen. */
+function readHotspot(value: FormDataEntryValue | null): number | null {
+	const raw = String(value ?? '').trim();
+	const number = Number(raw);
+
+	if (raw === '' || !Number.isFinite(number) || number < 0 || number > 100) return null;
+
+	return Math.round(number * 100) / 100;
+}
+
+function uploadError(cause: unknown) {
+	return fail(400, {
+		error: cause instanceof ImageUploadError ? cause.message : 'No pudimos procesar la foto.'
+	});
+}
+
 export const actions: Actions = {
-	crear: async ({ request }) => {
-		const formData = await request.formData();
+	crear: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 		const name = String(formData.get('name') ?? '');
 		const rawSlug = String(formData.get('slug') ?? '').trim();
 
@@ -56,136 +72,121 @@ export const actions: Actions = {
 		}
 
 		const file = formData.get('file');
-		let heroUrl: string | null = null;
-		let heroPath: string | null = null;
+		let hero: UploadedImage | null = null;
 
 		if (file instanceof File && file.size > 0) {
 			try {
-				const uploaded = await uploadImage(file, `colecciones/${parsed.data.slug}`);
-				heroUrl = uploaded.urlFull;
-				heroPath = uploaded.storagePath;
+				hero = await uploadImage(file, `colecciones/${parsed.data.slug}`);
 			} catch (cause) {
-				const message =
-					cause instanceof ImageUploadError ? cause.message : 'No pudimos procesar la foto.';
-				return fail(400, { error: message });
+				return uploadError(cause);
 			}
 		}
 
-		const { error } = await supabaseAdmin()
-			.from('collections')
-			.insert({
-				name: parsed.data.name,
-				slug: parsed.data.slug,
-				description: parsed.data.description || null,
-				hero_image_url: heroUrl,
-				hero_storage_path: heroPath,
-				active: parsed.data.active,
-				sort_order: parsed.data.sortOrder
-			});
+		const result = await createCollection(ctx, {
+			name: parsed.data.name,
+			slug: parsed.data.slug,
+			description: parsed.data.description || null,
+			active: parsed.data.active,
+			sortOrder: parsed.data.sortOrder,
+			heroImageUrl: hero?.urlFull ?? null,
+			heroStoragePath: hero?.storagePath ?? null
+		});
 
-		if (error) {
-			return fail(400, {
-				error:
-					error.code === '23505' ? 'Ya existe una colección con ese slug.' : 'No pudimos crearla.'
-			});
+		if (!result.ok) {
+			// La foto ya subió pero la colección no se creó: se borra para no dejarla huérfana.
+			if (hero) await deleteStoredImages([hero.storagePath]);
+
+			return failWith(result);
 		}
 
 		return { ok: true };
 	},
 
-	/** Etiqueta un producto sobre la foto editorial en la posición indicada. */
-	agregarProducto: async ({ request }) => {
-		const formData = await request.formData();
+	/** Etiqueta una prenda sobre la foto editorial, o mueve su punto si ya estaba. */
+	agregarProducto: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 		const collectionId = String(formData.get('collectionId') ?? '');
 		const productId = String(formData.get('productId') ?? '');
-		const x = Number(formData.get('hotspotX') ?? '');
-		const y = Number(formData.get('hotspotY') ?? '');
 
 		if (!collectionId || !productId) {
 			return fail(400, { error: 'Elige colección y prenda.' });
 		}
 
-		const inRange = (value: number) => Number.isFinite(value) && value >= 0 && value <= 100;
+		const result = await setCollectionProduct(ctx, collectionId, productId, {
+			hotspotX: readHotspot(formData.get('hotspotX')),
+			hotspotY: readHotspot(formData.get('hotspotY'))
+		});
 
-		const { error } = await supabaseAdmin()
-			.from('collection_products')
-			.upsert({
-				collection_id: collectionId,
-				product_id: productId,
-				hotspot_x: inRange(x) ? x : null,
-				hotspot_y: inRange(y) ? y : null,
-				sort_order: 0
-			});
-
-		if (error) return fail(500, { error: 'No pudimos agregar la prenda.' });
+		if (!result.ok) return failWith(result);
 
 		return { ok: true };
 	},
 
-	cambiarFoto: async ({ request }) => {
-		const formData = await request.formData();
+	cambiarFoto: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 		const id = String(formData.get('id') ?? '');
 		const file = formData.get('file');
+
+		// Se valida antes de subir: un id malo dejaría la foto huérfana.
+		if (!UUID.test(id)) return fail(404, { error: 'Colección no encontrada.' });
 
 		if (!(file instanceof File) || file.size === 0) {
 			return fail(400, { error: 'Elige una foto.' });
 		}
 
-		const client = supabaseAdmin();
-		const { data: collection } = await client
-			.from('collections')
-			.select('slug, hero_storage_path')
-			.eq('id', id)
-			.maybeSingle<{ slug: string; hero_storage_path: string | null }>();
-
-		if (!collection) return fail(404, { error: 'Colección no encontrada.' });
+		let uploaded: UploadedImage;
 
 		try {
-			const uploaded = await uploadImage(file, `colecciones/${collection.slug}`);
-
-			const { error } = await client
-				.from('collections')
-				.update({ hero_image_url: uploaded.urlFull, hero_storage_path: uploaded.storagePath })
-				.eq('id', id);
-
-			if (error) return fail(500, { error: 'La foto se subió pero no se pudo guardar.' });
-
-			// La anterior se borra al final: si algo falla antes, no perdemos nada.
-			if (collection.hero_storage_path) {
-				await deleteProductImage(collection.hero_storage_path).catch(() => undefined);
-			}
+			uploaded = await uploadImage(file, `colecciones/${id}`);
 		} catch (cause) {
-			const message =
-				cause instanceof ImageUploadError ? cause.message : 'No pudimos procesar la foto.';
-			return fail(400, { error: message });
+			return uploadError(cause);
+		}
+
+		const result = await updateCollectionPhoto(ctx, id, {
+			heroImageUrl: uploaded.urlFull,
+			heroStoragePath: uploaded.storagePath
+		});
+
+		if (!result.ok) {
+			await deleteStoredImages([uploaded.storagePath]);
+
+			return failWith(result);
+		}
+
+		// La anterior se borra al final: si algo falla antes, no se pierde nada.
+		if (result.data.replacedHeroStoragePath) {
+			await deleteStoredImages([result.data.replacedHeroStoragePath]);
 		}
 
 		return { ok: true };
 	},
 
-	quitarProducto: async ({ request }) => {
-		const formData = await request.formData();
+	quitarProducto: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 
-		const { error } = await supabaseAdmin()
-			.from('collection_products')
-			.delete()
-			.eq('collection_id', String(formData.get('collectionId') ?? ''))
-			.eq('product_id', String(formData.get('productId') ?? ''));
+		const result = await removeCollectionProduct(
+			ctx,
+			String(formData.get('collectionId') ?? ''),
+			String(formData.get('productId') ?? '')
+		);
 
-		if (error) return fail(500, { error: 'No pudimos quitar la prenda.' });
+		if (!result.ok) return failWith(result);
 
 		return { ok: true };
 	},
 
-	eliminar: async ({ request }) => {
-		const formData = await request.formData();
+	eliminar: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 
-		const { error } = await supabaseAdmin()
-			.from('collections')
-			.delete()
-			.eq('id', String(formData.get('id') ?? ''));
+		const result = await removeCollection(ctx, String(formData.get('id') ?? ''));
 
-		if (error) return fail(500, { error: 'No pudimos borrar la colección.' });
+		if (!result.ok) return failWith(result);
+
+		await deleteStoredImages(result.data.storagePaths);
 
 		return { ok: true };
 	}

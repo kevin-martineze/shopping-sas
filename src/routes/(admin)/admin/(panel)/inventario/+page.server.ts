@@ -2,63 +2,21 @@ import { fail } from '@sveltejs/kit';
 
 import type { Actions, PageServerLoad } from './$types';
 import { stockUpdateSchema } from '$lib/schemas/admin';
-import { supabaseAdmin } from '$lib/server/supabase';
+import { listInventory, updateVariant } from '$lib/server/api/panel-catalog';
+import { failWith, orFail, panelContext } from '$lib/server/context';
 
-interface InventoryRow {
-	id: string;
-	sku: string | null;
-	stock: number;
-	active: boolean;
-	colors: { name: string; hex: string } | null;
-	sizes: { label: string; sort_order: number } | null;
-	products: { id: string; name: string; slug: string; status: string } | null;
-}
+export const load: PageServerLoad = async (event) => {
+	const onlyLow = event.url.searchParams.get('bajo') === '1';
 
-export const load: PageServerLoad = async ({ url }) => {
-	const onlyLow = url.searchParams.get('bajo') === '1';
-
-	let query = supabaseAdmin()
-		.from('variants')
-		.select(
-			`id, sku, stock, active,
-			colors ( name, hex ),
-			sizes ( label, sort_order ),
-			products ( id, name, slug, status )`
-		)
-		.order('stock', { ascending: true })
-		.limit(400);
-
-	if (onlyLow) query = query.lte('stock', 3);
-
-	const { data, error } = await query.returns<InventoryRow[]>();
-
-	if (error) throw error;
-
-	// Agrupado por prenda para editar como quien revisa el perchero.
-	const byProduct = new Map<string, { name: string; slug: string; rows: InventoryRow[] }>();
-
-	for (const row of data ?? []) {
-		if (!row.products) continue;
-
-		const entry = byProduct.get(row.products.id) ?? {
-			name: row.products.name,
-			slug: row.products.slug,
-			rows: []
-		};
-
-		entry.rows.push(row);
-		byProduct.set(row.products.id, entry);
-	}
-
-	return {
-		groups: [...byProduct.entries()].map(([id, entry]) => ({ id, ...entry })),
-		onlyLow
-	};
+	// Agrupado por prenda, empezando por lo que está por agotarse, para editar
+	// como quien revisa el perchero.
+	return { groups: orFail(await listInventory(panelContext(event), onlyLow)), onlyLow };
 };
 
 export const actions: Actions = {
-	stock: async ({ request }) => {
-		const formData = await request.formData();
+	stock: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 
 		const parsed = stockUpdateSchema.safeParse({
 			variantId: formData.get('variantId'),
@@ -69,12 +27,9 @@ export const actions: Actions = {
 			return fail(400, { error: parsed.error.issues.at(0)?.message ?? 'Cantidad inválida.' });
 		}
 
-		const { error } = await supabaseAdmin()
-			.from('variants')
-			.update({ stock: parsed.data.stock })
-			.eq('id', parsed.data.variantId);
+		const result = await updateVariant(ctx, parsed.data.variantId, { stock: parsed.data.stock });
 
-		if (error) return fail(500, { error: 'No pudimos guardar el inventario.' });
+		if (!result.ok) return failWith(result);
 
 		return { ok: true };
 	}

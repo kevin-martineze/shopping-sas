@@ -2,16 +2,17 @@ import { fail } from '@sveltejs/kit';
 
 import type { Actions, PageServerLoad } from './$types';
 import { settingsSchema } from '$lib/schemas/admin';
-import { getSettings } from '$lib/server/store';
-import { supabaseAdmin } from '$lib/server/supabase';
+import { getSettings, updateSettings } from '$lib/server/api/panel-content';
+import { failWith, orFail, panelContext } from '$lib/server/context';
 
-export const load: PageServerLoad = async ({ locals }) => {
-	return { current: await getSettings(locals.supabase) };
+export const load: PageServerLoad = async (event) => {
+	return { current: orFail(await getSettings(panelContext(event))) };
 };
 
 export const actions: Actions = {
-	default: async ({ request }) => {
-		const formData = await request.formData();
+	default: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 
 		const parsed = settingsSchema.safeParse({
 			storeName: formData.get('storeName'),
@@ -27,18 +28,15 @@ export const actions: Actions = {
 
 		const input = parsed.data;
 
-		const { error } = await supabaseAdmin()
-			.from('settings')
-			.update({
-				store_name: input.storeName,
-				whatsapp_phone: input.whatsappPhone,
-				instagram_url: input.instagramUrl || null,
-				announcement: input.announcement || null,
-				free_shipping_threshold: input.freeShippingThreshold || null
-			})
-			.eq('id', true);
+		const result = await updateSettings(ctx, {
+			storeName: input.storeName,
+			whatsappPhone: input.whatsappPhone,
+			instagramUrl: input.instagramUrl || null,
+			announcement: input.announcement || null,
+			freeShippingThreshold: input.freeShippingThreshold || null
+		});
 
-		if (error) return fail(500, { error: 'No pudimos guardar los ajustes.' });
+		if (!result.ok) return failWith(result);
 
 		return { ok: true };
 	}

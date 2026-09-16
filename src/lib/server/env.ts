@@ -7,10 +7,11 @@ import { env as publicEnv } from '$env/dynamic/public';
  * Se valida en tiempo de ejecución (no de build) para que el proyecto arranque
  * y muestre un error legible cuando falta configuración, en vez de romper el
  * build con un stack trace de SvelteKit.
+ *
+ * Supabase ya solo guarda las fotos (Storage): los datos viven en la API.
  */
 const schema = z.object({
 	PUBLIC_SUPABASE_URL: z.string().url(),
-	PUBLIC_SUPABASE_ANON_KEY: z.string().min(20),
 	SUPABASE_SERVICE_ROLE_KEY: z.string().min(20),
 	PUBLIC_SITE_URL: z.string().url(),
 	/** API propia con su prefijo de versión (`http://127.0.0.1:3000/v1`). Se guarda sin barra final. */
@@ -33,7 +34,6 @@ export function serverEnv(): ServerEnv {
 
 	const parsed = schema.safeParse({
 		PUBLIC_SUPABASE_URL: publicEnv.PUBLIC_SUPABASE_URL,
-		PUBLIC_SUPABASE_ANON_KEY: publicEnv.PUBLIC_SUPABASE_ANON_KEY,
 		SUPABASE_SERVICE_ROLE_KEY: privateEnv.SUPABASE_SERVICE_ROLE_KEY,
 		PUBLIC_SITE_URL: publicEnv.PUBLIC_SITE_URL,
 		API_URL: privateEnv.API_URL,

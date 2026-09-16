@@ -1,13 +1,14 @@
 import type { PageServerLoad } from './$types';
-import { getDashboardStats } from '$lib/server/admin';
-import { listOrders } from '$lib/server/orders';
-import { supabaseAdmin } from '$lib/server/supabase';
+import { getDashboard, listOrders } from '$lib/server/api/panel-commerce';
+import { orFail, panelContext } from '$lib/server/context';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async (event) => {
+	const ctx = panelContext(event);
+
 	const [stats, recent] = await Promise.all([
-		getDashboardStats(),
-		listOrders(supabaseAdmin(), { status: null, q: null, page: 1 })
+		getDashboard(ctx),
+		listOrders(ctx, { status: null, q: null, page: 1 })
 	]);
 
-	return { stats, recentOrders: recent.orders.slice(0, 8) };
+	return { stats: orFail(stats), recentOrders: orFail(recent).orders.slice(0, 8) };
 };

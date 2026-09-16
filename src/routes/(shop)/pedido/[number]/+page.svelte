@@ -50,7 +50,10 @@
 		</p>
 	</div>
 
-	<form method="POST" action="?/abierto" bind:this={openForm} class="hidden" use:enhance></form>
+	<!-- El token va en el formulario: `?/abierto` reemplaza la query y se perdería el `?t=`. -->
+	<form method="POST" action="?/abierto" bind:this={openForm} class="hidden" use:enhance>
+		<input type="hidden" name="t" value={data.order.public_token} />
+	</form>
 
 	<div class="mt-8 space-y-3">
 		<Button

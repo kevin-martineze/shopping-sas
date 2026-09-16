@@ -39,10 +39,6 @@
 
 		goto(url, { keepFocus: true, noScroll: true });
 	}
-
-	function totalStock(variants: { stock: number }[]): number {
-		return variants.reduce((sum, variant) => sum + variant.stock, 0);
-	}
 </script>
 
 <svelte:head>
@@ -94,14 +90,11 @@
 
 			<Table.Body>
 				{#each data.products as product (product.id)}
-					{@const image = [...product.product_images].sort(
-						(a, b) => a.sort_order - b.sort_order
-					)[0]}
-					{@const stock = totalStock(product.variants)}
+					{@const stock = product.total_stock}
 					<Table.Row>
 						<Table.Cell data-label="">
-							{#if image}
-								<img src={image.url_thumb} alt="" class="bg-muted size-12 object-cover" />
+							{#if product.thumbnail_url}
+								<img src={product.thumbnail_url} alt="" class="bg-muted size-12 object-cover" />
 							{:else}
 								<div class="bg-muted size-12"></div>
 							{/if}
@@ -113,7 +106,7 @@
 						</Table.Cell>
 
 						<Table.Cell data-label="Categoría" class="text-muted-foreground text-sm">
-							{product.categories?.name ?? '—'}
+							{product.category_name ?? '—'}
 						</Table.Cell>
 
 						<Table.Cell data-label="Precio" class="tabular-nums"

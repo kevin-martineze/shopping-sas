@@ -2,18 +2,21 @@ import { error, fail } from '@sveltejs/kit';
 
 import type { Actions, PageServerLoad } from './$types';
 import { isOrderStatus } from '$lib/domain/orders';
-import { getOrderById, setOrderStatus } from '$lib/server/orders';
+import { getOrder, updateOrder } from '$lib/server/api/panel-commerce';
+import { failWith, orFail, panelContext } from '$lib/server/context';
 import { serverEnv } from '$lib/server/env';
-import { getSettings } from '$lib/server/store';
-import { supabaseAdmin } from '$lib/server/supabase';
 import { buildOrderMessage, buildWhatsAppUrl } from '$lib/utils/whatsapp';
 
-export const load: PageServerLoad = async ({ params, locals }) => {
-	const order = await getOrderById(supabaseAdmin(), params.id);
+export const load: PageServerLoad = async (event) => {
+	const result = await getOrder(panelContext(event), event.params.id);
 
-	if (!order) error(404, 'Pedido no encontrado.');
+	if (!result.ok && (result.status === 404 || result.status === 400)) {
+		error(404, 'Pedido no encontrado.');
+	}
 
-	const settings = await getSettings(locals.supabase);
+	const order = orFail(result);
+	const { settings } = await event.parent();
+
 	const orderUrl = new URL(
 		`/pedido/${order.number}?t=${order.public_token}`,
 		serverEnv().PUBLIC_SITE_URL
@@ -29,33 +32,32 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 };
 
 export const actions: Actions = {
-	estado: async ({ request, params }) => {
-		const formData = await request.formData();
+	estado: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 		const status = formData.get('status');
 
 		if (typeof status !== 'string' || !isOrderStatus(status)) {
 			return fail(400, { error: 'Estado inválido.' });
 		}
 
-		try {
-			await setOrderStatus(supabaseAdmin(), params.id, status);
-		} catch {
-			return fail(500, { error: 'No pudimos cambiar el estado.' });
-		}
+		// Cancelar devuelve stock y cupón; un pedido cancelado no se reabre. Lo
+		// decide la API y su mensaje explica por qué.
+		const result = await updateOrder(ctx, event.params.id, { status });
+
+		if (!result.ok) return failWith(result);
 
 		return { ok: true };
 	},
 
-	notas: async ({ request, params }) => {
-		const formData = await request.formData();
+	notas: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 		const notes = String(formData.get('adminNotes') ?? '').slice(0, 1000);
 
-		const { error: updateError } = await supabaseAdmin()
-			.from('orders')
-			.update({ admin_notes: notes })
-			.eq('id', params.id);
+		const result = await updateOrder(ctx, event.params.id, { adminNotes: notes });
 
-		if (updateError) return fail(500, { error: 'No pudimos guardar la nota.' });
+		if (!result.ok) return failWith(result);
 
 		return { ok: true };
 	}

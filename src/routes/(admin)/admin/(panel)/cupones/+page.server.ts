@@ -2,16 +2,22 @@ import { fail } from '@sveltejs/kit';
 
 import type { Actions, PageServerLoad } from './$types';
 import { couponSchema } from '$lib/schemas/admin';
-import { listCoupons } from '$lib/server/admin';
-import { supabaseAdmin } from '$lib/server/supabase';
+import {
+	createCoupon,
+	listCoupons,
+	removeCoupon,
+	setCouponActive
+} from '$lib/server/api/panel-commerce';
+import { failWith, orFail, panelContext } from '$lib/server/context';
 
-export const load: PageServerLoad = async () => {
-	return { coupons: await listCoupons() };
+export const load: PageServerLoad = async (event) => {
+	return { coupons: orFail(await listCoupons(panelContext(event))) };
 };
 
 export const actions: Actions = {
-	crear: async ({ request }) => {
-		const formData = await request.formData();
+	crear: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 
 		const parsed = couponSchema.safeParse({
 			code: formData.get('code'),
@@ -28,51 +34,37 @@ export const actions: Actions = {
 			return fail(400, { error: parsed.error.issues.at(0)?.message ?? 'Revisa los datos.' });
 		}
 
-		const input = parsed.data;
+		const result = await createCoupon(ctx, parsed.data);
 
-		const { error } = await supabaseAdmin()
-			.from('coupons')
-			.insert({
-				code: input.code,
-				type: input.type,
-				value: input.value,
-				min_subtotal: input.minSubtotal,
-				starts_at: input.startsAt || null,
-				ends_at: input.endsAt || null,
-				max_uses: input.maxUses ?? null,
-				active: input.active
-			});
-
-		if (error) {
-			return fail(400, {
-				error: error.code === '23505' ? 'Ya existe un cupón con ese código.' : 'No pudimos crearlo.'
-			});
-		}
+		if (!result.ok) return failWith(result);
 
 		return { ok: true };
 	},
 
-	alternar: async ({ request }) => {
-		const formData = await request.formData();
-		const id = String(formData.get('id') ?? '');
-		const active = formData.get('active') === 'true';
+	alternar: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 
-		const { error } = await supabaseAdmin().from('coupons').update({ active }).eq('id', id);
+		const result = await setCouponActive(
+			ctx,
+			String(formData.get('id') ?? ''),
+			formData.get('active') === 'true'
+		);
 
-		if (error) return fail(500, { error: 'No pudimos cambiar el cupón.' });
+		if (!result.ok) return failWith(result);
 
 		return { ok: true };
 	},
 
-	eliminar: async ({ request }) => {
-		const formData = await request.formData();
-		const id = String(formData.get('id') ?? '');
+	eliminar: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 
-		const { error } = await supabaseAdmin().from('coupons').delete().eq('id', id);
+		const result = await removeCoupon(ctx, String(formData.get('id') ?? ''));
 
-		if (error) {
-			// Cupón ya usado en un pedido: se desactiva para no romper el historial.
-			await supabaseAdmin().from('coupons').update({ active: false }).eq('id', id);
+		if (!result.ok) return failWith(result);
+
+		if (result.data.result === 'deactivated') {
 			return fail(409, { error: 'Ese cupón ya se usó, así que lo desactivamos.' });
 		}
 
