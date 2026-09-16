@@ -12,7 +12,16 @@ const schema = z.object({
 	PUBLIC_SUPABASE_URL: z.string().url(),
 	PUBLIC_SUPABASE_ANON_KEY: z.string().min(20),
 	SUPABASE_SERVICE_ROLE_KEY: z.string().min(20),
-	PUBLIC_SITE_URL: z.string().url()
+	PUBLIC_SITE_URL: z.string().url(),
+	/** API propia con su prefijo de versión (`http://127.0.0.1:3000/v1`). Se guarda sin barra final. */
+	API_URL: z
+		.string()
+		.url()
+		.transform((value) => value.replace(/\/+$/, '')),
+	/** Cifra la cookie de sesión del panel. Cambiarlo cierra todas las sesiones abiertas. */
+	SESSION_SECRET: z.string().min(32),
+	/** Slug de la tienda que sirve este frontend en la API. Mismo formato que un subdominio. */
+	STORE_SLUG: z.string().regex(/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/)
 });
 
 export type ServerEnv = z.infer<typeof schema>;
@@ -26,13 +35,16 @@ export function serverEnv(): ServerEnv {
 		PUBLIC_SUPABASE_URL: publicEnv.PUBLIC_SUPABASE_URL,
 		PUBLIC_SUPABASE_ANON_KEY: publicEnv.PUBLIC_SUPABASE_ANON_KEY,
 		SUPABASE_SERVICE_ROLE_KEY: privateEnv.SUPABASE_SERVICE_ROLE_KEY,
-		PUBLIC_SITE_URL: publicEnv.PUBLIC_SITE_URL
+		PUBLIC_SITE_URL: publicEnv.PUBLIC_SITE_URL,
+		API_URL: privateEnv.API_URL,
+		SESSION_SECRET: privateEnv.SESSION_SECRET,
+		STORE_SLUG: privateEnv.STORE_SLUG
 	});
 
 	if (!parsed.success) {
 		const missing = parsed.error.issues.map((issue) => issue.path.join('.')).join(', ');
 		throw new Error(
-			`Configuración incompleta (${missing}). Copia .env.example a .env y completa las claves de Supabase.`
+			`Configuración incompleta (${missing}). Copia .env.example a .env y completa las variables.`
 		);
 	}
 

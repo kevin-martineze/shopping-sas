@@ -61,6 +61,9 @@ export interface OrderWithItems extends Order {
 	items: OrderItem[];
 }
 
+/** El pedido como lo ve la clienta en su enlace: sin los datos internos del panel. */
+export type PublicOrderView = Omit<OrderWithItems, 'id' | 'shipping_zone_id' | 'admin_notes'>;
+
 /** Línea del carrito ya revalidada contra la base de datos. */
 export interface PricedLine {
 	variantId: string;
