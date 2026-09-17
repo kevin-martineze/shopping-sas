@@ -17,8 +17,25 @@ const schema = z.object({
 		.transform((value) => value.replace(/\/+$/, '')),
 	/** Cifra la cookie de sesión del panel. Cambiarlo cierra todas las sesiones abiertas. */
 	SESSION_SECRET: z.string().min(32),
-	/** Slug de la tienda que sirve este frontend en la API. Mismo formato que un subdominio. */
-	STORE_SLUG: z.string().regex(/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/)
+	/**
+	 * Dominio bajo el que cada tienda es un subdominio: con `mitienda.com`,
+	 * `boutique.mitienda.com` sirve la tienda `boutique`. Lleva el puerto si lo
+	 * hay (`localhost:5173`). Sin él, el frontend sirve solo a `STORE_SLUG`.
+	 */
+	STORE_ROOT_DOMAIN: z
+		.string()
+		.regex(/^[a-z0-9.-]+(:\d+)?$/, 'STORE_ROOT_DOMAIN es un host, sin protocolo ni barras.')
+		.optional()
+		.transform((value) => value || undefined),
+	/**
+	 * Tienda que se sirve en el dominio raíz (o en cualquier host si no hay
+	 * `STORE_ROOT_DOMAIN`). Sin ella, el dominio raíz lleva al registro.
+	 */
+	STORE_SLUG: z
+		.string()
+		.regex(/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/, 'STORE_SLUG tiene el formato de un subdominio.')
+		.optional()
+		.transform((value) => value || undefined)
 });
 
 export type ServerEnv = z.infer<typeof schema>;
@@ -32,6 +49,7 @@ export function serverEnv(): ServerEnv {
 		PUBLIC_SITE_URL: publicEnv.PUBLIC_SITE_URL,
 		API_URL: privateEnv.API_URL,
 		SESSION_SECRET: privateEnv.SESSION_SECRET,
+		STORE_ROOT_DOMAIN: privateEnv.STORE_ROOT_DOMAIN,
 		STORE_SLUG: privateEnv.STORE_SLUG
 	});
 
