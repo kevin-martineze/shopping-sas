@@ -47,7 +47,12 @@ shadcn-svelte**, sobre la API propia `ecommerce-api`.
 
 16. **Todo dato de la tienda viene de la API, y solo desde el servidor.** Tienda
     pública con `publicContext(event)` y `$lib/server/api/storefront.ts` /
-    `checkout.ts`; panel con `panelContext(event)` y `$lib/server/api/panel-*.ts`.
+    `checkout.ts`; panel con `panelContext(event)` y `$lib/server/api/panel-*.ts`;
+    cuenta y consola de la plataforma con `accountContext(event)` y
+    `$lib/server/api/auth.ts` / `platform.ts`.
+    La tienda pública es la del host (`storeSlugFor`): subdominio de
+    `STORE_ROOT_DOMAIN`, o `STORE_SLUG`. El panel opera sobre la tienda de la
+    sesión, y `requireAdmin` la cambia a la del host si la cuenta es miembro.
 17. **Toda form action del panel empieza con `panelContext(event)`.** Las actions
     no ejecutan el `load` del layout, así que no heredan `requireAdmin`.
 18. **Las reglas de precio viven solo en la API.** El carrito cotiza con
@@ -72,7 +77,11 @@ esquema y los datos viven en la API.
 - **Toda respuesta se lee con un esquema zod**, nunca con `as`.
 - **La sesión del panel es `locals.session`**, cifrada en la cookie
   `tienda_session`. Toda carga del panel pasa por `requireAdmin`, que además
-  verifica contra la API que la membresía siga viva.
+  verifica contra la API que la membresía siga viva. Una sesión sin tienda
+  (`storeId: null`) solo la tiene quien administra la plataforma: entra a
+  `/plataforma` (`requirePlatformAdmin`), nunca al panel.
+- **Los permisos los decide la API.** El panel oculta lo que el rol no puede
+  hacer (`data.role`), pero la regla vive allá; un 403 llega con su mensaje.
 - **Todo `redirectTo` que llegue en la URL pasa por `safeRedirectTarget`.**
 
 ### UI
