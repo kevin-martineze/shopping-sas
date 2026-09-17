@@ -15,10 +15,8 @@ export const SESSION_COOKIE = 'tienda_session';
 /** Lo mismo que `JWT_REFRESH_TTL` en la API: la cookie no dura más que el token que la respalda. */
 const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
 
-/** Null si la cuenta no tiene tienda activa: entrar sin tienda no lleva a ningún panel. */
-export function toAdminSession(api: ApiSession, now: number = Date.now()): AdminSession | null {
-	if (!api.activeStoreId) return null;
-
+/** La sesión que guarda la cookie. Sin tienda activa solo sirve para la consola de la plataforma. */
+export function toAdminSession(api: ApiSession, now: number = Date.now()): AdminSession {
 	return {
 		accessToken: api.accessToken,
 		refreshToken: api.refreshToken,
@@ -83,11 +81,6 @@ export async function resolveSession(
 	}
 
 	const renewed = toAdminSession(result.data);
-
-	if (!renewed) {
-		clearSession(cookies);
-		return null;
-	}
 
 	writeSession(cookies, renewed);
 

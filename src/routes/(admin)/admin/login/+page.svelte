@@ -46,7 +46,15 @@
 			</div>
 
 			<div class="space-y-2">
-				<Label for="password">Contraseña</Label>
+				<div class="flex items-center justify-between">
+					<Label for="password">Contraseña</Label>
+					<a
+						href="/admin/recuperar"
+						class="text-muted-foreground hover:text-foreground text-xs underline"
+					>
+						¿La olvidaste?
+					</a>
+				</div>
 				<Input
 					id="password"
 					name="password"
@@ -60,6 +68,8 @@
 				<p class="text-destructive text-sm">{form.error}</p>
 			{:else if data.notice === 'sin-permiso'}
 				<p class="text-destructive text-sm">Esa cuenta no tiene acceso al panel.</p>
+			{:else if data.notice === 'restablecida'}
+				<p class="text-success text-sm">Listo, tu contraseña cambió. Entra con la nueva.</p>
 			{/if}
 
 			<Button type="submit" class="w-full" disabled={submitting}>
@@ -67,8 +77,9 @@
 			</Button>
 		</form>
 
-		<p class="text-muted-foreground text-center text-xs">
+		<p class="text-muted-foreground space-x-3 text-center text-xs">
 			<a href="/" class="hover:text-foreground underline">Volver a la tienda</a>
+			<a href="/registro" class="hover:text-foreground underline">Crear una tienda</a>
 		</p>
 	</div>
 </main>

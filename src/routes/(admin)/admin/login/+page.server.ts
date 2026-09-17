@@ -2,15 +2,15 @@ import { fail, redirect } from '@sveltejs/kit';
 
 import type { Actions, PageServerLoad } from './$types';
 import { loginSchema } from '$lib/schemas/admin';
-import { login, logout } from '$lib/server/api/auth';
-import { clientAddress } from '$lib/server/context';
+import { login, logout, me, switchStore } from '$lib/server/api/auth';
+import { clientAddress, displayStatus, storeSlugFor } from '$lib/server/context';
 import { toAdminSession, writeSession } from '$lib/server/session';
 import { safeRedirectTarget } from '$lib/utils/redirect';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	if (locals.session) redirect(303, safeRedirectTarget(url.searchParams.get('redirectTo')));
 
-	return { notice: url.searchParams.get('error') };
+	return { notice: url.searchParams.get('aviso') ?? url.searchParams.get('error') };
 };
 
 export const actions: Actions = {
@@ -32,17 +32,36 @@ export const actions: Actions = {
 		if (!result.ok) {
 			// Los 4xx (credenciales, cuenta bloqueada, demasiados intentos) traen
 			// un mensaje ya escrito para la dueña. Lo demás es la red o nosotros.
-			const status = result.status >= 400 && result.status < 500 ? result.status : 503;
-
-			return fail(status, { error: result.message });
+			return fail(displayStatus(result), { error: result.message });
 		}
 
-		const session = toAdminSession(result.data);
+		let session = toAdminSession(result.data);
 
-		if (!session) {
-			// La cuenta existe pero no es miembro de ninguna tienda. La sesión que
-			// emitió la API no lleva a ningún panel: se cierra en vez de dejarla viva.
-			await logout(result.data.refreshToken, ip);
+		// En el subdominio de una tienda se entra a ESA tienda, si la cuenta es
+		// parte de ella, aunque la API haya elegido otra.
+		const hostSlug = storeSlugFor(event);
+		const hostStore = result.data.stores.find((store) => store.slug === hostSlug);
+
+		if (hostStore && hostStore.id !== session.storeId) {
+			const switched = await switchStore(
+				{ accessToken: session.accessToken, clientIp: ip },
+				hostStore.id,
+				session.refreshToken
+			);
+
+			if (switched.ok) session = toAdminSession(switched.data);
+		}
+
+		if (!session.storeId) {
+			// Sin tienda solo se entra a la consola de la plataforma.
+			const account = await me(session.accessToken, ip);
+
+			if (account.ok && account.data.isPlatformAdmin) {
+				writeSession(cookies, session);
+				redirect(303, '/plataforma');
+			}
+
+			await logout(session.refreshToken, ip);
 
 			return fail(403, { error: 'Esta cuenta no tiene acceso al panel.' });
 		}

@@ -3,6 +3,8 @@
 
 	import BellRing from '@lucide/svelte/icons/bell-ring';
 	import Boxes from '@lucide/svelte/icons/boxes';
+	import CreditCard from '@lucide/svelte/icons/credit-card';
+	import ExternalLink from '@lucide/svelte/icons/external-link';
 	import Images from '@lucide/svelte/icons/images';
 	import LayoutTemplate from '@lucide/svelte/icons/layout-template';
 	import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
@@ -10,15 +12,20 @@
 	import LogOut from '@lucide/svelte/icons/log-out';
 	import Receipt from '@lucide/svelte/icons/receipt';
 	import Settings from '@lucide/svelte/icons/settings';
+	import Shield from '@lucide/svelte/icons/shield';
 	import Shirt from '@lucide/svelte/icons/shirt';
 	import Ticket from '@lucide/svelte/icons/ticket';
 	import Truck from '@lucide/svelte/icons/truck';
+	import UserRound from '@lucide/svelte/icons/user-round';
+	import Users from '@lucide/svelte/icons/users';
 
 	import { page } from '$app/state';
 
 	import type { LayoutData } from './$types';
 	import { Badge } from '$lib/components/atoms/badge';
 	import { Button } from '$lib/components/atoms/button';
+	import SubscriptionBanner from '$lib/components/molecules/SubscriptionBanner.svelte';
+	import { MEMBER_ROLE_LABEL } from '$lib/domain/account';
 	import { cn } from '$lib/utils';
 
 	interface Props {
@@ -39,8 +46,13 @@
 		{ href: '/admin/cupones', label: 'Cupones', icon: Ticket },
 		{ href: '/admin/envios', label: 'Envíos', icon: Truck },
 		{ href: '/admin/avisos', label: 'Avisos', icon: BellRing },
-		{ href: '/admin/ajustes', label: 'Ajustes', icon: Settings }
+		{ href: '/admin/ajustes', label: 'Ajustes', icon: Settings },
+		{ href: '/admin/equipo', label: 'Equipo', icon: Users },
+		{ href: '/admin/plan', label: 'Plan', icon: CreditCard },
+		{ href: '/admin/cuenta', label: 'Mi cuenta', icon: UserRound }
 	];
+
+	const platformLink = { href: '/plataforma', label: 'Plataforma', icon: Shield };
 
 	function isActive(href: string): boolean {
 		return href === '/admin' ? page.url.pathname === '/admin' : page.url.pathname.startsWith(href);
@@ -55,8 +67,14 @@
 	<aside class="bg-sidebar border-sidebar-border hidden w-60 flex-none border-r lg:block">
 		<div class="sticky top-0 flex h-screen flex-col">
 			<div class="border-sidebar-border border-b px-5 py-4">
-				<a href="/" class="text-base font-semibold tracking-tight">{data.settings.store_name}</a>
-				<p class="text-muted-foreground text-xs">Panel</p>
+				<a
+					href={data.storeUrl}
+					class="flex items-center gap-1.5 text-base font-semibold tracking-tight"
+				>
+					{data.settings.store_name}
+					<ExternalLink class="text-muted-foreground size-3.5" />
+				</a>
+				<p class="text-muted-foreground text-xs">Panel · {MEMBER_ROLE_LABEL[data.role]}</p>
 			</div>
 
 			<nav class="flex-1 space-y-0.5 p-3">
@@ -79,6 +97,17 @@
 						{/if}
 					</a>
 				{/each}
+
+				{#if data.isPlatformAdmin}
+					{@const Icon = platformLink.icon}
+					<a
+						href={platformLink.href}
+						class="text-muted-foreground hover:bg-sidebar-accent/60 mt-3 flex items-center gap-3 px-3 py-2 text-sm transition-colors"
+					>
+						<Icon class="size-4" />
+						{platformLink.label}
+					</a>
+				{/if}
 			</nav>
 
 			<div class="border-sidebar-border space-y-2 border-t p-3">
@@ -113,6 +142,7 @@
 		</header>
 
 		<main class="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+			<SubscriptionBanner notice={data.notice} />
 			{@render children()}
 		</main>
 	</div>

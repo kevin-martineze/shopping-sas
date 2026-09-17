@@ -1,3 +1,4 @@
+import type { MemberRole, StoreStatus, SubscriptionStatus } from '$lib/domain/account';
 import type { ProductStatus } from '$lib/domain/catalog';
 import type { OrderStatus } from '$lib/domain/orders';
 
@@ -54,3 +55,40 @@ export function toApiProductStatus(status: ProductStatus): ApiProductStatus {
 export function toApiOrderStatus(status: OrderStatus): ApiOrderStatus {
 	return ORDER_TO_API[status];
 }
+
+type ApiMemberRole = 'OWNER' | 'STAFF';
+
+const ROLE_TO_API: Record<MemberRole, ApiMemberRole> = { owner: 'OWNER', staff: 'STAFF' };
+
+export const memberRoleSchema = z
+	.enum(['OWNER', 'STAFF'])
+	.transform((role): MemberRole => (role === 'OWNER' ? 'owner' : 'staff'));
+
+export function toApiMemberRole(role: MemberRole): ApiMemberRole {
+	return ROLE_TO_API[role];
+}
+
+const STORE_STATUS_TO_DOMAIN: Record<'TRIAL' | 'ACTIVE' | 'PAST_DUE' | 'SUSPENDED', StoreStatus> = {
+	TRIAL: 'trial',
+	ACTIVE: 'active',
+	PAST_DUE: 'past_due',
+	SUSPENDED: 'suspended'
+};
+
+export const storeStatusSchema = z
+	.enum(['TRIAL', 'ACTIVE', 'PAST_DUE', 'SUSPENDED'])
+	.transform((status) => STORE_STATUS_TO_DOMAIN[status]);
+
+const SUBSCRIPTION_STATUS_TO_DOMAIN: Record<
+	'TRIALING' | 'ACTIVE' | 'PAST_DUE' | 'CANCELLED',
+	SubscriptionStatus
+> = {
+	TRIALING: 'trialing',
+	ACTIVE: 'active',
+	PAST_DUE: 'past_due',
+	CANCELLED: 'cancelled'
+};
+
+export const subscriptionStatusSchema = z
+	.enum(['TRIALING', 'ACTIVE', 'PAST_DUE', 'CANCELLED'])
+	.transform((status) => SUBSCRIPTION_STATUS_TO_DOMAIN[status]);

@@ -23,8 +23,11 @@ export const adminSessionSchema = z.object({
 	accessExpiresAt: z.number().int(),
 	userId: z.string(),
 	email: z.string(),
-	/** Tienda activa. La sesión del panel siempre tiene una: sin tienda no hay panel. */
-	storeId: z.string()
+	/**
+	 * Tienda activa. Null solo para una cuenta que administra la plataforma sin
+	 * pertenecer a ninguna tienda: entra a `/plataforma`, nunca al panel.
+	 */
+	storeId: z.string().nullable()
 });
 
 export type AdminSession = z.infer<typeof adminSessionSchema>;
