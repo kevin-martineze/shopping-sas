@@ -163,3 +163,45 @@ export function usagePercent(used: number, limit: number | null): number | null 
 
 	return Math.min(100, Math.round((used / limit) * 100));
 }
+
+export interface PlatformStoreRef {
+	id: string;
+	name: string;
+	slug: string;
+	owner_email: string | null;
+}
+
+export interface TrialEnding extends PlatformStoreRef {
+	trial_ends_at: string;
+	/** Negativo si ya venció y el cron no ha pasado. */
+	days_left: number;
+}
+
+export interface OverdueStore extends PlatformStoreRef {
+	current_period_end: string | null;
+	days_overdue: number;
+}
+
+export interface PlatformPaymentRow extends PlatformPayment {
+	store_id: string;
+	store_name: string;
+	store_slug: string;
+}
+
+export interface PlatformDashboard {
+	stores: { total: number; trial: number; active: number; past_due: number; suspended: number };
+	paying_stores: number;
+	/** Ingreso mensual recurrente: suma del plan de las tiendas que pagan. */
+	mrr: number;
+	revenue_this_month: number;
+	revenue_last_month: number;
+	trials_ending: TrialEnding[];
+	overdue: OverdueStore[];
+	recent_payments: PlatformPaymentRow[];
+}
+
+export interface MonthPayments {
+	month: string;
+	total: number;
+	payments: PlatformPaymentRow[];
+}

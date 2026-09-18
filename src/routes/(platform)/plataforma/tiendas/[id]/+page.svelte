@@ -60,7 +60,7 @@
 </svelte:head>
 
 <a
-	href="/plataforma"
+	href="/plataforma/tiendas"
 	class="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-1 text-sm"
 >
 	<ArrowLeft class="size-4" />

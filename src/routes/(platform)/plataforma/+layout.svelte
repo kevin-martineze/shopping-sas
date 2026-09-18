@@ -4,8 +4,11 @@
 	import LogOut from '@lucide/svelte/icons/log-out';
 	import Shield from '@lucide/svelte/icons/shield';
 
+	import { page } from '$app/state';
+
 	import type { LayoutData } from './$types';
 	import { Button } from '$lib/components/atoms/button';
+	import { cn } from '$lib/utils';
 
 	interface Props {
 		data: LayoutData;
@@ -13,6 +16,18 @@
 	}
 
 	let { data, children }: Props = $props();
+
+	const links = [
+		{ href: '/plataforma', label: 'Resumen' },
+		{ href: '/plataforma/tiendas', label: 'Tiendas' },
+		{ href: '/plataforma/pagos', label: 'Pagos' }
+	];
+
+	function isActive(href: string): boolean {
+		return href === '/plataforma'
+			? page.url.pathname === '/plataforma'
+			: page.url.pathname.startsWith(href);
+	}
 </script>
 
 <svelte:head>
@@ -26,6 +41,22 @@
 				<Shield class="size-4" />
 				Globerce · Plataforma
 			</a>
+
+			<nav class="flex items-center gap-1">
+				{#each links as link (link.href)}
+					<a
+						href={link.href}
+						class={cn(
+							'px-3 py-1.5 text-sm transition-colors',
+							isActive(link.href)
+								? 'bg-muted text-foreground'
+								: 'text-muted-foreground hover:text-foreground'
+						)}
+					>
+						{link.label}
+					</a>
+				{/each}
+			</nav>
 
 			<div class="ml-auto flex items-center gap-3">
 				{#if data.hasStores}

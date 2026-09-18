@@ -1,6 +1,9 @@
 import type {
+	MonthPayments,
 	Plan,
+	PlatformDashboard,
 	PlatformPayment,
+	PlatformPaymentRow,
 	PlatformStore,
 	PlatformStoreDetail,
 	StoreStatus
@@ -193,6 +196,115 @@ export function recordPayment(
 		method: 'POST',
 		body: input
 	});
+}
+
+const storeRefFields = {
+	id: z.string(),
+	name: z.string(),
+	slug: z.string(),
+	ownerEmail: z.string().nullable()
+};
+
+const platformPaymentSchema = z
+	.object({
+		id: z.string(),
+		storeId: z.string(),
+		storeName: z.string(),
+		storeSlug: z.string(),
+		amountCop: z.number(),
+		periodStart: z.string(),
+		periodEnd: z.string(),
+		method: z.string(),
+		reference: z.string().nullable(),
+		recordedBy: z.string().nullable(),
+		createdAt: z.string()
+	})
+	.transform((payment): PlatformPaymentRow => ({
+		id: payment.id,
+		store_id: payment.storeId,
+		store_name: payment.storeName,
+		store_slug: payment.storeSlug,
+		amount_cop: payment.amountCop,
+		period_start: payment.periodStart,
+		period_end: payment.periodEnd,
+		method: payment.method,
+		reference: payment.reference,
+		recorded_by: payment.recordedBy,
+		created_at: payment.createdAt
+	}));
+
+const dashboardSchema = z
+	.object({
+		stores: z.object({
+			total: z.number(),
+			trial: z.number(),
+			active: z.number(),
+			pastDue: z.number(),
+			suspended: z.number()
+		}),
+		payingStores: z.number(),
+		mrr: z.number(),
+		revenueThisMonth: z.number(),
+		revenueLastMonth: z.number(),
+		trialsEnding: z.array(
+			z.object({ ...storeRefFields, trialEndsAt: z.string(), daysLeft: z.number() })
+		),
+		overdue: z.array(
+			z.object({
+				...storeRefFields,
+				currentPeriodEnd: z.string().nullable(),
+				daysOverdue: z.number()
+			})
+		),
+		recentPayments: z.array(platformPaymentSchema)
+	})
+	.transform((dashboard): PlatformDashboard => ({
+		stores: {
+			total: dashboard.stores.total,
+			trial: dashboard.stores.trial,
+			active: dashboard.stores.active,
+			past_due: dashboard.stores.pastDue,
+			suspended: dashboard.stores.suspended
+		},
+		paying_stores: dashboard.payingStores,
+		mrr: dashboard.mrr,
+		revenue_this_month: dashboard.revenueThisMonth,
+		revenue_last_month: dashboard.revenueLastMonth,
+		trials_ending: dashboard.trialsEnding.map((store) => ({
+			id: store.id,
+			name: store.name,
+			slug: store.slug,
+			owner_email: store.ownerEmail,
+			trial_ends_at: store.trialEndsAt,
+			days_left: store.daysLeft
+		})),
+		overdue: dashboard.overdue.map((store) => ({
+			id: store.id,
+			name: store.name,
+			slug: store.slug,
+			owner_email: store.ownerEmail,
+			current_period_end: store.currentPeriodEnd,
+			days_overdue: store.daysOverdue
+		})),
+		recent_payments: dashboard.recentPayments
+	}));
+
+export function getDashboard(ctx: AccountContext): Promise<ApiResult<PlatformDashboard>> {
+	return platformRequest(ctx, '/dashboard', dashboardSchema);
+}
+
+const monthPaymentsSchema = z.object({
+	month: z.string(),
+	total: z.number(),
+	payments: z.array(platformPaymentSchema)
+});
+
+/** Todos los pagos de un mes de Colombia (`YYYY-MM`). */
+export function listPayments(
+	ctx: AccountContext,
+	month: string
+): Promise<ApiResult<MonthPayments>> {
+	return platformRequest(ctx, `/payments?month=${encodeURIComponent(month)}`, monthPaymentsSchema);
 }
 
 export function reconcile(ctx: AccountContext): Promise<ApiResult<{ markedPastDue: number }>> {
