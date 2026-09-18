@@ -23,7 +23,7 @@
 </script>
 
 <svelte:head>
-	<title>Envíos — Panel</title>
+	<title>Envíos — Globerce</title>
 </svelte:head>
 
 <header class="mb-6 space-y-1">

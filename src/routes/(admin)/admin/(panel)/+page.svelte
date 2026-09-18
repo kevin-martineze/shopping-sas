@@ -26,7 +26,7 @@
 </script>
 
 <svelte:head>
-	<title>Resumen — Panel</title>
+	<title>Resumen — Globerce</title>
 </svelte:head>
 
 <header class="mb-8 space-y-1">

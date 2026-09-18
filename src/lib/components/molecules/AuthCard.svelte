@@ -10,7 +10,7 @@
 		footer?: Snippet;
 	}
 
-	let { title, eyebrow = 'Panel', wide = false, children, footer }: Props = $props();
+	let { title, eyebrow = 'Globerce', wide = false, children, footer }: Props = $props();
 </script>
 
 <main class="admin-shell grid min-h-screen place-items-center px-4 py-10">

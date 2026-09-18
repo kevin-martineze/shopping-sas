@@ -39,7 +39,7 @@
 </script>
 
 <svelte:head>
-	<title>Equipo — Panel</title>
+	<title>Equipo — Globerce</title>
 </svelte:head>
 
 <header class="mb-6">

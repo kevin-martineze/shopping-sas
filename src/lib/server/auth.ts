@@ -44,7 +44,7 @@ async function currentAccount(event: GuardEvent, session: AdminSession): Promise
  * token.
  *
  * Si el host es el de otra tienda de la misma cuenta, cambia la sesión a esa
- * tienda: en `boutique.mitienda.com/admin` se administra `boutique`, aunque la
+ * tienda: en `boutique.globerce.com/admin` se administra `boutique`, aunque la
  * sesión viniera de otra.
  *
  * Guarda los `load`. Las form actions no pasan por aquí: usan `panelContext`.

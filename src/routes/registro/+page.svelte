@@ -26,10 +26,14 @@
 </script>
 
 <svelte:head>
-	<title>Crea tu tienda</title>
+	<title>Crea tu tienda — Globerce</title>
 </svelte:head>
 
-<AuthCard eyebrow={data.signedIn ? 'Otra tienda' : '14 días gratis'} title="Crea tu tienda" wide>
+<AuthCard
+	eyebrow={data.signedIn ? 'Otra tienda' : '14 días gratis'}
+	title="Crea tu tienda en Globerce"
+	wide
+>
 	<form
 		method="POST"
 		class="space-y-6"

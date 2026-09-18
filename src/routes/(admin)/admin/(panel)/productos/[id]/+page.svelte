@@ -36,7 +36,7 @@
 </script>
 
 <svelte:head>
-	<title>{product.name} — Panel</title>
+	<title>{product.name} — Globerce</title>
 </svelte:head>
 
 <header class="mb-6 flex flex-wrap items-start justify-between gap-3">

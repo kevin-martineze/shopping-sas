@@ -22,7 +22,7 @@
 </script>
 
 <svelte:head>
-	<title>Plan — Panel</title>
+	<title>Plan — Globerce</title>
 </svelte:head>
 
 <header class="mb-6">

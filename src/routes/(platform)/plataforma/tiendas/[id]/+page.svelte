@@ -56,7 +56,7 @@
 </script>
 
 <svelte:head>
-	<title>{store.name} — Plataforma</title>
+	<title>{store.name} — Plataforma Globerce</title>
 </svelte:head>
 
 <a

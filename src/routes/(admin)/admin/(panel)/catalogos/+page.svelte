@@ -45,7 +45,7 @@
 </script>
 
 <svelte:head>
-	<title>Catálogos — Panel</title>
+	<title>Catálogos — Globerce</title>
 </svelte:head>
 
 <header class="mb-6 space-y-1">

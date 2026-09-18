@@ -17,14 +17,14 @@
 </script>
 
 <svelte:head>
-	<title>Panel — Iniciar sesión</title>
+	<title>Iniciar sesión — Globerce</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 
 <main class="admin-shell grid min-h-screen place-items-center px-4">
 	<div class="w-full max-w-sm space-y-8">
 		<header class="space-y-2 text-center">
-			<p class="eyebrow">Panel</p>
+			<p class="eyebrow">Globerce</p>
 			<h1 class="text-3xl">Iniciar sesión</h1>
 		</header>
 

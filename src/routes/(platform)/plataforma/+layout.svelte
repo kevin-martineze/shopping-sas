@@ -24,7 +24,7 @@
 		<div class="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-3 sm:px-6">
 			<a href="/plataforma" class="flex items-center gap-2 font-semibold tracking-tight">
 				<Shield class="size-4" />
-				Plataforma
+				Globerce · Plataforma
 			</a>
 
 			<div class="ml-auto flex items-center gap-3">

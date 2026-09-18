@@ -13,7 +13,7 @@
 </script>
 
 <svelte:head>
-	<title>Nueva prenda — Panel</title>
+	<title>Nueva prenda — Globerce</title>
 </svelte:head>
 
 <header class="mb-6">

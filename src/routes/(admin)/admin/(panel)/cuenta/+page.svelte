@@ -24,7 +24,7 @@
 </script>
 
 <svelte:head>
-	<title>Mi cuenta — Panel</title>
+	<title>Mi cuenta — Globerce</title>
 </svelte:head>
 
 <header class="mb-6">

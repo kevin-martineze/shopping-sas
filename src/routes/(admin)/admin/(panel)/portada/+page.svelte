@@ -47,7 +47,7 @@
 </script>
 
 <svelte:head>
-	<title>Portada — Panel</title>
+	<title>Portada — Globerce</title>
 </svelte:head>
 
 <header class="mb-6 space-y-1">

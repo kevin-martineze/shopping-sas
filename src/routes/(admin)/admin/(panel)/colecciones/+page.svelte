@@ -34,7 +34,7 @@
 </script>
 
 <svelte:head>
-	<title>Colecciones — Panel</title>
+	<title>Colecciones — Globerce</title>
 </svelte:head>
 
 <header class="mb-6">

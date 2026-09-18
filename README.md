@@ -1,11 +1,12 @@
-# Tienda de ropa — catálogo con checkout por WhatsApp
+# Globerce — tiendas de ropa con checkout por WhatsApp
 
-Tienda pública con acabado editorial y panel de administración. No hay pagos
-online: el cliente arma su carrito, el pedido se guarda en base de datos y se
+Frontend de **Globerce**: la tienda pública de cada clienta (una por
+subdominio), su panel de administración y la consola de la plataforma. No hay
+pagos online: la clienta arma su carrito, el pedido se guarda en la API y se
 abre WhatsApp con el mensaje ya escrito para cerrar la venta por chat.
 
 **Stack:** SvelteKit 2 · Svelte 5 (runes) · TypeScript strict · Tailwind v4 ·
-shadcn-svelte · Supabase (Postgres + Auth + Storage) · Vercel.
+shadcn-svelte · API propia (`ecommerce-api`) · Cloudflare R2 · Vercel.
 
 ---
 

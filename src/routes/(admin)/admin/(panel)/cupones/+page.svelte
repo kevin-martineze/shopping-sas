@@ -27,7 +27,7 @@
 </script>
 
 <svelte:head>
-	<title>Cupones — Panel</title>
+	<title>Cupones — Globerce</title>
 </svelte:head>
 
 <header class="mb-6">

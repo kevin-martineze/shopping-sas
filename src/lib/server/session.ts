@@ -10,7 +10,7 @@ import { needsRefresh, sealSession, unsealSession } from '$lib/server/session-cr
 
 /** Sesión del panel en cookie. El formato del contenido está en `session-crypto.ts`. */
 
-export const SESSION_COOKIE = 'tienda_session';
+export const SESSION_COOKIE = 'globerce_session';
 
 /** Lo mismo que `JWT_REFRESH_TTL` en la API: la cookie no dura más que el token que la respalda. */
 const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;

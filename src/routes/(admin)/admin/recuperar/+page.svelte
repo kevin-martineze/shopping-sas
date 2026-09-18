@@ -17,7 +17,7 @@
 </script>
 
 <svelte:head>
-	<title>Panel — Recuperar contraseña</title>
+	<title>Recuperar contraseña — Globerce</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 

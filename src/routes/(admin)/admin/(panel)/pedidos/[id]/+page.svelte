@@ -36,7 +36,7 @@
 </script>
 
 <svelte:head>
-	<title>Pedido #{order.number} — Panel</title>
+	<title>Pedido #{order.number} — Globerce</title>
 </svelte:head>
 
 <div class="mb-6 flex flex-wrap items-center justify-between gap-3">

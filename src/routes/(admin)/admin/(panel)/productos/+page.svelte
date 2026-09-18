@@ -42,7 +42,7 @@
 </script>
 
 <svelte:head>
-	<title>Productos — Panel</title>
+	<title>Productos — Globerce</title>
 </svelte:head>
 
 <header class="mb-6 flex flex-wrap items-center justify-between gap-3">

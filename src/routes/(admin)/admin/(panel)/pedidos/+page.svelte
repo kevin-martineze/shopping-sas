@@ -58,7 +58,7 @@
 </script>
 
 <svelte:head>
-	<title>Pedidos — Panel</title>
+	<title>Pedidos — Globerce</title>
 </svelte:head>
 
 <header class="mb-6 space-y-1">

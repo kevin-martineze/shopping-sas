@@ -74,7 +74,7 @@
 					{data.settings.store_name}
 					<ExternalLink class="text-muted-foreground size-3.5" />
 				</a>
-				<p class="text-muted-foreground text-xs">Panel · {MEMBER_ROLE_LABEL[data.role]}</p>
+				<p class="text-muted-foreground text-xs">Globerce · {MEMBER_ROLE_LABEL[data.role]}</p>
 			</div>
 
 			<nav class="flex-1 space-y-0.5 p-3">

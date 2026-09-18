@@ -19,7 +19,7 @@
 </script>
 
 <svelte:head>
-	<title>Panel — Nueva contraseña</title>
+	<title>Nueva contraseña — Globerce</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 

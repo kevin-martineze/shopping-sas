@@ -50,7 +50,7 @@
 </script>
 
 <svelte:head>
-	<title>Tiendas — Plataforma</title>
+	<title>Tiendas — Plataforma Globerce</title>
 </svelte:head>
 
 <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
