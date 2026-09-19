@@ -60,7 +60,13 @@ export async function apiRequest<T>(
 	schema: ResponseSchema<T>,
 	options: RequestOptions = {}
 ): Promise<ApiResult<T>> {
+	const env = serverEnv();
 	const headers: Record<string, string> = { accept: 'application/json' };
+
+	// La API puede exigir este secreto para atender a alguien (ver
+	// FrontSecretGuard en ecommerce-api): con IP pública es lo que la separa de
+	// internet, y también lo que hace creíble el `x-forwarded-for` de abajo.
+	if (env.API_SHARED_SECRET) headers['x-globerce-key'] = env.API_SHARED_SECRET;
 
 	if (options.body !== undefined && !options.formData) headers['content-type'] = 'application/json';
 	if (options.accessToken) headers.authorization = `Bearer ${options.accessToken}`;
@@ -70,7 +76,7 @@ export async function apiRequest<T>(
 	let response: Response;
 
 	try {
-		response = await fetch(`${serverEnv().API_URL}${path}`, {
+		response = await fetch(`${env.API_URL}${path}`, {
 			method: options.method ?? 'GET',
 			headers,
 			body:

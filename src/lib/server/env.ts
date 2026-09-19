@@ -18,6 +18,16 @@ const schema = z.object({
 	/** Cifra la cookie de sesión del panel. Cambiarlo cierra todas las sesiones abiertas. */
 	SESSION_SECRET: z.string().min(32),
 	/**
+	 * Secreto que la API exige para atender (cabecera `x-globerce-key`). Tiene
+	 * que ser el mismo `API_SHARED_SECRET` de la API. Vacío en desarrollo, donde
+	 * la API no lo pide.
+	 */
+	API_SHARED_SECRET: z
+		.string()
+		.min(32)
+		.optional()
+		.transform((value) => value || undefined),
+	/**
 	 * Dominio bajo el que cada tienda es un subdominio: con `mitienda.com`,
 	 * `boutique.mitienda.com` sirve la tienda `boutique`. Lleva el puerto si lo
 	 * hay (`localhost:5173`). Sin él, el frontend sirve solo a `STORE_SLUG`.
@@ -49,6 +59,7 @@ export function serverEnv(): ServerEnv {
 		PUBLIC_SITE_URL: publicEnv.PUBLIC_SITE_URL,
 		API_URL: privateEnv.API_URL,
 		SESSION_SECRET: privateEnv.SESSION_SECRET,
+		API_SHARED_SECRET: privateEnv.API_SHARED_SECRET,
 		STORE_ROOT_DOMAIN: privateEnv.STORE_ROOT_DOMAIN,
 		STORE_SLUG: privateEnv.STORE_SLUG
 	});
