@@ -36,3 +36,11 @@ describe('isSharedPath', () => {
 		expect(isSharedPath('/administrar')).toBe(false);
 	});
 });
+
+describe('las páginas legales', () => {
+	it('se sirven en el dominio raíz y no existen en una tienda', () => {
+		expect(rerouteForHost({ pathname: '/terminos', storeSlug: null })).toBeUndefined();
+		expect(rerouteForHost({ pathname: '/privacidad', storeSlug: 'boutique' })).toBe('/no-existe');
+		expect(rerouteForHost({ pathname: '/contacto', storeSlug: 'boutique' })).toBe('/no-existe');
+	});
+});

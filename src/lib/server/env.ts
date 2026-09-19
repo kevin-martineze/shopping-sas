@@ -59,6 +59,18 @@ const schema = z.object({
 				/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/,
 				'PUBLIC_STORE_SLUG tiene el formato de un subdominio.'
 			)
+	),
+	/**
+	 * Tienda de ejemplo que el sitio comercial enseña. Sin ella no se ofrece:
+	 * un enlace a una demo que no existe es peor que no tener demo.
+	 */
+	PUBLIC_DEMO_STORE_SLUG: optional(
+		z
+			.string()
+			.regex(
+				/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/,
+				'PUBLIC_DEMO_STORE_SLUG tiene el formato de un subdominio.'
+			)
 	)
 });
 
@@ -80,7 +92,8 @@ export function serverEnv(): ServerEnv {
 		SESSION_SECRET: privateEnv.SESSION_SECRET,
 		API_SHARED_SECRET: privateEnv.API_SHARED_SECRET,
 		PUBLIC_STORE_ROOT_DOMAIN: publicEnv.PUBLIC_STORE_ROOT_DOMAIN,
-		PUBLIC_STORE_SLUG: publicEnv.PUBLIC_STORE_SLUG
+		PUBLIC_STORE_SLUG: publicEnv.PUBLIC_STORE_SLUG,
+		PUBLIC_DEMO_STORE_SLUG: publicEnv.PUBLIC_DEMO_STORE_SLUG
 	});
 
 	if (!parsed.success) {

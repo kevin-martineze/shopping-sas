@@ -161,7 +161,11 @@
 							Crear mi tienda
 							<ArrowRight class="ml-2 size-4" />
 						</Button>
-						<Button href="#precios" variant="outline" size="lg">Ver precios</Button>
+						{#if data.demoUrl}
+							<Button href={data.demoUrl} variant="outline" size="lg">Ver una tienda</Button>
+						{:else}
+							<Button href="#precios" variant="outline" size="lg">Ver precios</Button>
+						{/if}
 					</div>
 
 					<ul class="text-muted-foreground mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm">
@@ -321,6 +325,9 @@
 				<a href="#precios" class="hover:text-foreground transition-colors">Precios</a>
 				<a href="/registro" class="hover:text-foreground transition-colors">Crear mi tienda</a>
 				<a href="/admin/login" class="hover:text-foreground transition-colors">Entrar</a>
+				<a href="/contacto" class="hover:text-foreground transition-colors">Contacto</a>
+				<a href="/terminos" class="hover:text-foreground transition-colors">Términos</a>
+				<a href="/privacidad" class="hover:text-foreground transition-colors">Privacidad</a>
 			</nav>
 		</div>
 	</footer>

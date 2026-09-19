@@ -1,9 +1,10 @@
 import type { PageServerLoad } from './$types';
 import { listPublicPlans } from '$lib/server/api/plans';
-import { clientAddress } from '$lib/server/context';
+import { clientAddress, storeUrl } from '$lib/server/context';
 import { serverEnv } from '$lib/server/env';
 
 export const load: PageServerLoad = async (event) => {
+	const env = serverEnv();
 	const plans = await listPublicPlans(clientAddress(event));
 
 	return {
@@ -12,6 +13,8 @@ export const load: PageServerLoad = async (event) => {
 		plans: plans.ok ? plans.data : [],
 		signedIn: event.locals.session !== null,
 		// Absoluta: las tarjetas de WhatsApp y las redes no resuelven rutas.
-		siteUrl: serverEnv().PUBLIC_SITE_URL.replace(/\/+$/, '')
+		siteUrl: env.PUBLIC_SITE_URL.replace(/\/+$/, ''),
+		// Enseñar una tienda de verdad convence más que describirla.
+		demoUrl: env.PUBLIC_DEMO_STORE_SLUG ? storeUrl(env.PUBLIC_DEMO_STORE_SLUG) : null
 	};
 };

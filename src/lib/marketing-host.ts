@@ -12,6 +12,17 @@
 /** Rutas del sitio comercial. Viven bajo `/inicio` y el dominio raíz las sirve desde `/`. */
 export const MARKETING_HOME = '/inicio';
 
+/**
+ * Las demás páginas del sitio comercial. Se sirven tal cual en el dominio
+ * raíz y no existen en el host de una tienda: `boutique.globerce.store` vende
+ * ropa, no software.
+ */
+const MARKETING_PATHS = [MARKETING_HOME, '/terminos', '/privacidad', '/contacto'];
+
+function isMarketingPath(pathname: string): boolean {
+	return MARKETING_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+}
+
 /** Lo que el sitio comercial sirve además de la portada, en cualquier host. */
 const SHARED_PATHS = ['/registro', '/admin', '/plataforma'];
 
@@ -33,7 +44,7 @@ export function rerouteForHost({ pathname, storeSlug }: RerouteInput): string | 
 	}
 
 	// En una tienda, las páginas del sitio comercial no tienen por qué existir.
-	if (pathname === MARKETING_HOME || pathname.startsWith(`${MARKETING_HOME}/`)) {
+	if (isMarketingPath(pathname)) {
 		return '/no-existe';
 	}
 
