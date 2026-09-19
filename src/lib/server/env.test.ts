@@ -1,0 +1,45 @@
+import { describe, expect, it, vi } from 'vitest';
+
+/**
+ * El esquema del entorno con variables vacías, que es como quedan en Vercel
+ * cuando un campo no aplica.
+ */
+
+const publicEnv = { PUBLIC_SITE_URL: 'https://globerce.co' };
+const privateEnv: Record<string, string> = {
+	API_URL: 'https://api.globerce.co/v1/',
+	SESSION_SECRET: 'x'.repeat(40)
+};
+
+vi.mock('$env/dynamic/private', () => ({ env: privateEnv }));
+vi.mock('$env/dynamic/public', () => ({ env: publicEnv }));
+
+const { serverEnv, resetServerEnv } = await import('$lib/server/env');
+
+describe('serverEnv', () => {
+	it('trata una variable vacía como ausente', () => {
+		privateEnv.STORE_SLUG = '';
+		privateEnv.STORE_ROOT_DOMAIN = '';
+		privateEnv.API_SHARED_SECRET = '';
+		resetServerEnv();
+
+		const env = serverEnv();
+
+		expect(env.STORE_SLUG).toBeUndefined();
+		expect(env.STORE_ROOT_DOMAIN).toBeUndefined();
+		expect(env.API_SHARED_SECRET).toBeUndefined();
+	});
+
+	it('quita la barra final de la API', () => {
+		resetServerEnv();
+
+		expect(serverEnv().API_URL).toBe('https://api.globerce.co/v1');
+	});
+
+	it('un valor con formato equivocado sí falla, y dice cuál', () => {
+		privateEnv.STORE_SLUG = 'Mi Tienda';
+		resetServerEnv();
+
+		expect(() => serverEnv()).toThrow(/STORE_SLUG/);
+	});
+});

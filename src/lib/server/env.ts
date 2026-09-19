@@ -8,6 +8,17 @@ import { env as publicEnv } from '$env/dynamic/public';
  * y muestre un error legible cuando falta configuración, en vez de romper el
  * build con un stack trace de SvelteKit.
  */
+
+/**
+ * Una variable opcional que además acepta estar vacía.
+ *
+ * En Vercel —y en cualquier `.env`— dejar un campo en blanco es la forma
+ * natural de decir "esta no aplica". Sin esto, la cadena vacía llega al
+ * validador, falla contra el formato y el sitio entero responde 500.
+ */
+function optional<T extends z.ZodTypeAny>(inner: T) {
+	return z.preprocess((value) => (value === '' ? undefined : value), inner.optional());
+}
 const schema = z.object({
 	PUBLIC_SITE_URL: z.string().url(),
 	/** API propia con su prefijo de versión (`http://127.0.0.1:3000/v1`). Se guarda sin barra final. */
@@ -22,35 +33,36 @@ const schema = z.object({
 	 * que ser el mismo `API_SHARED_SECRET` de la API. Vacío en desarrollo, donde
 	 * la API no lo pide.
 	 */
-	API_SHARED_SECRET: z
-		.string()
-		.min(32)
-		.optional()
-		.transform((value) => value || undefined),
+	API_SHARED_SECRET: optional(z.string().min(32)),
 	/**
 	 * Dominio bajo el que cada tienda es un subdominio: con `mitienda.com`,
 	 * `boutique.mitienda.com` sirve la tienda `boutique`. Lleva el puerto si lo
 	 * hay (`localhost:5173`). Sin él, el frontend sirve solo a `STORE_SLUG`.
 	 */
-	STORE_ROOT_DOMAIN: z
-		.string()
-		.regex(/^[a-z0-9.-]+(:\d+)?$/, 'STORE_ROOT_DOMAIN es un host, sin protocolo ni barras.')
-		.optional()
-		.transform((value) => value || undefined),
+	STORE_ROOT_DOMAIN: optional(
+		z
+			.string()
+			.regex(/^[a-z0-9.-]+(:\d+)?$/, 'STORE_ROOT_DOMAIN es un host, sin protocolo ni barras.')
+	),
 	/**
 	 * Tienda que se sirve en el dominio raíz (o en cualquier host si no hay
 	 * `STORE_ROOT_DOMAIN`). Sin ella, el dominio raíz lleva al registro.
 	 */
-	STORE_SLUG: z
-		.string()
-		.regex(/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/, 'STORE_SLUG tiene el formato de un subdominio.')
-		.optional()
-		.transform((value) => value || undefined)
+	STORE_SLUG: optional(
+		z
+			.string()
+			.regex(/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/, 'STORE_SLUG tiene el formato de un subdominio.')
+	)
 });
 
 export type ServerEnv = z.infer<typeof schema>;
 
 let cached: ServerEnv | null = null;
+
+/** Solo para los tests: obliga a volver a leer y validar el entorno. */
+export function resetServerEnv(): void {
+	cached = null;
+}
 
 export function serverEnv(): ServerEnv {
 	if (cached) return cached;
