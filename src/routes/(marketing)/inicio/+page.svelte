@@ -228,7 +228,7 @@
 		</section>
 
 		<section id="precios" class="bg-muted/40 border-border border-b">
-			<div class="mx-auto max-w-5xl px-4 py-20 sm:px-6">
+			<div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
 				<div class="mb-12 text-center">
 					<p class="eyebrow mb-3">Precios</p>
 					<h2 class="text-3xl md:text-4xl">Una mensualidad, sin comisión por venta</h2>
@@ -245,7 +245,8 @@
 						No pudimos cargar los precios. Escríbenos y te los contamos.
 					</p>
 				{:else}
-					<div class="grid items-start gap-6 md:grid-cols-2 md:gap-8">
+					<!-- Tres planes: dos columnas en tableta, tres en escritorio. -->
+					<div class="grid items-start gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
 						{#each data.plans as plan, indice (plan.code)}
 							<PlanCard {plan} destacado={indice === data.plans.length - 1} />
 						{/each}

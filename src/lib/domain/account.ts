@@ -44,6 +44,8 @@ export interface Plan {
 	max_orders_per_month: number | null;
 	max_images_per_product: number | null;
 	custom_domain: boolean;
+	/** Respuestas del asistente que incluye el plan cada mes. 0: no lo incluye. */
+	ai_replies_per_month: number;
 	active: boolean;
 }
 
@@ -251,6 +253,13 @@ export function planFeatures(plan: Plan): string[] {
 		`${cantidad(plan.max_orders_per_month, 'pedido', 'pedidos')} al mes`,
 		cantidad(plan.max_images_per_product, 'foto', 'fotos') + ' por prenda',
 		plan.custom_domain ? 'Tu propio dominio' : 'Dirección propia en globerce.store',
-		'Pedidos por WhatsApp, sin comisión'
+		'Pedidos por WhatsApp, sin comisión',
+		// El asistente suma una línea, no reemplaza ninguna: lo que trae el plan
+		// de abajo lo trae también este.
+		...(plan.ai_replies_per_month > 0
+			? [
+					`Asistente que responde por ti: ${plan.ai_replies_per_month.toLocaleString('es-CO')} respuestas al mes`
+				]
+			: [])
 	];
 }

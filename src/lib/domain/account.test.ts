@@ -14,6 +14,7 @@ function summary(overrides: Partial<SubscriptionSummary>): SubscriptionSummary {
 			max_orders_per_month: 300,
 			max_images_per_product: 6,
 			custom_domain: false,
+			ai_replies_per_month: 0,
 			active: true
 		},
 		status: 'active',
@@ -89,6 +90,7 @@ describe('planFeatures', () => {
 		max_orders_per_month: 300,
 		max_images_per_product: 6,
 		custom_domain: false,
+		ai_replies_per_month: 0,
 		active: true
 	};
 
@@ -107,5 +109,12 @@ describe('planFeatures', () => {
 	it('el dominio propio solo se promete si el plan lo incluye', () => {
 		expect(planFeatures({ ...basico, custom_domain: true })).toContain('Tu propio dominio');
 		expect(planFeatures(basico).some((f) => f.includes('globerce.store'))).toBe(true);
+	});
+
+	it('el asistente se anuncia con su cuota, y solo donde va incluido', () => {
+		const conAsistente = planFeatures({ ...basico, ai_replies_per_month: 500 });
+
+		expect(conAsistente.some((f) => f.includes('Asistente') && f.includes('500'))).toBe(true);
+		expect(planFeatures(basico).some((f) => f.includes('Asistente'))).toBe(false);
 	});
 });

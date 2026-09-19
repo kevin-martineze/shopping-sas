@@ -106,6 +106,7 @@ export const planSchema = z
 		maxOrdersPerMonth: z.number().nullable(),
 		maxImagesPerProduct: z.number().nullable(),
 		customDomain: z.boolean(),
+		aiRepliesPerMonth: z.number(),
 		active: z.boolean()
 	})
 	.transform((plan): Plan => ({
@@ -116,6 +117,7 @@ export const planSchema = z
 		max_orders_per_month: plan.maxOrdersPerMonth,
 		max_images_per_product: plan.maxImagesPerProduct,
 		custom_domain: plan.customDomain,
+		ai_replies_per_month: plan.aiRepliesPerMonth,
 		active: plan.active
 	}));
 

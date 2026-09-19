@@ -185,7 +185,9 @@
 		<fieldset class="space-y-3">
 			<legend class="mb-3 text-sm font-medium">{paso('plan')}Tu plan</legend>
 
-			<div class="grid gap-3 sm:grid-cols-2">
+			<!-- En lista y no en rejilla: con tres planes, tres tarjetas angostas
+			     obligan a comparar en horizontal justo donde hay que decidir. -->
+			<div class="space-y-3">
 				{#each plans as plan (plan.code)}
 					<label
 						class={cn(
