@@ -1,8 +1,8 @@
-import type { SubscriptionSummary } from '$lib/domain/account';
+import type { Plan, SubscriptionSummary } from '$lib/domain/account';
 
 import { describe, expect, it } from 'vitest';
 
-import { subscriptionNotice, usagePercent } from '$lib/domain/account';
+import { planFeatures, subscriptionNotice, usagePercent } from '$lib/domain/account';
 
 function summary(overrides: Partial<SubscriptionSummary>): SubscriptionSummary {
 	return {
@@ -66,5 +66,35 @@ describe('usagePercent', () => {
 
 	it('sin límite no hay porcentaje', () => {
 		expect(usagePercent(10, null)).toBeNull();
+	});
+});
+
+describe('planFeatures', () => {
+	const basico: Plan = {
+		code: 'basico',
+		name: 'Básico',
+		price_cop: 49000,
+		max_products: 100,
+		max_orders_per_month: 300,
+		max_images_per_product: 6,
+		custom_domain: false,
+		active: true
+	};
+
+	it('un límite se cuenta y se concuerda en plural', () => {
+		expect(planFeatures(basico)).toContain('Hasta 100 prendas');
+		expect(planFeatures({ ...basico, max_products: 1 })).toContain('Hasta 1 prenda');
+	});
+
+	it('sin límite no dice "null"', () => {
+		const features = planFeatures({ ...basico, max_products: null, max_orders_per_month: null });
+
+		expect(features).toContain('prendas sin límite');
+		expect(features.join(' ')).not.toContain('null');
+	});
+
+	it('el dominio propio solo se promete si el plan lo incluye', () => {
+		expect(planFeatures({ ...basico, custom_domain: true })).toContain('Tu propio dominio');
+		expect(planFeatures(basico).some((f) => f.includes('globerce.store'))).toBe(true);
 	});
 });

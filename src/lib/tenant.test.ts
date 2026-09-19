@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { storefrontUrl, storeSlugFromHost } from '$lib/server/tenant';
+import { storefrontUrl, storeSlugFromHost } from '$lib/tenant';
 
 describe('storeSlugFromHost', () => {
 	it('lee la tienda del subdominio, con o sin puerto', () => {

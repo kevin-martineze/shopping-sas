@@ -205,3 +205,28 @@ export interface MonthPayments {
 	total: number;
 	payments: PlatformPaymentRow[];
 }
+
+/** Días de prueba con que arranca toda tienda. Igual que `TRIAL_DAYS` en la API. */
+export const TRIAL_DAYS = 14;
+
+/**
+ * Lo que un plan ofrece, en frases para el sitio comercial.
+ *
+ * Los números salen de la API, así que cambiar un límite en la consola cambia
+ * la página de precios sin tocar código. `null` es "sin límite", y ahí la
+ * frase cambia en vez de mostrar la palabra "null".
+ */
+export function planFeatures(plan: Plan): string[] {
+	const cantidad = (limite: number | null, singular: string, plural: string) =>
+		limite === null
+			? `${plural} sin límite`
+			: `Hasta ${limite} ${limite === 1 ? singular : plural}`;
+
+	return [
+		cantidad(plan.max_products, 'prenda', 'prendas'),
+		`${cantidad(plan.max_orders_per_month, 'pedido', 'pedidos')} al mes`,
+		cantidad(plan.max_images_per_product, 'foto', 'fotos') + ' por prenda',
+		plan.custom_domain ? 'Tu propio dominio' : 'Dirección propia en globerce.store',
+		'Pedidos por WhatsApp, sin comisión'
+	];
+}

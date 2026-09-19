@@ -8,7 +8,7 @@ import { serverEnv } from '$lib/server/env';
 import { toAdminSession, writeSession } from '$lib/server/session';
 
 export const load: PageServerLoad = ({ locals }) => {
-	const rootDomain = serverEnv().STORE_ROOT_DOMAIN;
+	const rootDomain = serverEnv().PUBLIC_STORE_ROOT_DOMAIN;
 
 	return {
 		// Con sesión se crea una tienda más para esa cuenta: no se piden sus datos.

@@ -37,21 +37,28 @@ const schema = z.object({
 	/**
 	 * Dominio bajo el que cada tienda es un subdominio: con `mitienda.com`,
 	 * `boutique.mitienda.com` sirve la tienda `boutique`. Lleva el puerto si lo
-	 * hay (`localhost:5173`). Sin él, el frontend sirve solo a `STORE_SLUG`.
+	 * hay (`localhost:5173`). Sin él, el frontend sirve solo a la tienda por
+	 * defecto.
 	 */
-	STORE_ROOT_DOMAIN: optional(
+	PUBLIC_STORE_ROOT_DOMAIN: optional(
 		z
 			.string()
-			.regex(/^[a-z0-9.-]+(:\d+)?$/, 'STORE_ROOT_DOMAIN es un host, sin protocolo ni barras.')
+			.regex(
+				/^[a-z0-9.-]+(:\d+)?$/,
+				'PUBLIC_STORE_ROOT_DOMAIN es un host, sin protocolo ni barras.'
+			)
 	),
 	/**
 	 * Tienda que se sirve en el dominio raíz (o en cualquier host si no hay
-	 * `STORE_ROOT_DOMAIN`). Sin ella, el dominio raíz lleva al registro.
+	 * dominio raíz). Sin ella, el dominio raíz muestra el sitio comercial.
 	 */
-	STORE_SLUG: optional(
+	PUBLIC_STORE_SLUG: optional(
 		z
 			.string()
-			.regex(/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/, 'STORE_SLUG tiene el formato de un subdominio.')
+			.regex(
+				/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/,
+				'PUBLIC_STORE_SLUG tiene el formato de un subdominio.'
+			)
 	)
 });
 
@@ -72,8 +79,8 @@ export function serverEnv(): ServerEnv {
 		API_URL: privateEnv.API_URL,
 		SESSION_SECRET: privateEnv.SESSION_SECRET,
 		API_SHARED_SECRET: privateEnv.API_SHARED_SECRET,
-		STORE_ROOT_DOMAIN: privateEnv.STORE_ROOT_DOMAIN,
-		STORE_SLUG: privateEnv.STORE_SLUG
+		PUBLIC_STORE_ROOT_DOMAIN: publicEnv.PUBLIC_STORE_ROOT_DOMAIN,
+		PUBLIC_STORE_SLUG: publicEnv.PUBLIC_STORE_SLUG
 	});
 
 	if (!parsed.success) {
