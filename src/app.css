@@ -58,6 +58,16 @@
 	--chart-5: oklch(0.62 0.13 25);
 
 	/*
+	 * Aurora del asistente: los tres tonos que enmarcan lo que trae IA. Viven
+	 * acá y no en un componente para que cambiar la marca sea un solo sitio, y
+	 * son los únicos colores del producto que no salen de la paleta neutra: es
+	 * justo lo que los hace leerse como algo aparte.
+	 */
+	--ai-1: oklch(0.7 0.19 285);
+	--ai-2: oklch(0.74 0.15 220);
+	--ai-3: oklch(0.76 0.17 345);
+
+	/*
 	 * Las tipografías van en variables propias, no directo en `@theme`, para
 	 * que una plantilla de tienda pueda cambiarlas sin tocar el panel.
 	 */
@@ -262,7 +272,88 @@
 	}
 }
 
+/*
+ * El ángulo del degradado, declarado como propiedad para poder animarlo: sin
+ * `@property` el navegador no sabe interpolar un ángulo y el giro no ocurre
+ * (se queda quieto, que es un buen respaldo: sigue siendo un borde de color).
+ */
+@property --ai-angle {
+	syntax: '<angle>';
+	initial-value: 0deg;
+	inherits: false;
+}
+
+@keyframes ai-girar {
+	to {
+		--ai-angle: 360deg;
+	}
+}
+
 @layer utilities {
+	/*
+	 * Marca lo que trae asistente: un borde de degradado que gira, y detrás un
+	 * resplandor del mismo degradado desenfocado.
+	 *
+	 * El borde se dibuja con máscara y no con `border-image` porque así respeta
+	 * el redondeo del elemento. Va en un envoltorio SIN fondo: el resplandor
+	 * vive detrás (`z-index: -1`) y quien lleva el fondo es la tarjeta de
+	 * adentro.
+	 */
+	.ai-aurora {
+		position: relative;
+		isolation: isolate;
+	}
+
+	.ai-aurora::before,
+	.ai-aurora::after {
+		content: '';
+		position: absolute;
+		border-radius: inherit;
+		pointer-events: none;
+		background: conic-gradient(
+			from var(--ai-angle),
+			var(--ai-1),
+			var(--ai-2),
+			var(--ai-3),
+			var(--ai-1)
+		);
+		animation: ai-girar 9s linear infinite;
+	}
+
+	/* El borde: el degradado con el centro recortado. */
+	.ai-aurora::before {
+		inset: -1.5px;
+		padding: 1.5px;
+		-webkit-mask:
+			linear-gradient(#000 0 0) content-box,
+			linear-gradient(#000 0 0);
+		-webkit-mask-composite: xor;
+		mask:
+			linear-gradient(#000 0 0) content-box,
+			linear-gradient(#000 0 0);
+		mask-composite: exclude;
+	}
+
+	/* El resplandor: el mismo degradado, desenfocado y detrás de todo. */
+	.ai-aurora::after {
+		inset: -7px;
+		z-index: -1;
+		opacity: 0.35;
+		filter: blur(16px);
+	}
+
+	/* Versión discreta: solo el borde, sin resplandor. Para listas y formularios. */
+	.ai-aurora-sutil::after {
+		content: none;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.ai-aurora::before,
+		.ai-aurora::after {
+			animation: none;
+		}
+	}
+
 	/*
 	 * Tablas de edición en móvil: cada fila se lee como una ficha, con el
 	 * nombre de la columna delante del dato. Una tabla con scroll horizontal

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Check from '@lucide/svelte/icons/check';
+	import Sparkles from '@lucide/svelte/icons/sparkles';
 
 	import { enhance } from '$app/forms';
 
@@ -60,7 +61,12 @@
 />
 
 <div class="grid gap-6 lg:grid-cols-3">
-	<section class="border-border bg-background space-y-4 border p-6 lg:col-span-1">
+	<section
+		class={cn(
+			'border-border bg-background space-y-4 rounded-lg border p-6 lg:col-span-1',
+			plan.ai_replies_per_month > 0 && 'ai-aurora border-transparent'
+		)}
+	>
 		<div class="flex items-center justify-between gap-2">
 			<h2 class="text-2xl">{plan.name}</h2>
 			<Badge variant={subscription.store_status === 'active' ? 'default' : 'secondary'}>
@@ -88,6 +94,17 @@
 			<div class="flex justify-between gap-4">
 				<dt class="text-muted-foreground">Dominio propio</dt>
 				<dd>{plan.custom_domain ? 'Incluido' : 'No incluido'}</dd>
+			</div>
+			<div class="flex justify-between gap-4">
+				<dt class="text-muted-foreground">Asistente</dt>
+				<dd class="flex items-center gap-1.5">
+					{#if plan.ai_replies_per_month > 0}
+						<Sparkles class="size-3.5" />
+						{plan.ai_replies_per_month.toLocaleString('es-CO')} respuestas/mes
+					{:else}
+						No incluido
+					{/if}
+				</dd>
 			</div>
 		</dl>
 
@@ -169,9 +186,19 @@
 
 		<div class="grid gap-4 md:grid-cols-2">
 			{#each otros as otro (otro.code)}
-				<div class="border-border bg-background flex flex-col border p-6">
+				<div
+					class={cn(
+						'border-border bg-background flex flex-col rounded-lg border p-6',
+						otro.ai_replies_per_month > 0 && 'ai-aurora border-transparent'
+					)}
+				>
 					<div class="flex items-baseline justify-between gap-3">
-						<h3 class="text-xl">{otro.name}</h3>
+						<h3 class="flex items-center gap-2 text-xl">
+							{otro.name}
+							{#if otro.ai_replies_per_month > 0}
+								<Sparkles class="size-4" />
+							{/if}
+						</h3>
 						<p class="font-semibold">
 							{formatMoney(otro.price_cop)}<span class="text-muted-foreground text-xs font-normal">
 								/ mes</span

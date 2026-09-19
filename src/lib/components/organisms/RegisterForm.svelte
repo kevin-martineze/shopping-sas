@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 
+	import Sparkles from '@lucide/svelte/icons/sparkles';
+
 	import { enhance } from '$app/forms';
 
 	import type { Plan } from '$lib/domain/account';
@@ -189,18 +191,30 @@
 			     obligan a comparar en horizontal justo donde hay que decidir. -->
 			<div class="space-y-3">
 				{#each plans as plan (plan.code)}
+					{@const conAsistente = plan.ai_replies_per_month > 0}
 					<label
 						class={cn(
-							'border-border hover:border-foreground/40 flex cursor-pointer items-center justify-between gap-3 border p-4 transition-colors',
-							planCode === plan.code && 'border-foreground bg-muted/50'
+							'border-border hover:border-foreground/40 flex cursor-pointer items-center justify-between gap-3 rounded-lg border p-4 transition-colors',
+							planCode === plan.code && 'border-foreground bg-muted/50',
+							// Los planes con asistente se enmarcan con la aurora; acá sin
+							// resplandor, que en una lista de tres sería ruido.
+							conAsistente && 'ai-aurora ai-aurora-sutil border-transparent'
 						)}
 					>
 						<span class="flex flex-col gap-1">
-							<span class="font-medium">{plan.name}</span>
+							<span class="flex items-center gap-2 font-medium">
+								{plan.name}
+								{#if conAsistente}
+									<Sparkles class="size-3.5" />
+								{/if}
+							</span>
 							<span class="text-muted-foreground text-xs">
 								{plan.max_products === null
 									? 'Prendas sin límite'
 									: `Hasta ${plan.max_products} prendas`}
+								{#if conAsistente}
+									· con asistente
+								{/if}
 							</span>
 						</span>
 						<span class="flex items-center gap-3">
