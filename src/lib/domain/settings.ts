@@ -1,3 +1,5 @@
+import type { StorefrontTemplate } from '$lib/domain/templates';
+
 export interface StoreSettings {
 	store_name: string;
 	whatsapp_phone: string;
@@ -8,6 +10,8 @@ export interface StoreSettings {
 	hero_collection_id: string | null;
 	hero_title: string | null;
 	hero_subtitle: string | null;
+	/** Con qué plantilla se pinta la vitrina. */
+	template: StorefrontTemplate;
 }
 
 /** Bloques cortos que van bajo el hero de la portada. */

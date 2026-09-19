@@ -56,6 +56,13 @@
 	--chart-3: oklch(0.72 0.06 100);
 	--chart-4: oklch(0.45 0.05 250);
 	--chart-5: oklch(0.62 0.13 25);
+
+	/*
+	 * Las tipografías van en variables propias, no directo en `@theme`, para
+	 * que una plantilla de tienda pueda cambiarlas sin tocar el panel.
+	 */
+	--font-body: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+	--font-title: 'Instrument Serif', ui-serif, Georgia, serif;
 }
 
 /* El panel admin puede usar modo oscuro; la tienda vive en claro. */
@@ -98,8 +105,8 @@
 }
 
 @theme inline {
-	--font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-	--font-display: 'Instrument Serif', ui-serif, Georgia, serif;
+	--font-sans: var(--font-body);
+	--font-display: var(--font-title);
 	--font-mono: ui-monospace, SFMono-Regular, monospace;
 
 	--color-background: var(--background);
@@ -154,6 +161,50 @@
 	--aspect-editorial: 4 / 5;
 
 	--ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * Plantillas de tienda
+ *
+ * Cada plantilla redefine los tokens DENTRO de la vitrina y nunca en `:root`:
+ * el panel y el sitio comercial siguen con los colores de Globerce aunque la
+ * tienda que se está editando use otros. Lo que cambia es el vestido —paleta,
+ * tipografía y redondeo—; el contenido y los componentes son los mismos.
+ *
+ * Los códigos y sus nombres viven en `$lib/domain/templates.ts`. `editorial`
+ * es la de por defecto y no necesita bloque: son los tokens de arriba.
+ * ---------------------------------------------------------------------------
+ */
+[data-storefront-template='boutique'] {
+	--background: oklch(0.985 0.012 85);
+	--foreground: oklch(0.27 0.022 55);
+	--card: oklch(1 0.004 85);
+	--card-foreground: oklch(0.27 0.022 55);
+	--popover: oklch(1 0.004 85);
+	--popover-foreground: oklch(0.27 0.022 55);
+	--primary: oklch(0.53 0.12 45);
+	--primary-foreground: oklch(0.99 0.008 85);
+	--secondary: oklch(0.945 0.022 78);
+	--secondary-foreground: oklch(0.32 0.03 55);
+	--muted: oklch(0.95 0.018 78);
+	--muted-foreground: oklch(0.53 0.028 60);
+	--accent: oklch(0.92 0.038 68);
+	--accent-foreground: oklch(0.32 0.03 55);
+	--border: oklch(0.89 0.022 75);
+	--input: oklch(0.89 0.022 75);
+	--ring: oklch(0.53 0.12 45);
+
+	/* Esquinas suaves en todo: tarjetas, botones y campos. */
+	--radius: 1rem;
+
+	/* Titulares en la misma sans del cuerpo, con peso: se leen de lejos. */
+	--font-title: var(--font-body);
+}
+
+[data-storefront-template='boutique'] :is(h1, h2, h3) {
+	font-weight: 600;
+	letter-spacing: -0.025em;
 }
 
 @layer base {

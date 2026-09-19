@@ -22,7 +22,15 @@
 	});
 </script>
 
-<div class="flex min-h-screen flex-col">
+<!--
+	La plantilla viste toda la vitrina: los tokens de `app.css` se redefinen bajo
+	este atributo, así que basta ponerlo una vez acá para que hereden cabecera,
+	páginas y pie. El panel, que vive en otro layout, no se entera.
+-->
+<div
+	data-storefront-template={data.settings.template}
+	class="bg-background text-foreground flex min-h-screen flex-col"
+>
 	<SiteHeader
 		settings={data.settings}
 		categories={data.categories}

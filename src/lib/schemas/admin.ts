@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { STOREFRONT_TEMPLATES } from '$lib/domain/templates';
+
 /** Precios en pesos enteros: la administradora los escribe con o sin puntos. */
 const price = z.coerce
 	.number({ invalid_type_error: 'Escribe un precio válido.' })
@@ -159,3 +161,8 @@ export type ColorInput = z.infer<typeof colorSchema>;
 export type SizeInput = z.infer<typeof sizeSchema>;
 export type CategoryInput = z.infer<typeof categorySchema>;
 export type HomeHighlightInput = z.infer<typeof homeHighlightSchema>;
+
+/** La plantilla de la vitrina: solo una de las que este frontend sabe pintar. */
+export const templateSchema = z.enum(STOREFRONT_TEMPLATES, {
+	errorMap: () => ({ message: 'Elige una de las plantillas.' })
+});

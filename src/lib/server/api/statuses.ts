@@ -1,8 +1,11 @@
 import type { MemberRole, StoreStatus, SubscriptionStatus } from '$lib/domain/account';
 import type { ProductStatus } from '$lib/domain/catalog';
 import type { OrderStatus } from '$lib/domain/orders';
+import type { StorefrontTemplate } from '$lib/domain/templates';
 
 import { z } from 'zod';
+
+import { templateOf } from '$lib/domain/templates';
 
 /**
  * La API nombra los estados en mayúsculas (`ACTIVE`); el dominio del frontend
@@ -92,3 +95,14 @@ const SUBSCRIPTION_STATUS_TO_DOMAIN: Record<
 export const subscriptionStatusSchema = z
 	.enum(['TRIALING', 'ACTIVE', 'PAST_DUE', 'CANCELLED'])
 	.transform((status) => SUBSCRIPTION_STATUS_TO_DOMAIN[status]);
+
+/**
+ * La plantilla de la vitrina.
+ *
+ * Un código que este frontend no conoce —una plantilla retirada, o una que
+ * todavía no se desplegó acá— no puede tumbar la tienda: cae en la de por
+ * defecto, que es exactamente lo que se ve hoy.
+ */
+export const templateSchema = z
+	.string()
+	.transform((code): StorefrontTemplate => templateOf(code).code);

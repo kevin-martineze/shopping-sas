@@ -1,7 +1,8 @@
 import { fail } from '@sveltejs/kit';
 
 import type { Actions, PageServerLoad } from './$types';
-import { heroSchema, homeHighlightSchema } from '$lib/schemas/admin';
+import { templateOf } from '$lib/domain/templates';
+import { heroSchema, homeHighlightSchema, templateSchema } from '$lib/schemas/admin';
 import {
 	createHighlight,
 	getSettings,
@@ -42,6 +43,19 @@ function parseHighlight(formData: FormData) {
 const firstIssue = (issues: { message: string }[]) => issues.at(0)?.message ?? 'Revisa los datos.';
 
 export const actions: Actions = {
+	plantilla: async (event) => {
+		const formData = await event.request.formData();
+		const parsed = templateSchema.safeParse(formData.get('template'));
+
+		if (!parsed.success) return fail(400, { error: firstIssue(parsed.error.issues) });
+
+		const result = await updateSettings(panelContext(event), { template: parsed.data });
+
+		if (!result.ok) return failWith(result);
+
+		return { message: `Tu tienda ahora usa la plantilla ${templateOf(parsed.data).name}.` };
+	},
+
 	hero: async (event) => {
 		const ctx = panelContext(event);
 		const formData = await event.request.formData();

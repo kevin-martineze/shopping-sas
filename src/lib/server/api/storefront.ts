@@ -16,6 +16,7 @@ import { z } from 'zod';
 
 import { isProductSort } from '$lib/domain/catalog';
 import { publicRequest, segment } from '$lib/server/api/request';
+import { templateSchema } from '$lib/server/api/statuses';
 
 /**
  * Tienda pública (`/public/:storeSlug/*` de la API).
@@ -141,7 +142,8 @@ const storefrontSchema = z
 			freeShippingThreshold: z.number().nullable(),
 			heroCollectionId: z.string().nullable(),
 			heroTitle: z.string().nullable(),
-			heroSubtitle: z.string().nullable()
+			heroSubtitle: z.string().nullable(),
+			template: templateSchema
 		}),
 		categories: z.array(categorySchema),
 		collections: z.array(z.object(collectionShape).transform(toCollection))
@@ -155,7 +157,8 @@ const storefrontSchema = z
 			free_shipping_threshold: storefront.settings.freeShippingThreshold,
 			hero_collection_id: storefront.settings.heroCollectionId,
 			hero_title: storefront.settings.heroTitle,
-			hero_subtitle: storefront.settings.heroSubtitle
+			hero_subtitle: storefront.settings.heroSubtitle,
+			template: storefront.settings.template
 		};
 
 		return { settings, categories: storefront.categories, collections: storefront.collections };

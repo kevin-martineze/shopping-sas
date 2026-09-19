@@ -1,9 +1,11 @@
 import type { Collection, HomeHighlight, StoreSettings } from '$lib/domain/settings';
+import type { StorefrontTemplate } from '$lib/domain/templates';
 import type { ApiResult } from '$lib/server/api/client';
 import type { PanelContext } from '$lib/server/context';
 
 import { z } from 'zod';
 
+import { templateSchema } from '$lib/server/api/statuses';
 import { panelRequest, segment } from '$lib/server/api/request';
 
 /** Contenido del panel: ajustes, bloques de portada y colecciones. */
@@ -17,7 +19,8 @@ const settingsSchema = z
 		freeShippingThreshold: z.number().nullable(),
 		heroCollectionId: z.string().nullable(),
 		heroTitle: z.string().nullable(),
-		heroSubtitle: z.string().nullable()
+		heroSubtitle: z.string().nullable(),
+		template: templateSchema
 	})
 	.transform((settings): StoreSettings => ({
 		store_name: settings.storeName,
@@ -27,7 +30,8 @@ const settingsSchema = z
 		free_shipping_threshold: settings.freeShippingThreshold,
 		hero_collection_id: settings.heroCollectionId,
 		hero_title: settings.heroTitle,
-		hero_subtitle: settings.heroSubtitle
+		hero_subtitle: settings.heroSubtitle,
+		template: settings.template
 	}));
 
 /** Lo que se cambia; lo que no viene, no se toca. En los opcionales, null o vacío lo quita. */
@@ -40,6 +44,7 @@ export interface SettingsPatch {
 	heroCollectionId?: string | null;
 	heroTitle?: string | null;
 	heroSubtitle?: string | null;
+	template?: StorefrontTemplate;
 }
 
 export function getSettings(ctx: PanelContext): Promise<ApiResult<StoreSettings>> {
