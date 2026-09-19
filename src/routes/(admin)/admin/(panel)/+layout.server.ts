@@ -22,7 +22,10 @@ export const load: LayoutServerLoad = async (event) => {
 		role: store.role,
 		storeSlug: store.slug,
 		storeUrl: storeUrl(store.slug),
-		hasOtherStores: account.stores.length > 1,
+		// Para el selector de la barra: las otras tiendas de esta cuenta.
+		otherStores: account.stores
+			.filter((candidate) => candidate.id !== store.id)
+			.map((candidate) => ({ id: candidate.id, name: candidate.name })),
 		isPlatformAdmin: account.isPlatformAdmin,
 		// El contador y el aviso son extras: si fallan, el panel se muestra igual.
 		pendingOrders: pending.ok ? pending.data.total : 0,

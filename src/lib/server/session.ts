@@ -7,6 +7,7 @@ import { dev } from '$app/environment';
 import { refresh } from '$lib/server/api/auth';
 import { serverEnv } from '$lib/server/env';
 import { needsRefresh, sealSession, unsealSession } from '$lib/server/session-crypto';
+import { sessionCookieDomain } from '$lib/tenant';
 
 /** Sesión del panel en cookie. El formato del contenido está en `session-crypto.ts`. */
 
@@ -27,18 +28,36 @@ export function toAdminSession(api: ApiSession, now: number = Date.now()): Admin
 	};
 }
 
-export function writeSession(cookies: Cookies, session: AdminSession): void {
-	cookies.set(SESSION_COOKIE, sealSession(session, serverEnv().SESSION_SECRET), {
+/**
+ * Dónde vale la cookie.
+ *
+ * El panel de cada tienda vive en su subdominio y el registro en el dominio
+ * raíz, así que la sesión tiene que cruzar de uno a otro: sin esto, registrarse
+ * arriba y bajar a la tienda pedía entrar de nuevo. Se comparte solo el nombre
+ * de la sesión —sigue siendo `httpOnly`, cifrada y con `SameSite=Lax`— y solo
+ * entre subdominios nuestros, que sirven nuestro propio código.
+ */
+function cookieOptions() {
+	return {
 		path: '/',
+		domain: sessionCookieDomain(serverEnv().PUBLIC_STORE_ROOT_DOMAIN),
 		httpOnly: true,
 		sameSite: 'lax',
-		secure: !dev,
+		secure: !dev
+	} as const;
+}
+
+export function writeSession(cookies: Cookies, session: AdminSession): void {
+	cookies.set(SESSION_COOKIE, sealSession(session, serverEnv().SESSION_SECRET), {
+		...cookieOptions(),
 		maxAge: COOKIE_MAX_AGE_SECONDS
 	});
 }
 
 export function clearSession(cookies: Cookies): void {
-	cookies.delete(SESSION_COOKIE, { path: '/' });
+	// Con el mismo `domain` que se puso: si no coincide, el navegador guarda la
+	// cookie vieja y la sesión no se cierra.
+	cookies.delete(SESSION_COOKIE, cookieOptions());
 }
 
 /**

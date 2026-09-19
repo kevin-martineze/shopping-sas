@@ -75,6 +75,30 @@
 					<ExternalLink class="text-muted-foreground size-3.5" />
 				</a>
 				<p class="text-muted-foreground text-xs">Globerce · {MEMBER_ROLE_LABEL[data.role]}</p>
+
+				{#if data.otherStores.length > 0}
+					<!-- Una cuenta puede administrar varias tiendas. Sin esto, cambiar
+					     de una a otra era escribir el subdominio a mano. -->
+					<form method="POST" action="/admin/cambiar-tienda" class="mt-3">
+						<label class="text-muted-foreground text-xs" for="cambiar-tienda">
+							Cambiar de tienda
+						</label>
+						<select
+							id="cambiar-tienda"
+							name="storeId"
+							class="border-sidebar-border bg-background mt-1 w-full border px-2 py-1 text-sm"
+							onchange={(event) => event.currentTarget.form?.requestSubmit()}
+						>
+							<option value="">{data.settings.store_name}</option>
+							{#each data.otherStores as store (store.id)}
+								<option value={store.id}>{store.name}</option>
+							{/each}
+						</select>
+						<noscript>
+							<button type="submit" class="mt-1 text-xs underline">Ir</button>
+						</noscript>
+					</form>
+				{/if}
 			</div>
 
 			<nav class="flex-1 space-y-0.5 p-3">

@@ -8,8 +8,32 @@
 
 const SLUG = /^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/;
 
-/** Subdominios que nunca son una tienda. */
-const RESERVED = new Set(['www', 'app', 'api', 'admin', 'panel', 'plataforma']);
+/**
+ * Subdominios que nunca son una tienda.
+ *
+ * La misma lista está en `ecommerce-api/src/shared/tenancy/reserved-slugs.ts`,
+ * que es quien impide registrarlos. Acá se ignoran aunque alguien los tenga de
+ * antes: `www.globerce.store` es la plataforma, no una tienda.
+ */
+const RESERVED = new Set([
+	'www',
+	'app',
+	'api',
+	'admin',
+	'panel',
+	'plataforma',
+	'mail',
+	'correo',
+	'media',
+	'static',
+	'assets',
+	'cdn',
+	'blog',
+	'ayuda',
+	'soporte',
+	'status',
+	'globerce'
+]);
 
 /**
  * Una variable vacía vale lo mismo que una ausente.
@@ -61,4 +85,26 @@ export function storefrontUrl(
 	const protocol = new URL(siteUrl).protocol;
 
 	return `${protocol}//${slug}.${rootDomain}`;
+}
+
+/**
+ * El dominio con el que se emite la cookie de sesión, o `undefined` para que
+ * valga solo en el host que la puso.
+ *
+ * El panel vive en el subdominio de cada tienda (`boutique.globerce.store/admin`)
+ * y el registro en el dominio raíz. Con una cookie atada a un solo host, quien
+ * se registra arriba tendría que volver a entrar al bajar a su tienda. Con el
+ * punto delante, la sesión vale en todo el dominio.
+ *
+ * No se emite así en desarrollo: un dominio con puerto (`localhost:5173`) no es
+ * un dominio válido para una cookie, y `localhost` a secas lo rechazan los
+ * navegadores. Ahí la cookie sigue siendo del host, que es justo lo que se
+ * quiere cuando todo corre en el mismo.
+ */
+export function sessionCookieDomain(rootDomainRaw: string | undefined): string | undefined {
+	const rootDomain = limpiar(rootDomainRaw);
+
+	if (!rootDomain || rootDomain.includes(':') || !rootDomain.includes('.')) return undefined;
+
+	return `.${rootDomain}`;
 }

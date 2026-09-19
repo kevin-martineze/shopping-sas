@@ -1,6 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { listPublicPlans } from '$lib/server/api/plans';
 import { clientAddress } from '$lib/server/context';
+import { serverEnv } from '$lib/server/env';
 
 export const load: PageServerLoad = async (event) => {
 	const plans = await listPublicPlans(clientAddress(event));
@@ -9,6 +10,8 @@ export const load: PageServerLoad = async (event) => {
 		// Si la API no responde, el sitio se muestra igual: una portada sin
 		// precios vende menos que una portada, pero mucho más que un error.
 		plans: plans.ok ? plans.data : [],
-		signedIn: event.locals.session !== null
+		signedIn: event.locals.session !== null,
+		// Absoluta: las tarjetas de WhatsApp y las redes no resuelven rutas.
+		siteUrl: serverEnv().PUBLIC_SITE_URL.replace(/\/+$/, '')
 	};
 };

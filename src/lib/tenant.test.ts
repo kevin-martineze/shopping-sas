@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { storefrontUrl, storeSlugFromHost } from '$lib/tenant';
+import { sessionCookieDomain, storefrontUrl, storeSlugFromHost } from '$lib/tenant';
 
 describe('storeSlugFromHost', () => {
 	it('lee la tienda del subdominio, con o sin puerto', () => {
@@ -37,5 +37,18 @@ describe('storefrontUrl', () => {
 		expect(storefrontUrl('boutique', undefined, 'http://localhost:5173/')).toBe(
 			'http://localhost:5173'
 		);
+	});
+});
+
+describe('sessionCookieDomain', () => {
+	it('con dominio raíz, la sesión vale en todos sus subdominios', () => {
+		expect(sessionCookieDomain('globerce.store')).toBe('.globerce.store');
+	});
+
+	it('en desarrollo la cookie es del host: localhost no sirve como dominio', () => {
+		expect(sessionCookieDomain('localhost:5173')).toBeUndefined();
+		expect(sessionCookieDomain('localhost')).toBeUndefined();
+		expect(sessionCookieDomain(undefined)).toBeUndefined();
+		expect(sessionCookieDomain('  ')).toBeUndefined();
 	});
 });

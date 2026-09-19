@@ -102,6 +102,19 @@
 		name="description"
 		content="Catálogo con tallas y colores, inventario que se descuenta solo y pedidos que llegan escritos a tu WhatsApp. {TRIAL_DAYS} días gratis, sin comisión por venta."
 	/>
+
+	<!-- Lo que se ve cuando alguien comparte el enlace por WhatsApp, que es por
+	     donde va a llegar casi todo el mundo. -->
+	<meta property="og:type" content="website" />
+	<meta property="og:site_name" content="Globerce" />
+	<meta property="og:title" content="Tu tienda de ropa, en internet" />
+	<meta
+		property="og:description"
+		content="Catálogo, inventario y pedidos por WhatsApp. {TRIAL_DAYS} días gratis, sin comisión por venta."
+	/>
+	<meta property="og:image" content="{data.siteUrl}/og.png" />
+	<meta property="og:url" content={data.siteUrl} />
+	<meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 
 <div class="marketing">
