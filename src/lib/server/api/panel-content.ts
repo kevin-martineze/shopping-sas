@@ -20,7 +20,8 @@ const settingsSchema = z
 		heroCollectionId: z.string().nullable(),
 		heroTitle: z.string().nullable(),
 		heroSubtitle: z.string().nullable(),
-		template: templateSchema
+		template: templateSchema,
+		assistant: z.boolean()
 	})
 	.transform((settings): StoreSettings => ({
 		store_name: settings.storeName,
@@ -31,7 +32,8 @@ const settingsSchema = z
 		hero_collection_id: settings.heroCollectionId,
 		hero_title: settings.heroTitle,
 		hero_subtitle: settings.heroSubtitle,
-		template: settings.template
+		template: settings.template,
+		assistant: settings.assistant
 	}));
 
 /** Lo que se cambia; lo que no viene, no se toca. En los opcionales, null o vacío lo quita. */

@@ -143,7 +143,8 @@ const storefrontSchema = z
 			heroCollectionId: z.string().nullable(),
 			heroTitle: z.string().nullable(),
 			heroSubtitle: z.string().nullable(),
-			template: templateSchema
+			template: templateSchema,
+			assistant: z.boolean()
 		}),
 		categories: z.array(categorySchema),
 		collections: z.array(z.object(collectionShape).transform(toCollection))
@@ -158,7 +159,8 @@ const storefrontSchema = z
 			hero_collection_id: storefront.settings.heroCollectionId,
 			hero_title: storefront.settings.heroTitle,
 			hero_subtitle: storefront.settings.heroSubtitle,
-			template: storefront.settings.template
+			template: storefront.settings.template,
+			assistant: storefront.settings.assistant
 		};
 
 		return { settings, categories: storefront.categories, collections: storefront.collections };

@@ -12,6 +12,8 @@ export interface StoreSettings {
 	hero_subtitle: string | null;
 	/** Con qué plantilla se pinta la vitrina. */
 	template: StorefrontTemplate;
+	/** Si esta tienda ofrece asistente: lo deciden su plan y la plataforma. */
+	assistant: boolean;
 }
 
 /** Bloques cortos que van bajo el hero de la portada. */

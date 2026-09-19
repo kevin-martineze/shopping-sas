@@ -5,6 +5,7 @@
 	import CartDrawer from '$lib/components/organisms/CartDrawer.svelte';
 	import SiteFooter from '$lib/components/organisms/SiteFooter.svelte';
 	import SiteHeader from '$lib/components/organisms/SiteHeader.svelte';
+	import StoreAssistant from '$lib/components/organisms/StoreAssistant.svelte';
 	import { cart } from '$lib/stores/cart.svelte';
 	import { favorites } from '$lib/stores/favorites.svelte';
 
@@ -45,3 +46,12 @@
 </div>
 
 <CartDrawer />
+
+{#if data.settings.assistant}
+	<!-- Solo si el plan de la tienda lo incluye y la plataforma lo tiene
+	     encendido: el botón no aparece para prometer algo que no responde. -->
+	<StoreAssistant
+		storeName={data.settings.store_name}
+		whatsappPhone={data.settings.whatsapp_phone}
+	/>
+{/if}
