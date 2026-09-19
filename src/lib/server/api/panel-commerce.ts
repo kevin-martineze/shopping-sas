@@ -7,7 +7,11 @@ import type { PanelContext } from '$lib/server/context';
 import { z } from 'zod';
 
 import { panelRequest, segment } from '$lib/server/api/request';
-import { orderStatusSchema, toApiOrderStatus } from '$lib/server/api/statuses';
+import {
+	orderPaymentStatusSchema,
+	orderStatusSchema,
+	toApiOrderStatus
+} from '$lib/server/api/statuses';
 
 /** Comercio del panel: pedidos, resumen, cupones, zonas de envío y avisos de reposición. */
 
@@ -33,6 +37,8 @@ const orderShape = {
 	discount: z.number(),
 	total: z.number(),
 	whatsappOpenedAt: z.string().nullable(),
+	paymentStatus: orderPaymentStatusSchema,
+	paidAt: z.string().nullable(),
 	adminNotes: z.string().nullable(),
 	createdAt: z.string()
 };
@@ -56,6 +62,8 @@ function toOrder(order: z.output<z.ZodObject<typeof orderShape>>): Order {
 		discount: order.discount,
 		total: order.total,
 		whatsapp_opened_at: order.whatsappOpenedAt,
+		payment_status: order.paymentStatus,
+		paid_at: order.paidAt,
 		admin_notes: order.adminNotes,
 		created_at: order.createdAt
 	};

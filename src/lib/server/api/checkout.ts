@@ -7,7 +7,7 @@ import type { PublicContext } from '$lib/server/context';
 import { z } from 'zod';
 
 import { publicRequest } from '$lib/server/api/request';
-import { orderStatusSchema } from '$lib/server/api/statuses';
+import { orderPaymentStatusSchema, orderStatusSchema } from '$lib/server/api/statuses';
 
 /**
  * Carrito y pedido de la tienda pública.
@@ -117,6 +117,8 @@ const publicOrderSchema = z
 		discount: z.number(),
 		total: z.number(),
 		whatsappOpenedAt: z.string().nullable(),
+		paymentStatus: orderPaymentStatusSchema,
+		paidAt: z.string().nullable(),
 		createdAt: z.string(),
 		items: z.array(
 			z
@@ -163,6 +165,8 @@ const publicOrderSchema = z
 		discount: order.discount,
 		total: order.total,
 		whatsapp_opened_at: order.whatsappOpenedAt,
+		payment_status: order.paymentStatus,
+		paid_at: order.paidAt,
 		created_at: order.createdAt,
 		items: order.items
 	}));
@@ -238,5 +242,37 @@ export function markWhatsappOpened(
 	return publicRequest(ctx, `/orders/${orderNumber}/whatsapp-opened`, z.undefined(), {
 		method: 'POST',
 		body: { token }
+	});
+}
+
+export interface PaymentLink {
+	url: string;
+	reference: string;
+	amount_cop: number;
+}
+
+const paymentLinkSchema = z
+	.object({ url: z.string().url(), reference: z.string(), amountCop: z.number() })
+	.transform((link): PaymentLink => ({
+		url: link.url,
+		reference: link.reference,
+		amount_cop: link.amountCop
+	}));
+
+/**
+ * Pide a dónde ir a pagar un pedido.
+ *
+ * El monto lo pone la API a partir del pedido guardado, no este llamado: un
+ * total que viajara desde el navegador sería un total que se puede cambiar.
+ */
+export function startOrderPayment(
+	ctx: PublicContext,
+	number: number,
+	token: string,
+	redirectUrl: string
+): Promise<ApiResult<PaymentLink>> {
+	return publicRequest(ctx, `/orders/${number}/checkout`, paymentLinkSchema, {
+		method: 'POST',
+		body: { token, redirectUrl }
 	});
 }

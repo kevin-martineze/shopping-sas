@@ -1,8 +1,8 @@
-import { error } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
 
 import type { PublicOrderView } from '$lib/domain/orders';
 import type { Actions, PageServerLoad } from './$types';
-import { getPublicOrder, markWhatsappOpened } from '$lib/server/api/checkout';
+import { getPublicOrder, markWhatsappOpened, startOrderPayment } from '$lib/server/api/checkout';
 import { getOrderByNumber } from '$lib/server/api/panel-commerce';
 import { panelContext, publicContext } from '$lib/server/context';
 import { serverEnv } from '$lib/server/env';
@@ -47,10 +47,43 @@ export const load: PageServerLoad = async (event) => {
 
 	const message = buildOrderMessage(order, { storeName: settings.store_name, orderUrl });
 
-	return { order, whatsappUrl: buildWhatsAppUrl(settings.whatsapp_phone, message) };
+	return {
+		order,
+		whatsappUrl: buildWhatsAppUrl(settings.whatsapp_phone, message),
+		// Pagar en línea solo se ofrece si la tienda conectó su cuenta.
+		canPayOnline: settings.online_payments
+	};
 };
 
 export const actions: Actions = {
+	/**
+	 * Lleva a la pasarela de la tienda.
+	 *
+	 * El monto no viaja desde acá: lo pone la API con el pedido que tiene
+	 * guardado. Y lo que marca el pedido como pagado es el evento de la
+	 * pasarela, no esta vuelta.
+	 */
+	pagar: async (event) => {
+		const orderNumber = Number(event.params.number);
+		const formData = await event.request.formData();
+		const token = formData.get('t');
+
+		if (!Number.isInteger(orderNumber) || typeof token !== 'string' || token === '') {
+			return fail(400, { error: 'Este enlace de pedido no es válido.' });
+		}
+
+		const volver = new URL(
+			`/pedido/${orderNumber}?t=${token}`,
+			serverEnv().PUBLIC_SITE_URL
+		).toString();
+
+		const result = await startOrderPayment(publicContext(event), orderNumber, token, volver);
+
+		if (!result.ok) return fail(result.status || 400, { error: result.message });
+
+		redirect(303, result.data.url);
+	},
+
 	/** Registra que la clienta sí llegó a abrir el chat. */
 	abierto: async (event) => {
 		const orderNumber = Number(event.params.number);

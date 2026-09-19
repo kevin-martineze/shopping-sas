@@ -1,10 +1,12 @@
 <script lang="ts">
 	import Check from '@lucide/svelte/icons/check';
+	import CreditCard from '@lucide/svelte/icons/credit-card';
 	import MessageCircle from '@lucide/svelte/icons/message-circle';
 
 	import { enhance } from '$app/forms';
 
-	import type { PageData } from './$types';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import type { ActionData, PageData } from './$types';
 	import { Button } from '$lib/components/atoms/button';
 	import { Separator } from '$lib/components/atoms/separator';
 	import { cart } from '$lib/stores/cart.svelte';
@@ -12,11 +14,25 @@
 
 	interface Props {
 		data: PageData;
+		form: ActionData;
 	}
 
-	let { data }: Props = $props();
+	let { data, form }: Props = $props();
 
 	let openForm = $state<HTMLFormElement | null>(null);
+	let enviandoPago = $state(false);
+
+	const pagado = $derived(data.order.payment_status === 'paid');
+
+	/** El botón se apaga mientras se pide el enlace: son unos segundos y un cobro. */
+	const pagando: SubmitFunction = () => {
+		enviandoPago = true;
+
+		return async ({ update }) => {
+			await update();
+			enviandoPago = false;
+		};
+	};
 
 	// El pedido ya está guardado: el carrito local deja de tener sentido.
 	$effect(() => {
@@ -46,7 +62,13 @@
 		<p class="eyebrow">Paso 2 de 2</p>
 		<h1 class="text-4xl md:text-5xl">Pedido #{data.order.number} guardado</h1>
 		<p class="text-muted-foreground text-sm text-balance">
-			Ahora envíalo por WhatsApp para que {data.settings.store_name} lo confirme y coordine el pago.
+			{#if pagado}
+				Tu pago quedó registrado. {data.settings.store_name} ya lo está preparando.
+			{:else if data.canPayOnline}
+				Págalo en línea o envíalo por WhatsApp: las dos cosas llegan a {data.settings.store_name}.
+			{:else}
+				Ahora envíalo por WhatsApp para que {data.settings.store_name} lo confirme y coordine el pago.
+			{/if}
 		</p>
 	</div>
 
@@ -56,6 +78,22 @@
 	</form>
 
 	<div class="mt-8 space-y-3">
+		{#if data.canPayOnline && !pagado}
+			<form method="POST" action="?/pagar" use:enhance={pagando}>
+				<input type="hidden" name="t" value={data.order.public_token} />
+				<Button type="submit" size="lg" class="w-full" disabled={enviandoPago}>
+					<CreditCard class="mr-2 size-5" />
+					{enviandoPago ? 'Llevándote a pagar…' : `Pagar ${formatMoney(data.order.total)} en línea`}
+				</Button>
+			</form>
+
+			{#if form?.error}
+				<p class="text-destructive text-center text-sm">{form.error}</p>
+			{/if}
+
+			<p class="text-muted-foreground text-center text-xs">Tarjeta, PSE o Nequi. O si prefieres:</p>
+		{/if}
+
 		<Button
 			type="button"
 			size="lg"

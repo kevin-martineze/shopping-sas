@@ -166,3 +166,24 @@ export type HomeHighlightInput = z.infer<typeof homeHighlightSchema>;
 export const templateSchema = z.enum(STOREFRONT_TEMPLATES, {
 	errorMap: () => ({ message: 'Elige una de las plantillas.' })
 });
+
+/**
+ * Las llaves de la pasarela de la tienda.
+ *
+ * Los prefijos los pone Wompi: comprobarlos acá evita el error más común —
+ * pegar la pública donde va la privada— antes de gastar un viaje a la API.
+ */
+export const paymentKeysSchema = z.object({
+	publicKey: z
+		.string()
+		.trim()
+		.min(10, 'Pega tu llave pública.')
+		.startsWith('pub_', 'La llave pública empieza por «pub_».'),
+	privateKey: z
+		.string()
+		.trim()
+		.min(10, 'Pega tu llave privada.')
+		.startsWith('prv_', 'La llave privada empieza por «prv_».'),
+	integritySecret: z.string().trim().min(10, 'Pega el secreto de integridad.'),
+	eventsSecret: z.string().trim().min(10, 'Pega el secreto de eventos.')
+});

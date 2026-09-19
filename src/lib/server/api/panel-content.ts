@@ -21,7 +21,10 @@ const settingsSchema = z
 		heroTitle: z.string().nullable(),
 		heroSubtitle: z.string().nullable(),
 		template: templateSchema,
-		assistant: z.boolean()
+		assistant: z.boolean(),
+		// Los ajustes del panel no hablan de cobros: eso vive en su propia
+		// pantalla. Se completa para que el tipo del dominio sea uno solo.
+		onlinePayments: z.boolean().optional()
 	})
 	.transform((settings): StoreSettings => ({
 		store_name: settings.storeName,
@@ -33,7 +36,8 @@ const settingsSchema = z
 		hero_title: settings.heroTitle,
 		hero_subtitle: settings.heroSubtitle,
 		template: settings.template,
-		assistant: settings.assistant
+		assistant: settings.assistant,
+		online_payments: settings.onlinePayments ?? false
 	}));
 
 /** Lo que se cambia; lo que no viene, no se toca. En los opcionales, null o vacío lo quita. */

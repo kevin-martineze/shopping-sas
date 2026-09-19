@@ -18,6 +18,7 @@
 	import Truck from '@lucide/svelte/icons/truck';
 	import UserRound from '@lucide/svelte/icons/user-round';
 	import Users from '@lucide/svelte/icons/users';
+	import Wallet from '@lucide/svelte/icons/wallet';
 
 	import { page } from '$app/state';
 
@@ -48,6 +49,7 @@
 		{ href: '/admin/avisos', label: 'Avisos', icon: BellRing },
 		{ href: '/admin/ajustes', label: 'Ajustes', icon: Settings },
 		{ href: '/admin/equipo', label: 'Equipo', icon: Users },
+		{ href: '/admin/pagos', label: 'Pagos', icon: Wallet },
 		{ href: '/admin/plan', label: 'Plan', icon: CreditCard },
 		{ href: '/admin/cuenta', label: 'Mi cuenta', icon: UserRound }
 	];

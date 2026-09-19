@@ -1,6 +1,6 @@
 import type { MemberRole, StoreStatus, SubscriptionStatus } from '$lib/domain/account';
 import type { ProductStatus } from '$lib/domain/catalog';
-import type { OrderStatus } from '$lib/domain/orders';
+import type { OrderPaymentStatus, OrderStatus } from '$lib/domain/orders';
 import type { StorefrontTemplate } from '$lib/domain/templates';
 
 import { z } from 'zod';
@@ -106,3 +106,17 @@ export const subscriptionStatusSchema = z
 export const templateSchema = z
 	.string()
 	.transform((code): StorefrontTemplate => templateOf(code).code);
+
+const ORDER_PAYMENT_TO_DOMAIN: Record<
+	'UNPAID' | 'PENDING' | 'PAID' | 'FAILED',
+	OrderPaymentStatus
+> = {
+	UNPAID: 'unpaid',
+	PENDING: 'pending',
+	PAID: 'paid',
+	FAILED: 'failed'
+};
+
+export const orderPaymentStatusSchema = z
+	.enum(['UNPAID', 'PENDING', 'PAID', 'FAILED'])
+	.transform((status) => ORDER_PAYMENT_TO_DOMAIN[status]);

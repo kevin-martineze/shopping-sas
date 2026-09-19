@@ -144,7 +144,8 @@ const storefrontSchema = z
 			heroTitle: z.string().nullable(),
 			heroSubtitle: z.string().nullable(),
 			template: templateSchema,
-			assistant: z.boolean()
+			assistant: z.boolean(),
+			onlinePayments: z.boolean()
 		}),
 		categories: z.array(categorySchema),
 		collections: z.array(z.object(collectionShape).transform(toCollection))
@@ -160,7 +161,8 @@ const storefrontSchema = z
 			hero_title: storefront.settings.heroTitle,
 			hero_subtitle: storefront.settings.heroSubtitle,
 			template: storefront.settings.template,
-			assistant: storefront.settings.assistant
+			assistant: storefront.settings.assistant,
+			online_payments: storefront.settings.onlinePayments
 		};
 
 		return { settings, categories: storefront.categories, collections: storefront.collections };

@@ -14,6 +14,8 @@ export interface StoreSettings {
 	template: StorefrontTemplate;
 	/** Si esta tienda ofrece asistente: lo deciden su plan y la plataforma. */
 	assistant: boolean;
+	/** Si cobra en línea, además del pedido por WhatsApp. */
+	online_payments: boolean;
 }
 
 /** Bloques cortos que van bajo el hero de la portada. */
