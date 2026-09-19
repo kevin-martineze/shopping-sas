@@ -170,19 +170,31 @@ export function getSubscription(ctx: PanelContext): Promise<ApiResult<Subscripti
 	return panelRequest(ctx, '/subscription', subscriptionSchema);
 }
 
+export interface SubscriptionCheckout {
+	url: string;
+	reference: string;
+	amount_cop: number;
+}
+
+const checkoutSchema = z
+	.object({ url: z.string().url(), reference: z.string(), amountCop: z.number() })
+	.transform((body): SubscriptionCheckout => ({
+		url: body.url,
+		reference: body.reference,
+		amount_cop: body.amountCop
+	}));
+
 /**
- * Activa el plan y lo cobra.
+ * Empieza el cobro del plan y devuelve a dónde ir a pagar.
  *
- * Mientras no hay pasarela el cobro es simulado y la API solo lo acepta con
- * `BILLING_DRIVER=simulated`; si está apagado responde 400 y el panel muestra
- * ese mensaje tal cual. Es una escritura que la API permite con el plan
- * vencido: es justo lo que saca a la tienda de ahí.
+ * Lo que pone el plan al día no es volver de esa página, sino el evento que la
+ * pasarela le manda a la API. Acá solo se consigue el enlace.
  */
-export function activateSubscription(
+export function checkoutSubscription(
 	ctx: PanelContext,
 	planCode: string
-): Promise<ApiResult<SubscriptionSummary>> {
-	return panelRequest(ctx, '/subscription/activate', subscriptionSchema, {
+): Promise<ApiResult<SubscriptionCheckout>> {
+	return panelRequest(ctx, '/subscription/checkout', checkoutSchema, {
 		method: 'POST',
 		body: { planCode }
 	});

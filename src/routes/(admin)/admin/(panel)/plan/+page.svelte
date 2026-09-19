@@ -55,10 +55,9 @@
 	</p>
 </header>
 
-<FormFeedback
-	error={form?.error ?? null}
-	message={form && 'message' in form ? (form.message ?? null) : null}
-/>
+<!-- Solo errores: cuando el cobro sale bien, esta página ya no está —se fue a
+     la pasarela— y quien confirma es su evento. -->
+<FormFeedback error={form?.error ?? null} message={null} />
 
 <div class="grid gap-6 lg:grid-cols-3">
 	<section
@@ -111,7 +110,7 @@
 		{#if puedePagar}
 			<form
 				method="POST"
-				action="?/activar"
+				action="?/pagar"
 				class="border-border space-y-2 border-t pt-4"
 				use:enhance={() => {
 					submitting = plan.code;
@@ -124,11 +123,11 @@
 			>
 				<input type="hidden" name="planCode" value={plan.code} />
 				<Button type="submit" class="w-full" disabled={submitting !== ''}>
-					{submitting === plan.code ? 'Procesando…' : `Pagar un mes de ${plan.name}`}
+					{submitting === plan.code ? 'Llevándote a pagar…' : `Pagar un mes de ${plan.name}`}
 				</Button>
 				<p class="text-muted-foreground text-xs">
-					Todavía no cobramos de verdad: el pago es de prueba y suma un mes desde que termina el
-					período actual.
+					Te llevamos a la pasarela. El mes nuevo suma desde que termina el período actual, y el
+					plan queda al día cuando el pago se confirma.
 				</p>
 			</form>
 		{:else}
@@ -217,7 +216,7 @@
 
 					<form
 						method="POST"
-						action="?/activar"
+						action="?/pagar"
 						class="mt-6"
 						use:enhance={() => {
 							submitting = otro.code;
@@ -235,7 +234,7 @@
 							class="w-full"
 							disabled={submitting !== ''}
 						>
-							{submitting === otro.code ? 'Procesando…' : `Pasarme a ${otro.name}`}
+							{submitting === otro.code ? 'Llevándote a pagar…' : `Pasarme a ${otro.name}`}
 						</Button>
 					</form>
 				</div>
