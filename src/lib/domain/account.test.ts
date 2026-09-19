@@ -22,6 +22,8 @@ function summary(overrides: Partial<SubscriptionSummary>): SubscriptionSummary {
 		trial_ends_at: null,
 		days_left: 30,
 		usage: { products: 10, orders_this_month: 3 },
+		self_service_billing: false,
+		payments: [],
 		...overrides
 	};
 }
@@ -40,6 +42,15 @@ describe('subscriptionNotice', () => {
 	it('vencida avisa sin alarmar', () => {
 		expect(subscriptionNotice(summary({ store_status: 'past_due', days_left: -2 }))?.tone).toBe(
 			'warning'
+		);
+	});
+
+	it('el aviso dice cómo pagar según haya pasarela o no', () => {
+		const vencida = { store_status: 'past_due', days_left: -2 } as const;
+
+		expect(subscriptionNotice(summary(vencida))?.text).toContain('Escríbenos');
+		expect(subscriptionNotice(summary({ ...vencida, self_service_billing: true }))?.text).toContain(
+			'Tu plan'
 		);
 	});
 

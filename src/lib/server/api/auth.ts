@@ -68,6 +68,8 @@ export interface RegisterInput {
 	storeName: string;
 	storeSlug: string;
 	whatsappPhone: string;
+	/** El plan que eligió en la página de precios. Sin él, la API pone el básico. */
+	planCode?: string;
 }
 
 /** Crea la tienda y la cuenta de su dueña. Devuelve la sesión ya iniciada. */

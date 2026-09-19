@@ -1,24 +1,46 @@
 <script lang="ts">
-	import type { PageData } from './$types';
+	import Check from '@lucide/svelte/icons/check';
+
+	import { enhance } from '$app/forms';
+
+	import type { ActionData, PageData } from './$types';
 	import { Badge } from '$lib/components/atoms/badge';
+	import { Button } from '$lib/components/atoms/button';
+	import * as Table from '$lib/components/atoms/table';
+	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 	import UsageMeter from '$lib/components/molecules/UsageMeter.svelte';
-	import { STORE_STATUS_LABEL } from '$lib/domain/account';
+	import { planFeatures, STORE_STATUS_LABEL } from '$lib/domain/account';
+	import { cn } from '$lib/utils';
 	import { formatMoney } from '$lib/utils/money';
 
 	interface Props {
 		data: PageData;
+		form: ActionData;
 	}
 
-	let { data }: Props = $props();
+	let { data, form }: Props = $props();
+
+	let submitting = $state('');
 
 	const subscription = $derived(data.subscription);
 	const plan = $derived(subscription.plan);
 
-	const dateFormatter = new Intl.DateTimeFormat('es-CO', { dateStyle: 'long', timeZone: 'UTC' });
-
-	const periodEnd = $derived(
-		dateFormatter.format(new Date(`${subscription.current_period_end}T00:00:00Z`))
+	/** Cobrarse sola es de la dueña, y solo mientras la tienda no esté suspendida. */
+	const puedePagar = $derived(
+		data.canPay && subscription.self_service_billing && subscription.store_status !== 'suspended'
 	);
+
+	/** Los demás planes: cambiar de plan es pagar el nuevo. */
+	const otros = $derived(data.plans.filter((otro) => otro.code !== plan.code));
+
+	const dateFormatter = new Intl.DateTimeFormat('es-CO', { dateStyle: 'long', timeZone: 'UTC' });
+	const shortDate = new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium', timeZone: 'UTC' });
+
+	function fecha(day: string): string {
+		return dateFormatter.format(new Date(`${day}T00:00:00Z`));
+	}
+
+	const periodEnd = $derived(fecha(subscription.current_period_end));
 </script>
 
 <svelte:head>
@@ -31,6 +53,11 @@
 		Qué incluye, cuánto llevas usado y hasta cuándo está pago.
 	</p>
 </header>
+
+<FormFeedback
+	error={form?.error ?? null}
+	message={form && 'message' in form ? (form.message ?? null) : null}
+/>
 
 <div class="grid gap-6 lg:grid-cols-3">
 	<section class="border-border bg-background space-y-4 border p-6 lg:col-span-1">
@@ -64,10 +91,41 @@
 			</div>
 		</dl>
 
-		<p class="text-muted-foreground border-border border-t pt-4 text-xs">
-			Los pagos se registran a mano por ahora. Para pagar o cambiar de plan, escríbenos por WhatsApp
-			con el nombre de tu tienda.
-		</p>
+		{#if puedePagar}
+			<form
+				method="POST"
+				action="?/activar"
+				class="border-border space-y-2 border-t pt-4"
+				use:enhance={() => {
+					submitting = plan.code;
+
+					return async ({ update }) => {
+						await update();
+						submitting = '';
+					};
+				}}
+			>
+				<input type="hidden" name="planCode" value={plan.code} />
+				<Button type="submit" class="w-full" disabled={submitting !== ''}>
+					{submitting === plan.code ? 'Procesando…' : `Pagar un mes de ${plan.name}`}
+				</Button>
+				<p class="text-muted-foreground text-xs">
+					Todavía no cobramos de verdad: el pago es de prueba y suma un mes desde que termina el
+					período actual.
+				</p>
+			</form>
+		{:else}
+			<p class="text-muted-foreground border-border border-t pt-4 text-xs">
+				{#if !data.canPay}
+					Solo las dueñas de la tienda pueden cambiar o pagar el plan.
+				{:else if subscription.store_status === 'suspended'}
+					Tu tienda está suspendida: escríbenos por WhatsApp para reactivarla.
+				{:else}
+					Los pagos se registran a mano por ahora. Para pagar o cambiar de plan, escríbenos por
+					WhatsApp con el nombre de tu tienda.
+				{/if}
+			</p>
+		{/if}
 	</section>
 
 	<section class="border-border bg-background space-y-6 border p-6 lg:col-span-2">
@@ -101,3 +159,92 @@
 		</p>
 	</section>
 </div>
+
+{#if puedePagar && otros.length > 0}
+	<section class="mt-8">
+		<h2 class="mb-1 text-lg">Cambiar de plan</h2>
+		<p class="text-muted-foreground mb-4 text-sm">
+			El plan nuevo empieza al pagarlo y el mes corre desde que termina el que tienes.
+		</p>
+
+		<div class="grid gap-4 md:grid-cols-2">
+			{#each otros as otro (otro.code)}
+				<div class="border-border bg-background flex flex-col border p-6">
+					<div class="flex items-baseline justify-between gap-3">
+						<h3 class="text-xl">{otro.name}</h3>
+						<p class="font-semibold">
+							{formatMoney(otro.price_cop)}<span class="text-muted-foreground text-xs font-normal">
+								/ mes</span
+							>
+						</p>
+					</div>
+
+					<ul class="mt-4 space-y-2 text-sm">
+						{#each planFeatures(otro) as caracteristica (caracteristica)}
+							<li class="flex items-start gap-2">
+								<Check class="text-muted-foreground mt-0.5 size-4 flex-none" />
+								<span>{caracteristica}</span>
+							</li>
+						{/each}
+					</ul>
+
+					<form
+						method="POST"
+						action="?/activar"
+						class="mt-6"
+						use:enhance={() => {
+							submitting = otro.code;
+
+							return async ({ update }) => {
+								await update();
+								submitting = '';
+							};
+						}}
+					>
+						<input type="hidden" name="planCode" value={otro.code} />
+						<Button
+							type="submit"
+							variant={otro.price_cop > plan.price_cop ? 'default' : 'outline'}
+							class="w-full"
+							disabled={submitting !== ''}
+						>
+							{submitting === otro.code ? 'Procesando…' : `Pasarme a ${otro.name}`}
+						</Button>
+					</form>
+				</div>
+			{/each}
+		</div>
+	</section>
+{/if}
+
+{#if subscription.payments.length > 0}
+	<section class="border-border bg-background mt-8 border p-6">
+		<h2 class="mb-4 text-lg">Tus pagos</h2>
+
+		<Table.Root>
+			<Table.Header>
+				<Table.Row>
+					<Table.Head>Fecha</Table.Head>
+					<Table.Head>Período</Table.Head>
+					<Table.Head>Medio</Table.Head>
+					<Table.Head class="text-right">Valor</Table.Head>
+				</Table.Row>
+			</Table.Header>
+			<Table.Body>
+				{#each subscription.payments as pago (pago.id)}
+					<Table.Row>
+						<Table.Cell>{shortDate.format(new Date(pago.created_at))}</Table.Cell>
+						<Table.Cell class="text-muted-foreground">
+							{shortDate.format(new Date(`${pago.period_start}T00:00:00Z`))} —
+							{shortDate.format(new Date(`${pago.period_end}T00:00:00Z`))}
+						</Table.Cell>
+						<Table.Cell class={cn(pago.method === 'simulado' && 'text-muted-foreground')}>
+							{pago.method === 'simulado' ? 'Pago de prueba' : pago.method}
+						</Table.Cell>
+						<Table.Cell class="text-right tabular-nums">{formatMoney(pago.amount_cop)}</Table.Cell>
+					</Table.Row>
+				{/each}
+			</Table.Body>
+		</Table.Root>
+	</section>
+{/if}

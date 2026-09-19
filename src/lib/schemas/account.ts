@@ -3,7 +3,15 @@ import { z } from 'zod';
 /** Doce caracteres y sin más reglas, igual que la API (ver `RegisterStoreDto`). */
 export const PASSWORD_MIN = 12;
 
-const email = z.string().trim().toLowerCase().email('Correo inválido.').max(255);
+const email = z
+	.string()
+	.trim()
+	.toLowerCase()
+	// El campo vacío se queja de estar vacío; el mal escrito, de estarlo. Un
+	// solo mensaje para los dos casos hace que el segundo suene a acusación.
+	.min(1, 'Escribe tu correo.')
+	.email('Correo inválido.')
+	.max(255);
 
 const newPassword = z
 	.string()
@@ -55,6 +63,13 @@ export const acceptNewSchema = withConfirmation({
 	fullName: z.string().trim().min(2, 'Escribe tu nombre.').max(120)
 });
 
+/** Código de plan, como lo valida `ActivatePlanDto` en la API. */
+export const planCodeSchema = z
+	.string()
+	.trim()
+	.toLowerCase()
+	.regex(/^[a-z0-9-]{2,40}$/, 'Elige un plan.');
+
 export const STORE_SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/;
 
 export const registerSchema = withConfirmation({
@@ -63,6 +78,7 @@ export const registerSchema = withConfirmation({
 		.string()
 		.trim()
 		.toLowerCase()
+		.min(3, 'Elige la dirección de tu tienda.')
 		.regex(
 			STORE_SLUG_PATTERN,
 			'La dirección admite minúsculas, números y guiones (3 a 40), y empieza y termina con letra o número.'
@@ -71,6 +87,21 @@ export const registerSchema = withConfirmation({
 	email,
 	whatsappPhone: z
 		.string()
+		.trim()
+		.min(1, 'Escribe el WhatsApp de ventas.')
 		.transform((value) => value.replace(/\D/g, ''))
 		.pipe(z.string().regex(/^\d{10,15}$/, 'El WhatsApp debe tener entre 10 y 15 dígitos.'))
+});
+
+/**
+ * Los datos de la tienda, sin los de la cuenta.
+ *
+ * Es lo único que se pide cuando quien registra ya tiene sesión: su cuenta ya
+ * existe, y volver a pedirle nombre y contraseña sería pedirle que se
+ * registrara dos veces.
+ */
+export const storeFieldsSchema = registerSchema.innerType().pick({
+	storeName: true,
+	storeSlug: true,
+	whatsappPhone: true
 });

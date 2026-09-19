@@ -47,6 +47,18 @@ export interface Plan {
 	active: boolean;
 }
 
+/** Un pago de la tienda, visto desde su propio panel. */
+export interface StorePayment {
+	id: string;
+	amount_cop: number;
+	/** `YYYY-MM-DD`. */
+	period_start: string;
+	period_end: string;
+	/** `simulado` mientras no hay pasarela. */
+	method: string;
+	created_at: string;
+}
+
 export interface SubscriptionSummary {
 	plan: Plan;
 	status: SubscriptionStatus;
@@ -57,6 +69,10 @@ export interface SubscriptionSummary {
 	/** Negativo si ya venció. */
 	days_left: number;
 	usage: { products: number; orders_this_month: number };
+	/** Si la tienda puede activar su plan sola, sin escribirle a nadie. */
+	self_service_billing: boolean;
+	/** Sus pagos, el más nuevo primero. */
+	payments: StorePayment[];
 }
 
 export interface PlatformMember {
@@ -112,6 +128,13 @@ function days(count: number): string {
 	return count === 1 ? '1 día' : `${count} días`;
 }
 
+/** Qué se le pide a la dueña para volver a estar al día, según haya pasarela o no. */
+function comoPagar(summary: SubscriptionSummary): string {
+	return summary.self_service_billing
+		? 'Actívalo desde Tu plan y vuelves a editar al instante.'
+		: 'Escríbenos para registrar el pago.';
+}
+
 /**
  * El aviso que muestra el panel según el estado de la tienda, o null si todo
  * está al día. Función pura: el panel solo la pinta.
@@ -127,7 +150,8 @@ export function subscriptionNotice(summary: SubscriptionSummary): SubscriptionNo
 	if (summary.store_status === 'past_due') {
 		return {
 			tone: 'warning',
-			text: 'Tu plan venció. La tienda sigue vendiendo, pero registra el pago para no perder el servicio.'
+			// Vencida sigue vendiendo: lo que se pierde es poder editar.
+			text: `Tu plan venció: la tienda sigue vendiendo, pero el panel quedó en solo lectura. ${comoPagar(summary)}`
 		};
 	}
 
@@ -135,7 +159,7 @@ export function subscriptionNotice(summary: SubscriptionSummary): SubscriptionNo
 		if (summary.days_left < 0) {
 			return {
 				tone: 'warning',
-				text: 'Tu prueba terminó. Registra el pago para seguir vendiendo sin interrupciones.'
+				text: `Tu prueba terminó. ${comoPagar(summary)}`
 			};
 		}
 

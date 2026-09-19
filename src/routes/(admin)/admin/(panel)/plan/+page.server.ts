@@ -1,7 +1,39 @@
-import type { PageServerLoad } from './$types';
-import { getSubscription } from '$lib/server/api/panel-team';
-import { orFail, panelContext } from '$lib/server/context';
+import { fail } from '@sveltejs/kit';
+
+import type { Actions, PageServerLoad } from './$types';
+import { planCodeSchema } from '$lib/schemas/account';
+import { activateSubscription, getSubscription } from '$lib/server/api/panel-team';
+import { listPublicPlans } from '$lib/server/api/plans';
+import { clientAddress, failWith, orFail, panelContext } from '$lib/server/context';
 
 export const load: PageServerLoad = async (event) => {
-	return { subscription: orFail(await getSubscription(panelContext(event))) };
+	const [subscription, plans, { role }] = await Promise.all([
+		getSubscription(panelContext(event)),
+		listPublicPlans(clientAddress(event)),
+		event.parent()
+	]);
+
+	return {
+		subscription: orFail(subscription),
+		// Sin los planes la página sigue sirviendo: se ve el plan de la tienda,
+		// aunque no se pueda cambiar.
+		plans: plans.ok ? plans.data : [],
+		// Pagar es de la dueña: la API le niega esta ruta al personal.
+		canPay: role === 'owner'
+	};
+};
+
+export const actions: Actions = {
+	activar: async (event) => {
+		const formData = await event.request.formData();
+		const planCode = planCodeSchema.safeParse(formData.get('planCode'));
+
+		if (!planCode.success) return fail(400, { error: 'Elige un plan.' });
+
+		const result = await activateSubscription(panelContext(event), planCode.data);
+
+		if (!result.ok) return failWith(result);
+
+		return { message: `Listo: tu plan ${result.data.plan.name} quedó activo.` };
+	}
 };

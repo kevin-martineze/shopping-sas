@@ -55,7 +55,7 @@
 	</ul>
 
 	<Button
-		href="/registro"
+		href="/registro?plan={plan.code}"
 		class={cn('mt-8 w-full', destacado && 'bg-background text-foreground hover:bg-background/90')}
 		variant={destacado ? 'default' : 'outline'}
 	>

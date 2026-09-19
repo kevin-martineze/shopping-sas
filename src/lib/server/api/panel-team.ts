@@ -1,6 +1,7 @@
 import type {
 	MemberRole,
 	Plan,
+	StorePayment,
 	SubscriptionSummary,
 	TeamInvitation,
 	TeamMember
@@ -118,6 +119,24 @@ export const planSchema = z
 		active: plan.active
 	}));
 
+const storePaymentSchema = z
+	.object({
+		id: z.string(),
+		amountCop: z.number(),
+		periodStart: z.string(),
+		periodEnd: z.string(),
+		method: z.string(),
+		createdAt: z.string()
+	})
+	.transform((payment): StorePayment => ({
+		id: payment.id,
+		amount_cop: payment.amountCop,
+		period_start: payment.periodStart,
+		period_end: payment.periodEnd,
+		method: payment.method,
+		created_at: payment.createdAt
+	}));
+
 const subscriptionSchema = z
 	.object({
 		plan: planSchema,
@@ -126,7 +145,9 @@ const subscriptionSchema = z
 		currentPeriodEnd: z.string(),
 		trialEndsAt: z.string().nullable(),
 		daysLeft: z.number(),
-		usage: z.object({ products: z.number(), ordersThisMonth: z.number() })
+		usage: z.object({ products: z.number(), ordersThisMonth: z.number() }),
+		selfServiceBilling: z.boolean(),
+		payments: z.array(storePaymentSchema)
 	})
 	.transform((summary): SubscriptionSummary => ({
 		plan: summary.plan,
@@ -138,9 +159,29 @@ const subscriptionSchema = z
 		usage: {
 			products: summary.usage.products,
 			orders_this_month: summary.usage.ordersThisMonth
-		}
+		},
+		self_service_billing: summary.selfServiceBilling,
+		payments: summary.payments
 	}));
 
 export function getSubscription(ctx: PanelContext): Promise<ApiResult<SubscriptionSummary>> {
 	return panelRequest(ctx, '/subscription', subscriptionSchema);
+}
+
+/**
+ * Activa el plan y lo cobra.
+ *
+ * Mientras no hay pasarela el cobro es simulado y la API solo lo acepta con
+ * `BILLING_DRIVER=simulated`; si está apagado responde 400 y el panel muestra
+ * ese mensaje tal cual. Es una escritura que la API permite con el plan
+ * vencido: es justo lo que saca a la tienda de ahí.
+ */
+export function activateSubscription(
+	ctx: PanelContext,
+	planCode: string
+): Promise<ApiResult<SubscriptionSummary>> {
+	return panelRequest(ctx, '/subscription/activate', subscriptionSchema, {
+		method: 'POST',
+		body: { planCode }
+	});
 }
