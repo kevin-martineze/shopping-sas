@@ -26,3 +26,7 @@ vite.config.ts.timestamp-*
 .env.*
 !.env.example
 .vercel
+
+# Resultados de las pruebas de navegador (Playwright).
+/test-results
+/playwright-report
