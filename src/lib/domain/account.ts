@@ -243,9 +243,11 @@ export const TRIAL_DAYS = 14;
  * frase cambia en vez de mostrar la palabra "null".
  */
 export function planFeatures(plan: Plan): string[] {
+	// Todas las líneas empiezan en mayúscula: puestas en lista, una que empieza
+	// en minúscula parece la continuación de la anterior.
 	const cantidad = (limite: number | null, singular: string, plural: string) =>
 		limite === null
-			? `${plural} sin límite`
+			? `${plural.charAt(0).toUpperCase()}${plural.slice(1)} sin límite`
 			: `Hasta ${limite} ${limite === 1 ? singular : plural}`;
 
 	return [
