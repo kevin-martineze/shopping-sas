@@ -32,8 +32,22 @@ const schema = z.object({
 	 * Secreto que la API exige para atender (cabecera `x-globerce-key`). Tiene
 	 * que ser el mismo `API_SHARED_SECRET` de la API. Vacío en desarrollo, donde
 	 * la API no lo pide.
+	 *
+	 * Solo se aceptan caracteres válidos en una cabecera HTTP. Pegar aquí un
+	 * secreto con un salto de línea —o con el comando de la terminal delante—
+	 * hace que `fetch` lance «invalid header value» ANTES de salir a la red: la
+	 * API no registra nada y el síntoma parece de conectividad. Mejor negarse a
+	 * arrancar y decir por qué.
 	 */
-	API_SHARED_SECRET: optional(z.string().min(32)),
+	API_SHARED_SECRET: optional(
+		z
+			.string()
+			.min(32)
+			.regex(
+				/^[\x21-\x7e]+$/,
+				'API_SHARED_SECRET tiene espacios, saltos de línea o caracteres que no caben en una cabecera HTTP.'
+			)
+	),
 	/**
 	 * Dominio bajo el que cada tienda es un subdominio: con `mitienda.com`,
 	 * `boutique.mitienda.com` sirve la tienda `boutique`. Lleva el puerto si lo
