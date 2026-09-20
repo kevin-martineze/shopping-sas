@@ -102,7 +102,7 @@ describe('planFeatures', () => {
 	it('sin límite no dice "null"', () => {
 		const features = planFeatures({ ...basico, max_products: null, max_orders_per_month: null });
 
-		expect(features).toContain('prendas sin límite');
+		expect(features).toContain('Prendas sin límite');
 		expect(features.join(' ')).not.toContain('null');
 	});
 
