@@ -3,6 +3,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import type { ApiFailure } from '$lib/server/api/client';
 import type { FieldErrors } from '$lib/utils/form';
+import { joinPhone } from '$lib/domain/phone';
 import { planCodeSchema, registerSchema, storeFieldsSchema } from '$lib/schemas/account';
 import { createStore, register } from '$lib/server/api/auth';
 import { listPublicPlans } from '$lib/server/api/plans';
@@ -50,7 +51,9 @@ export const actions: Actions = {
 		const fields = {
 			storeName: text('storeName'),
 			storeSlug: text('storeSlug'),
-			whatsappPhone: text('whatsappPhone'),
+			// El indicativo llega en su propio campo: pegarlo en el cliente
+			// obligaría a un input oculto, que sin JavaScript no se actualiza.
+			whatsappPhone: joinPhone(text('whatsappPhoneCountry'), text('whatsappPhone')),
 			fullName: text('fullName'),
 			email: text('email'),
 			password: text('password'),
