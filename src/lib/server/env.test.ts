@@ -42,4 +42,15 @@ describe('serverEnv', () => {
 
 		expect(() => serverEnv()).toThrow(/PUBLIC_STORE_SLUG/);
 	});
+
+	// Pasó en producción: en Vercel quedó pegado el comando de la terminal
+	// entero, con saltos de línea, en vez del secreto. `fetch` moría con
+	// «invalid header value» y parecía un problema de red.
+	it('rechaza un secreto que no cabe en una cabecera HTTP', () => {
+		publicEnv.PUBLIC_STORE_SLUG = '';
+		privateEnv.API_SHARED_SECRET = `ssh ubuntu@1.2.3.4 "grep SECRET .env"\n${'x'.repeat(40)}`;
+		resetServerEnv();
+
+		expect(() => serverEnv()).toThrow(/API_SHARED_SECRET/);
+	});
 });
