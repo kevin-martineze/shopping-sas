@@ -1,13 +1,16 @@
+import { fail } from '@sveltejs/kit';
+
 import type { Actions } from './$types';
-import { listBySlugs } from '$lib/server/catalog';
+import { lookupProducts } from '$lib/server/api/storefront';
+import { publicContext } from '$lib/server/context';
 
 export const actions: Actions = {
 	/**
 	 * Los favoritos viven en localStorage: el navegador manda los slugs y el
 	 * servidor devuelve las fichas con precio y stock frescos.
 	 */
-	default: async ({ request, locals }) => {
-		const formData = await request.formData();
+	default: async (event) => {
+		const formData = await event.request.formData();
 		const raw = formData.get('slugs');
 
 		if (typeof raw !== 'string' || raw.trim() === '') {
@@ -20,6 +23,10 @@ export const actions: Actions = {
 			.filter((slug) => /^[a-z0-9-]{1,80}$/.test(slug))
 			.slice(0, 60);
 
-		return { products: await listBySlugs(locals.supabase, slugs) };
+		const result = await lookupProducts(publicContext(event), slugs);
+
+		if (!result.ok) return fail(503, { products: [], error: result.message });
+
+		return { products: result.data };
 	}
 };

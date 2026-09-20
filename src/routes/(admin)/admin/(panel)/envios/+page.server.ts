@@ -1,12 +1,13 @@
 import { fail } from '@sveltejs/kit';
 
+import type { ZoneInput } from '$lib/server/api/panel-commerce';
 import type { Actions, PageServerLoad } from './$types';
 import { shippingZoneSchema } from '$lib/schemas/admin';
-import { listShippingZones } from '$lib/server/store';
-import { supabaseAdmin } from '$lib/server/supabase';
+import { createZone, listZones, removeZone, updateZone } from '$lib/server/api/panel-commerce';
+import { failWith, orFail, panelContext } from '$lib/server/context';
 
-export const load: PageServerLoad = async () => {
-	return { zones: await listShippingZones(supabaseAdmin(), true) };
+export const load: PageServerLoad = async (event) => {
+	return { zones: orFail(await listZones(panelContext(event))) };
 };
 
 function parseZone(formData: FormData) {
@@ -19,63 +20,63 @@ function parseZone(formData: FormData) {
 	});
 }
 
+function toInput(zone: {
+	name: string;
+	cost: number;
+	etaDays?: number | null;
+	active: boolean;
+	sortOrder: number;
+}): ZoneInput {
+	return {
+		name: zone.name,
+		cost: zone.cost,
+		etaDays: zone.etaDays ?? null,
+		active: zone.active,
+		sortOrder: zone.sortOrder
+	};
+}
+
 export const actions: Actions = {
-	crear: async ({ request }) => {
-		const parsed = parseZone(await request.formData());
+	crear: async (event) => {
+		const ctx = panelContext(event);
+		const parsed = parseZone(await event.request.formData());
 
 		if (!parsed.success) {
 			return fail(400, { error: parsed.error.issues.at(0)?.message ?? 'Revisa los datos.' });
 		}
 
-		const { error } = await supabaseAdmin()
-			.from('shipping_zones')
-			.insert({
-				name: parsed.data.name,
-				cost: parsed.data.cost,
-				eta_days: parsed.data.etaDays ?? null,
-				active: parsed.data.active,
-				sort_order: parsed.data.sortOrder
-			});
+		const result = await createZone(ctx, toInput(parsed.data));
 
-		if (error) return fail(500, { error: 'No pudimos crear la zona.' });
+		if (!result.ok) return failWith(result);
 
 		return { ok: true };
 	},
 
-	actualizar: async ({ request }) => {
-		const formData = await request.formData();
-		const id = String(formData.get('id') ?? '');
+	actualizar: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 		const parsed = parseZone(formData);
 
 		if (!parsed.success) {
 			return fail(400, { error: parsed.error.issues.at(0)?.message ?? 'Revisa los datos.' });
 		}
 
-		const { error } = await supabaseAdmin()
-			.from('shipping_zones')
-			.update({
-				name: parsed.data.name,
-				cost: parsed.data.cost,
-				eta_days: parsed.data.etaDays ?? null,
-				active: parsed.data.active,
-				sort_order: parsed.data.sortOrder
-			})
-			.eq('id', id);
+		const result = await updateZone(ctx, String(formData.get('id') ?? ''), toInput(parsed.data));
 
-		if (error) return fail(500, { error: 'No pudimos guardar la zona.' });
+		if (!result.ok) return failWith(result);
 
 		return { ok: true };
 	},
 
-	eliminar: async ({ request }) => {
-		const formData = await request.formData();
-		const id = String(formData.get('id') ?? '');
+	eliminar: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 
-		const { error } = await supabaseAdmin().from('shipping_zones').delete().eq('id', id);
+		const result = await removeZone(ctx, String(formData.get('id') ?? ''));
 
-		if (error) {
-			// Zona usada en pedidos: se desactiva para no romper el historial.
-			await supabaseAdmin().from('shipping_zones').update({ active: false }).eq('id', id);
+		if (!result.ok) return failWith(result);
+
+		if (result.data.result === 'deactivated') {
 			return fail(409, { error: 'Esa zona ya se usó en pedidos, así que la desactivamos.' });
 		}
 

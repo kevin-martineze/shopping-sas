@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Globerce">
+	<!-- Marca mínima: la G dibujada como trazo, sin depender de ninguna fuente
+	     instalada. Fondo sólido para que se lea en la pestaña a 16 px. -->
+	<rect width="64" height="64" rx="14" fill="#111111" />
+	<path
+		d="M45 23A14 14 0 1 0 45 41V32H36"
+		fill="none"
+		stroke="#ffffff"
+		stroke-width="5.5"
+		stroke-linecap="round"
+		stroke-linejoin="round"
+	/>
+</svg>

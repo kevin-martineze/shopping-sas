@@ -25,7 +25,7 @@
 </script>
 
 <svelte:head>
-	<title>Avisos de reposición — Panel</title>
+	<title>Avisos de reposición — Globerce</title>
 </svelte:head>
 
 <header class="mb-6 space-y-1">

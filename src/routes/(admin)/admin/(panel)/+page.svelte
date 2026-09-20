@@ -1,5 +1,8 @@
 <script lang="ts">
+	import PartyPopper from '@lucide/svelte/icons/party-popper';
+
 	import type { PageData } from './$types';
+	import * as Alert from '$lib/components/atoms/alert';
 	import { Badge } from '$lib/components/atoms/badge';
 	import { Button } from '$lib/components/atoms/button';
 	import * as Card from '$lib/components/atoms/card';
@@ -23,13 +26,30 @@
 </script>
 
 <svelte:head>
-	<title>Resumen — Panel</title>
+	<title>Resumen — Globerce</title>
 </svelte:head>
 
 <header class="mb-8 space-y-1">
 	<h1 class="text-3xl">Resumen</h1>
 	<p class="text-muted-foreground text-sm">Lo que necesita atención hoy.</p>
 </header>
+
+{#if data.welcomeUrl}
+	<Alert.Root class="mb-6">
+		<PartyPopper class="size-4" />
+		<Alert.Title>Tu tienda está lista</Alert.Title>
+		<Alert.Description>
+			<p>
+				Quedó en
+				<a href={data.welcomeUrl} class="font-medium underline underline-offset-4">
+					{data.welcomeUrl.replace(/^https?:\/\//, '')}
+				</a>. Empieza creando tus prendas en
+				<a href="/admin/productos/nuevo" class="underline underline-offset-4">Productos</a>: se
+				publican cuando las marques como activas.
+			</p>
+		</Alert.Description>
+	</Alert.Root>
+{/if}
 
 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 	<Card.Root>

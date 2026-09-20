@@ -3,47 +3,44 @@ import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { categorySchema, colorSchema, sizeSchema } from '$lib/schemas/admin';
 import {
-	CatalogError,
-	getCatalogUsage,
-	listAdminCategories,
+	createCategory,
+	createColor,
+	createSize,
+	listCategories,
 	listColors,
 	listSizes,
 	removalMessage,
-	removeOrHide
-} from '$lib/server/catalogs';
-import { supabaseAdmin } from '$lib/server/supabase';
-import { slugify } from '$lib/utils/slug';
+	removeCategory,
+	removeColor,
+	removeSize,
+	updateCategory,
+	updateColor,
+	updateSize
+} from '$lib/server/api/panel-catalog';
+import { failWith, orFail, panelContext } from '$lib/server/context';
 
-export const load: PageServerLoad = async () => {
-	const [colors, sizes, categories, usage] = await Promise.all([
-		listColors(true),
-		listSizes(true),
-		listAdminCategories(),
-		getCatalogUsage()
+export const load: PageServerLoad = async (event) => {
+	const ctx = panelContext(event);
+
+	const [colorsResult, sizesResult, categoriesResult] = await Promise.all([
+		listColors(ctx, true),
+		listSizes(ctx, true),
+		listCategories(ctx, true)
 	]);
+
+	const colors = orFail(colorsResult);
+	const sizes = orFail(sizesResult);
+	const categories = orFail(categoriesResult);
+
+	// Cuántas prendas o variantes dependen de cada fila, para avisar antes de borrar.
+	const usage = {
+		colors: Object.fromEntries(colors.map((color) => [color.id, color.usage])),
+		sizes: Object.fromEntries(sizes.map((size) => [size.id, size.usage])),
+		categories: Object.fromEntries(categories.map((category) => [category.id, category.usage]))
+	};
 
 	return { colors, sizes, categories, usage };
 };
-
-/** El nombre manda: el slug se deriva y se numera si ya existe. */
-async function uniqueSlug(table: 'colors' | 'categories', name: string, ignoreId?: string) {
-	const base = slugify(name) || 'sin-nombre';
-	const { data } = await supabaseAdmin()
-		.from(table)
-		.select('id, slug')
-		.like('slug', `${base}%`)
-		.returns<{ id: string; slug: string }[]>();
-
-	const taken = new Set((data ?? []).filter((row) => row.id !== ignoreId).map((row) => row.slug));
-
-	if (!taken.has(base)) return base;
-
-	for (let suffix = 2; suffix < 100; suffix += 1) {
-		if (!taken.has(`${base}-${suffix}`)) return `${base}-${suffix}`;
-	}
-
-	return `${base}-${Date.now()}`;
-}
 
 function parseColor(formData: FormData) {
 	return colorSchema.safeParse({
@@ -72,167 +69,117 @@ function parseCategory(formData: FormData) {
 
 const firstIssue = (issues: { message: string }[]) => issues.at(0)?.message ?? 'Revisa los datos.';
 
+const formId = (formData: FormData) => String(formData.get('id') ?? '');
+
 export const actions: Actions = {
-	crearColor: async ({ request }) => {
-		const parsed = parseColor(await request.formData());
+	crearColor: async (event) => {
+		const ctx = panelContext(event);
+		const parsed = parseColor(await event.request.formData());
+
 		if (!parsed.success) return fail(400, { error: firstIssue(parsed.error.issues) });
 
-		const { error } = await supabaseAdmin()
-			.from('colors')
-			.insert({
-				name: parsed.data.name,
-				slug: await uniqueSlug('colors', parsed.data.name),
-				hex: parsed.data.hex.toUpperCase(),
-				sort_order: parsed.data.sortOrder,
-				active: parsed.data.active
-			});
+		const result = await createColor(ctx, parsed.data);
 
-		if (error) return fail(500, { error: 'No pudimos crear el color.' });
+		if (!result.ok) return failWith(result);
 
 		return { message: `Color ${parsed.data.name} creado.` };
 	},
 
-	actualizarColor: async ({ request }) => {
-		const formData = await request.formData();
-		const id = String(formData.get('id') ?? '');
+	actualizarColor: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 		const parsed = parseColor(formData);
 
 		if (!parsed.success) return fail(400, { error: firstIssue(parsed.error.issues) });
 
-		const { error } = await supabaseAdmin()
-			.from('colors')
-			.update({
-				name: parsed.data.name,
-				hex: parsed.data.hex.toUpperCase(),
-				sort_order: parsed.data.sortOrder,
-				active: parsed.data.active
-			})
-			.eq('id', id);
+		const result = await updateColor(ctx, formId(formData), parsed.data);
 
-		if (error) return fail(500, { error: 'No pudimos guardar el color.' });
+		if (!result.ok) return failWith(result);
 
 		return { message: 'Color guardado.' };
 	},
 
-	borrarColor: async ({ request }) => {
-		const formData = await request.formData();
+	borrarColor: async (event) => {
+		const ctx = panelContext(event);
+		const result = await removeColor(ctx, formId(await event.request.formData()));
 
-		try {
-			const result = await removeOrHide('colors', String(formData.get('id') ?? ''));
-			return { message: removalMessage(result, 'El color') };
-		} catch (cause) {
-			const message = cause instanceof CatalogError ? cause.message : 'No pudimos borrar el color.';
-			return fail(500, { error: message });
-		}
+		if (!result.ok) return failWith(result);
+
+		return { message: removalMessage(result.data.hidden, 'El color') };
 	},
 
-	crearTalla: async ({ request }) => {
-		const parsed = parseSize(await request.formData());
+	crearTalla: async (event) => {
+		const ctx = panelContext(event);
+		const parsed = parseSize(await event.request.formData());
+
 		if (!parsed.success) return fail(400, { error: firstIssue(parsed.error.issues) });
 
-		const { error } = await supabaseAdmin().from('sizes').insert({
-			label: parsed.data.label,
-			sort_order: parsed.data.sortOrder,
-			active: parsed.data.active
-		});
+		const result = await createSize(ctx, parsed.data);
 
-		if (error) {
-			return fail(400, {
-				error: error.code === '23505' ? 'Ya existe esa talla.' : 'No pudimos crear la talla.'
-			});
-		}
+		if (!result.ok) return failWith(result);
 
 		return { message: `Talla ${parsed.data.label} creada.` };
 	},
 
-	actualizarTalla: async ({ request }) => {
-		const formData = await request.formData();
-		const id = String(formData.get('id') ?? '');
+	actualizarTalla: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 		const parsed = parseSize(formData);
 
 		if (!parsed.success) return fail(400, { error: firstIssue(parsed.error.issues) });
 
-		const { error } = await supabaseAdmin()
-			.from('sizes')
-			.update({
-				label: parsed.data.label,
-				sort_order: parsed.data.sortOrder,
-				active: parsed.data.active
-			})
-			.eq('id', id);
+		const result = await updateSize(ctx, formId(formData), parsed.data);
 
-		if (error) {
-			return fail(400, {
-				error: error.code === '23505' ? 'Ya existe esa talla.' : 'No pudimos guardar la talla.'
-			});
-		}
+		if (!result.ok) return failWith(result);
 
 		return { message: 'Talla guardada.' };
 	},
 
-	borrarTalla: async ({ request }) => {
-		const formData = await request.formData();
+	borrarTalla: async (event) => {
+		const ctx = panelContext(event);
+		const result = await removeSize(ctx, formId(await event.request.formData()));
 
-		try {
-			const result = await removeOrHide('sizes', String(formData.get('id') ?? ''));
-			return { message: removalMessage(result, 'La talla') };
-		} catch (cause) {
-			const message = cause instanceof CatalogError ? cause.message : 'No pudimos borrar la talla.';
-			return fail(500, { error: message });
-		}
+		if (!result.ok) return failWith(result);
+
+		return { message: removalMessage(result.data.hidden, 'La talla') };
 	},
 
-	crearCategoria: async ({ request }) => {
-		const parsed = parseCategory(await request.formData());
+	crearCategoria: async (event) => {
+		const ctx = panelContext(event);
+		const parsed = parseCategory(await event.request.formData());
+
 		if (!parsed.success) return fail(400, { error: firstIssue(parsed.error.issues) });
 
-		const { error } = await supabaseAdmin()
-			.from('categories')
-			.insert({
-				name: parsed.data.name,
-				slug: await uniqueSlug('categories', parsed.data.name),
-				sort_order: parsed.data.sortOrder,
-				active: parsed.data.active
-			});
+		const result = await createCategory(ctx, parsed.data);
 
-		if (error) return fail(500, { error: 'No pudimos crear la categoría.' });
+		if (!result.ok) return failWith(result);
 
 		return { message: `Categoría ${parsed.data.name} creada.` };
 	},
 
-	actualizarCategoria: async ({ request }) => {
-		const formData = await request.formData();
-		const id = String(formData.get('id') ?? '');
+	actualizarCategoria: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 		const parsed = parseCategory(formData);
 
 		if (!parsed.success) return fail(400, { error: firstIssue(parsed.error.issues) });
 
-		const { error } = await supabaseAdmin()
-			.from('categories')
-			.update({
-				name: parsed.data.name,
-				sort_order: parsed.data.sortOrder,
-				active: parsed.data.active
-			})
-			.eq('id', id);
+		const result = await updateCategory(ctx, formId(formData), parsed.data);
 
-		if (error) return fail(500, { error: 'No pudimos guardar la categoría.' });
+		if (!result.ok) return failWith(result);
 
 		return { message: 'Categoría guardada.' };
 	},
 
-	borrarCategoria: async ({ request }) => {
-		const formData = await request.formData();
+	borrarCategoria: async (event) => {
+		const ctx = panelContext(event);
 
-		try {
-			// Las prendas apuntan a la categoría con `on delete set null`, así que
-			// borrarla las deja sin categoría en vez de fallar.
-			const result = await removeOrHide('categories', String(formData.get('id') ?? ''));
-			return { message: removalMessage(result, 'La categoría') };
-		} catch (cause) {
-			const message =
-				cause instanceof CatalogError ? cause.message : 'No pudimos borrar la categoría.';
-			return fail(500, { error: message });
-		}
+		// Las prendas apuntan a la categoría con `onDelete: SetNull`, así que
+		// borrarla las deja sin categoría en vez de fallar.
+		const result = await removeCategory(ctx, formId(await event.request.formData()));
+
+		if (!result.ok) return failWith(result);
+
+		return { message: removalMessage(result.data.hidden, 'La categoría') };
 	}
 };

@@ -1,11 +1,13 @@
-import type { SupabaseClient, User } from '@supabase/supabase-js';
+import type { AdminSession } from '$lib/server/session-crypto';
 
 declare global {
 	namespace App {
 		interface Locals {
-			supabase: SupabaseClient;
-			/** Usuario verificado contra el servidor de auth, o null. */
-			safeGetUser: () => Promise<User | null>;
+			/**
+			 * Sesión del panel emitida por la API, ya renovada si hacía falta, o null.
+			 * Comprobar que la membresía sigue viva es trabajo de `requireAdmin`.
+			 */
+			session: AdminSession | null;
 		}
 
 		// interface Error {}

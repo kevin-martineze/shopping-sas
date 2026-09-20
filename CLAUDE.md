@@ -4,7 +4,7 @@ Léelo entero antes de generar código. Son las convenciones del proyecto, no
 sugerencias. Cualquier desviación necesita justificación explícita.
 
 Stack: **SvelteKit 2 + Svelte 5 (runes) + TypeScript strict + Tailwind v4 +
-shadcn-svelte + Supabase**.
+shadcn-svelte**, sobre la API propia `ecommerce-api`.
 
 ---
 
@@ -43,18 +43,46 @@ shadcn-svelte + Supabase**.
 15. **Los precios se recalculan siempre en el servidor.** El navegador solo
     manda identificadores y cantidades.
 
-### Supabase
+### Datos: la API propia (`ecommerce-api`)
 
-16. **Dos clientes, distintos permisos.** `locals.supabase` (clave anónima, con
-    RLS) para leer catálogo; `supabaseAdmin()` (service role) solo en servidor y
-    solo después de verificar la sesión de la administradora.
-17. **La `SUPABASE_SERVICE_ROLE_KEY` nunca sale del servidor.**
-18. **La lógica de pedidos vive en SQL** (`create_order`, `cancel_order`,
-    `validate_coupon`). Si cambias una regla de precios, cámbiala también en
-    `computeTotals` de `src/lib/server/cart.ts`, que la refleja para la vista
-    previa del carrito.
-19. **Cada cambio de esquema es una migración nueva** en `supabase/migrations/`,
-    numerada. No se editan las ya aplicadas.
+16. **Todo dato de la tienda viene de la API, y solo desde el servidor.** Tienda
+    pública con `publicContext(event)` y `$lib/server/api/storefront.ts` /
+    `checkout.ts`; panel con `panelContext(event)` y `$lib/server/api/panel-*.ts`;
+    cuenta y consola de la plataforma con `accountContext(event)` y
+    `$lib/server/api/auth.ts` / `platform.ts`.
+    La tienda pública es la del host (`storeSlugFor`): subdominio de
+    `STORE_ROOT_DOMAIN`, o `STORE_SLUG`. El panel opera sobre la tienda de la
+    sesión, y `requireAdmin` la cambia a la del host si la cuenta es miembro.
+17. **Toda form action del panel empieza con `panelContext(event)`.** Las actions
+    no ejecutan el `load` del layout, así que no heredan `requireAdmin`.
+18. **Las reglas de precio viven solo en la API.** El carrito cotiza con
+    `quoteCart` y el pedido lo arma la API: el frontend no recalcula totales.
+19. **Las respuestas se leen con zod y se traducen a `$lib/domain/*` dentro de
+    `$lib/server/api/`.** Las páginas no conocen la forma de la API; si un campo
+    cambia allá, se ajusta el esquema y no los componentes.
+
+### Fotos
+
+Se reenvían a la API tal cual llegan del formulario (`uploadProductImage`,
+`uploadCollectionHero`): la API las convierte, las guarda y las borra. Este
+proyecto no procesa ni almacena imágenes. `supabase/` es historia: el
+esquema y los datos viven en la API.
+
+### Cliente de la API
+
+- **Un archivo por superficie** en `$lib/server/api/`, sobre `publicRequest` y
+  `panelRequest` de `request.ts`.
+- **Nunca lanza: devuelve `ApiResult<T>`.** Se narrowa con `if (!result.ok)`;
+  `result.message` ya viene en español, listo para la dueña.
+- **Toda respuesta se lee con un esquema zod**, nunca con `as`.
+- **La sesión del panel es `locals.session`**, cifrada en la cookie
+  `tienda_session`. Toda carga del panel pasa por `requireAdmin`, que además
+  verifica contra la API que la membresía siga viva. Una sesión sin tienda
+  (`storeId: null`) solo la tiene quien administra la plataforma: entra a
+  `/plataforma` (`requirePlatformAdmin`), nunca al panel.
+- **Los permisos los decide la API.** El panel oculta lo que el rol no puede
+  hacer (`data.role`), pero la regla vive allá; un 403 llega con su mensaje.
+- **Todo `redirectTo` que llegue en la URL pasa por `safeRedirectTarget`.**
 
 ### UI
 
@@ -112,5 +140,5 @@ Lee un archivo equivalente que ya exista y replica el patrón:
 - Página de listado con filtros → `src/routes/(shop)/tienda/+page.svelte`
 - Página con form action → `src/routes/(shop)/carrito/+page.server.ts`
 - Pantalla de administración → `src/routes/(admin)/admin/(panel)/cupones/`
-- Consulta a Supabase → `src/lib/server/catalog.ts`
-- Función de negocio en SQL → `supabase/migrations/0002_rls_and_functions.sql`
+- Llamada a la API (tienda pública) → `src/lib/server/api/storefront.ts`
+- Llamada a la API (panel) → `src/lib/server/api/panel-catalog.ts`

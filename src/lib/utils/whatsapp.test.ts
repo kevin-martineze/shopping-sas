@@ -23,6 +23,8 @@ function makeOrder(overrides: Partial<OrderWithItems> = {}): OrderWithItems {
 		discount: 0,
 		total: 197000,
 		whatsapp_opened_at: null,
+		payment_status: 'unpaid',
+		paid_at: null,
 		admin_notes: null,
 		created_at: '2026-08-01T10:00:00Z',
 		items: [

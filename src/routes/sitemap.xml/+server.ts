@@ -1,36 +1,32 @@
 import type { RequestHandler } from './$types';
+import { getSitemap } from '$lib/server/api/storefront';
+import { publicContext } from '$lib/server/context';
 import { serverEnv } from '$lib/server/env';
-import { supabaseAdmin } from '$lib/server/supabase';
 
-export const GET: RequestHandler = async () => {
+export const GET: RequestHandler = async (event) => {
 	const site = serverEnv().PUBLIC_SITE_URL.replace(/\/$/, '');
-	const client = supabaseAdmin();
+	const result = await getSitemap(publicContext(event));
 
-	const [products, collections, categories] = await Promise.all([
-		client
-			.from('products')
-			.select('slug, updated_at')
-			.eq('status', 'active')
-			.returns<{ slug: string; updated_at: string }[]>(),
-		client.from('collections').select('slug').eq('active', true).returns<{ slug: string }[]>(),
-		client.from('categories').select('slug').eq('active', true).returns<{ slug: string }[]>()
-	]);
+	// Un 503 con Retry-After hace que el buscador vuelva luego. Un sitemap vacío
+	// le diría que la tienda no tiene páginas.
+	if (!result.ok) {
+		return new Response('No pudimos armar el sitemap.', {
+			status: 503,
+			headers: { 'retry-after': '300' }
+		});
+	}
+
+	const { products, collections, categories } = result.data;
 
 	const urls = [
 		{ loc: `${site}/`, lastmod: null },
 		{ loc: `${site}/tienda`, lastmod: null },
 		{ loc: `${site}/colecciones`, lastmod: null },
-		...(categories.data ?? []).map((category) => ({
-			loc: `${site}/tienda?categoria=${category.slug}`,
-			lastmod: null
-		})),
-		...(collections.data ?? []).map((collection) => ({
-			loc: `${site}/colecciones/${collection.slug}`,
-			lastmod: null
-		})),
-		...(products.data ?? []).map((product) => ({
+		...categories.map((slug) => ({ loc: `${site}/tienda?categoria=${slug}`, lastmod: null })),
+		...collections.map((slug) => ({ loc: `${site}/colecciones/${slug}`, lastmod: null })),
+		...products.map((product) => ({
 			loc: `${site}/tienda/${product.slug}`,
-			lastmod: product.updated_at
+			lastmod: product.updatedAt
 		}))
 	];
 

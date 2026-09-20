@@ -13,7 +13,7 @@
 	import * as Card from '$lib/components/atoms/card';
 	import { Separator } from '$lib/components/atoms/separator';
 	import { Textarea } from '$lib/components/atoms/textarea';
-	import { ORDER_STATUSES, ORDER_STATUS_LABEL } from '$lib/domain/orders';
+	import { ORDER_PAYMENT_LABEL, ORDER_STATUSES, ORDER_STATUS_LABEL } from '$lib/domain/orders';
 	import { formatMoney } from '$lib/utils/money';
 
 	interface Props {
@@ -36,7 +36,7 @@
 </script>
 
 <svelte:head>
-	<title>Pedido #{order.number} — Panel</title>
+	<title>Pedido #{order.number} — Globerce</title>
 </svelte:head>
 
 <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -63,6 +63,14 @@
 		<Badge variant={order.status === 'cancelled' ? 'destructive' : 'secondary'}>
 			{ORDER_STATUS_LABEL[order.status]}
 		</Badge>
+
+		{#if order.payment_status !== 'unpaid'}
+			<!-- El cobro va aparte del pedido: una venta contra entrega está
+			     confirmada y sin pagar. -->
+			<Badge variant={order.payment_status === 'failed' ? 'destructive' : 'default'}>
+				{ORDER_PAYMENT_LABEL[order.payment_status]}
+			</Badge>
+		{/if}
 
 		<Button href={data.customerChatUrl} target="_blank" rel="noopener noreferrer" variant="outline">
 			<MessageCircle class="mr-2 size-4" />

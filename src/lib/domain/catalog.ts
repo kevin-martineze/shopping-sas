@@ -89,6 +89,9 @@ export interface VariantOption {
 	price: number;
 }
 
+/** Foto tal como la ve la tienda pública: sin la ruta del archivo, que es dato del panel. */
+export type PublicProductImage = Omit<ProductImage, 'product_id' | 'storage_path'>;
+
 export interface ProductDetail {
 	id: string;
 	slug: string;
@@ -100,7 +103,7 @@ export interface ProductDetail {
 	compareAtPrice: number | null;
 	categoryName: string | null;
 	categorySlug: string | null;
-	images: ProductImage[];
+	images: PublicProductImage[];
 	colors: Color[];
 	sizes: Size[];
 	variants: VariantOption[];

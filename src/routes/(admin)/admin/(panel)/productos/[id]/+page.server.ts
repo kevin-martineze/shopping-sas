@@ -2,48 +2,50 @@ import { error, fail, redirect } from '@sveltejs/kit';
 
 import type { Actions, PageServerLoad } from './$types';
 import { productSchema, stockUpdateSchema, variantMatrixSchema } from '$lib/schemas/admin';
-import { getAdminProduct } from '$lib/server/admin';
-import { ImageUploadError, deleteProductImage, uploadProductImage } from '$lib/server/images';
-import { listCategories } from '$lib/server/store';
-import { supabaseAdmin } from '$lib/server/supabase';
-import { buildSku, slugify } from '$lib/utils/slug';
+import {
+	generateVariants,
+	getProduct,
+	listCategories,
+	listColors,
+	listSizes,
+	removeProduct,
+	removeProductImage,
+	removeVariant,
+	reorderProductImages,
+	updateProduct,
+	updateVariant,
+	uploadProductImage
+} from '$lib/server/api/panel-catalog';
+import { failWith, orFail, panelContext } from '$lib/server/context';
+import { slugify } from '$lib/utils/slug';
 
-export const load: PageServerLoad = async ({ params, locals }) => {
-	const product = await getAdminProduct(params.id);
+export const load: PageServerLoad = async (event) => {
+	const ctx = panelContext(event);
+	const product = await getProduct(ctx, event.params.id);
 
-	if (!product) error(404, 'Esa prenda no existe.');
+	if (!product.ok && (product.status === 404 || product.status === 400)) {
+		error(404, 'Esa prenda no existe.');
+	}
 
+	// Para elegir en la matriz y en el formulario, solo lo visible.
 	const [categories, colors, sizes] = await Promise.all([
-		listCategories(locals.supabase),
-		supabaseAdmin().from('colors').select('*').eq('active', true).order('sort_order').returns<
-			{
-				id: string;
-				slug: string;
-				name: string;
-				hex: string;
-				sort_order: number;
-				active: boolean;
-			}[]
-		>(),
-		supabaseAdmin()
-			.from('sizes')
-			.select('*')
-			.eq('active', true)
-			.order('sort_order')
-			.returns<{ id: string; label: string; sort_order: number; active: boolean }[]>()
+		listCategories(ctx),
+		listColors(ctx),
+		listSizes(ctx)
 	]);
 
 	return {
-		product,
-		categories,
-		colors: colors.data ?? [],
-		sizes: sizes.data ?? []
+		product: orFail(product),
+		categories: orFail(categories),
+		colors: orFail(colors),
+		sizes: orFail(sizes)
 	};
 };
 
 export const actions: Actions = {
-	actualizar: async ({ request, params }) => {
-		const formData = await request.formData();
+	actualizar: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 		const name = String(formData.get('name') ?? '');
 		const rawSlug = String(formData.get('slug') ?? '').trim();
 
@@ -66,30 +68,20 @@ export const actions: Actions = {
 
 		const input = parsed.data;
 
-		const { error: updateError } = await supabaseAdmin()
-			.from('products')
-			.update({
-				name: input.name,
-				slug: input.slug,
-				description: input.description || null,
-				material: input.material || null,
-				care: input.care || null,
-				category_id: input.categoryId ?? null,
-				base_price: input.basePrice,
-				compare_at_price: input.compareAtPrice || null,
-				status: input.status,
-				featured: input.featured
-			})
-			.eq('id', params.id);
+		const result = await updateProduct(ctx, event.params.id, {
+			name: input.name,
+			slug: input.slug,
+			description: input.description,
+			material: input.material,
+			care: input.care,
+			categoryId: input.categoryId ?? null,
+			basePrice: input.basePrice,
+			compareAtPrice: input.compareAtPrice ?? null,
+			status: input.status,
+			featured: input.featured
+		});
 
-		if (updateError) {
-			return fail(400, {
-				error:
-					updateError.code === '23505'
-						? 'Ya existe otra prenda con ese slug.'
-						: 'No pudimos guardar los cambios.'
-			});
-		}
+		if (!result.ok) return failWith(result);
 
 		return { ok: true };
 	},
@@ -98,11 +90,12 @@ export const actions: Actions = {
 	 * Crea las combinaciones talla × color que falten. Nunca borra variantes
 	 * existentes: podrían estar dentro de un pedido.
 	 */
-	variantes: async ({ request, params }) => {
-		const formData = await request.formData();
+	variantes: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 
 		const parsed = variantMatrixSchema.safeParse({
-			productId: params.id,
+			productId: event.params.id,
 			colorIds: formData.getAll('colorIds').map(String),
 			sizeIds: formData.getAll('sizeIds').map(String),
 			defaultStock: formData.get('defaultStock') ?? 0
@@ -112,55 +105,20 @@ export const actions: Actions = {
 			return fail(400, { error: parsed.error.issues.at(0)?.message ?? 'Elige colores y tallas.' });
 		}
 
-		const client = supabaseAdmin();
-		const product = await getAdminProduct(params.id);
+		const result = await generateVariants(ctx, event.params.id, {
+			colorIds: parsed.data.colorIds,
+			sizeIds: parsed.data.sizeIds,
+			defaultStock: parsed.data.defaultStock
+		});
 
-		if (!product) return fail(404, { error: 'Prenda no encontrada.' });
+		if (!result.ok) return failWith(result);
 
-		const [colors, sizes] = await Promise.all([
-			client
-				.from('colors')
-				.select('id, slug')
-				.in('id', parsed.data.colorIds)
-				.returns<{ id: string; slug: string }[]>(),
-			client
-				.from('sizes')
-				.select('id, label')
-				.in('id', parsed.data.sizeIds)
-				.returns<{ id: string; label: string }[]>()
-		]);
-
-		const existing = new Set(
-			product.variants.map((variant) => `${variant.color_id}:${variant.size_id}`)
-		);
-
-		const rows = [];
-
-		for (const color of colors.data ?? []) {
-			for (const size of sizes.data ?? []) {
-				if (existing.has(`${color.id}:${size.id}`)) continue;
-
-				rows.push({
-					product_id: params.id,
-					color_id: color.id,
-					size_id: size.id,
-					sku: buildSku(product.slug, color.slug, size.label),
-					stock: parsed.data.defaultStock
-				});
-			}
-		}
-
-		if (rows.length === 0) return { ok: true, created: 0 };
-
-		const { error: insertError } = await client.from('variants').insert(rows);
-
-		if (insertError) return fail(500, { error: 'No pudimos crear las variantes.' });
-
-		return { ok: true, created: rows.length };
+		return { ok: true, created: result.data.created };
 	},
 
-	stock: async ({ request }) => {
-		const formData = await request.formData();
+	stock: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 
 		const parsed = stockUpdateSchema.safeParse({
 			variantId: formData.get('variantId'),
@@ -178,44 +136,33 @@ export const actions: Actions = {
 			return fail(400, { error: 'Precio de variante inválido.' });
 		}
 
-		const { error: updateError } = await supabaseAdmin()
-			.from('variants')
-			.update({
-				stock: parsed.data.stock,
-				price_override: priceOverride,
-				// Un checkbox desmarcado no viaja en el form: ausencia significa inactiva.
-				active: formData.get('active') === 'on'
-			})
-			.eq('id', parsed.data.variantId);
+		const result = await updateVariant(ctx, parsed.data.variantId, {
+			stock: parsed.data.stock,
+			priceOverride,
+			// Un checkbox desmarcado no viaja en el form: ausencia significa inactiva.
+			active: formData.get('active') === 'on'
+		});
 
-		if (updateError) return fail(500, { error: 'No pudimos guardar el inventario.' });
+		if (!result.ok) return failWith(result);
 
 		return { ok: true };
 	},
 
-	borrarVariante: async ({ request }) => {
-		const formData = await request.formData();
-		const variantId = String(formData.get('variantId') ?? '');
+	borrarVariante: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 
-		const { error: deleteError } = await supabaseAdmin()
-			.from('variants')
-			.delete()
-			.eq('id', variantId);
+		// Si la variante está en un pedido, la API la desactiva en vez de borrarla.
+		const result = await removeVariant(ctx, String(formData.get('variantId') ?? ''));
 
-		if (deleteError) {
-			// Si la variante está en un pedido, se desactiva en vez de borrarse.
-			await supabaseAdmin()
-				.from('variants')
-				.update({ active: false, stock: 0 })
-				.eq('id', variantId);
-			return { ok: true, deactivated: true };
-		}
+		if (!result.ok) return failWith(result);
 
-		return { ok: true };
+		return { ok: true, deactivated: result.data.result === 'deactivated' };
 	},
 
-	subirImagen: async ({ request, params }) => {
-		const formData = await request.formData();
+	subirImagen: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 		const file = formData.get('file');
 		const colorId = String(formData.get('colorId') ?? '') || null;
 
@@ -223,98 +170,56 @@ export const actions: Actions = {
 			return fail(400, { error: 'Elige una imagen.' });
 		}
 
-		const product = await getAdminProduct(params.id);
-		if (!product) return fail(404, { error: 'Prenda no encontrada.' });
+		// La API convierte la foto, la guarda y la registra: acá solo se reenvía.
+		const result = await uploadProductImage(ctx, event.params.id, file, colorId);
 
-		try {
-			const uploaded = await uploadProductImage(file, product.slug);
-			const nextOrder = product.product_images.length;
-
-			const { error: insertError } = await supabaseAdmin().from('product_images').insert({
-				product_id: params.id,
-				color_id: colorId,
-				storage_path: uploaded.storagePath,
-				url_full: uploaded.urlFull,
-				url_card: uploaded.urlCard,
-				url_thumb: uploaded.urlThumb,
-				lqip: uploaded.lqip,
-				alt: product.name,
-				sort_order: nextOrder
-			});
-
-			if (insertError) return fail(500, { error: 'La imagen se subió pero no se pudo guardar.' });
-		} catch (cause) {
-			const message =
-				cause instanceof ImageUploadError ? cause.message : 'No pudimos procesar la imagen.';
-			return fail(400, { error: message });
-		}
+		if (!result.ok) return failWith(result);
 
 		return { ok: true };
 	},
 
-	borrarImagen: async ({ request }) => {
-		const formData = await request.formData();
-		const imageId = String(formData.get('imageId') ?? '');
+	borrarImagen: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 
-		const { data: image } = await supabaseAdmin()
-			.from('product_images')
-			.select('storage_path')
-			.eq('id', imageId)
-			.maybeSingle<{ storage_path: string }>();
+		const result = await removeProductImage(ctx, String(formData.get('imageId') ?? ''));
 
-		if (image) {
-			// Si falla el borrado en Storage no bloqueamos: queda un archivo huérfano.
-			await deleteProductImage(image.storage_path).catch(() => undefined);
-		}
-
-		await supabaseAdmin().from('product_images').delete().eq('id', imageId);
+		if (!result.ok) return failWith(result);
 
 		return { ok: true };
 	},
 
-	imagenPrincipal: async ({ request, params }) => {
-		const formData = await request.formData();
+	imagenPrincipal: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 		const imageId = String(formData.get('imageId') ?? '');
 
-		const product = await getAdminProduct(params.id);
-		if (!product) return fail(404, { error: 'Prenda no encontrada.' });
+		const product = await getProduct(ctx, event.params.id);
+
+		if (!product.ok) return failWith(product);
 
 		const ordered = [
 			imageId,
-			...product.product_images
+			...product.data.product_images
 				.filter((image) => image.id !== imageId)
 				.sort((a, b) => a.sort_order - b.sort_order)
 				.map((image) => image.id)
 		];
 
-		await Promise.all(
-			ordered.map((id, index) =>
-				supabaseAdmin().from('product_images').update({ sort_order: index }).eq('id', id)
-			)
-		);
+		const result = await reorderProductImages(ctx, event.params.id, ordered);
+
+		if (!result.ok) return failWith(result);
 
 		return { ok: true };
 	},
 
-	eliminar: async ({ params }) => {
-		const product = await getAdminProduct(params.id);
+	eliminar: async (event) => {
+		const ctx = panelContext(event);
+		const result = await removeProduct(ctx, event.params.id);
 
-		if (product) {
-			await Promise.all(
-				product.product_images.map((image) =>
-					deleteProductImage(image.storage_path).catch(() => undefined)
-				)
-			);
-		}
+		if (!result.ok) return failWith(result);
 
-		const { error: deleteError } = await supabaseAdmin()
-			.from('products')
-			.delete()
-			.eq('id', params.id);
-
-		if (deleteError) {
-			// Prenda con pedidos asociados: se archiva para conservar el historial.
-			await supabaseAdmin().from('products').update({ status: 'archived' }).eq('id', params.id);
+		if (result.data.result === 'archived') {
 			return fail(409, {
 				error: 'Esta prenda está en pedidos, así que la archivamos en vez de borrarla.'
 			});

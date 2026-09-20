@@ -1,26 +1,29 @@
 import { error, fail } from '@sveltejs/kit';
 
 import type { Actions, PageServerLoad } from './$types';
-import { getProductBySlug, listRelated } from '$lib/server/catalog';
 import { restockSchema } from '$lib/schemas/checkout';
+import { getProduct, listRelated, requestRestock } from '$lib/server/api/storefront';
+import { publicContext } from '$lib/server/context';
 
-export const load: PageServerLoad = async ({ locals, params }) => {
-	const product = await getProductBySlug(locals.supabase, params.slug).catch((cause: unknown) => {
-		const message = cause instanceof Error ? cause.message : 'No pudimos cargar la prenda.';
-		error(503, message);
-	});
+export const load: PageServerLoad = async (event) => {
+	const ctx = publicContext(event);
+	const product = await getProduct(ctx, event.params.slug);
 
-	if (!product) error(404, 'Esta prenda ya no está disponible.');
+	if (!product.ok) {
+		if (product.status === 404) error(404, 'Esta prenda ya no está disponible.');
+		error(503, product.message);
+	}
 
-	const related = await listRelated(locals.supabase, product.categorySlug, product.slug, 4);
+	// Las relacionadas son un extra: si fallan, la ficha se muestra igual.
+	const related = await listRelated(ctx, event.params.slug);
 
-	return { product, related };
+	return { product: product.data, related: related.ok ? related.data : [] };
 };
 
 export const actions: Actions = {
 	/** Aviso de reposición: queda como lead en el panel de administración. */
-	avisarme: async ({ request, locals }) => {
-		const formData = await request.formData();
+	avisarme: async (event) => {
+		const formData = await event.request.formData();
 		const parsed = restockSchema.safeParse({
 			variantId: formData.get('variantId'),
 			contact: formData.get('contact')
@@ -32,13 +35,21 @@ export const actions: Actions = {
 			});
 		}
 
-		const { error: insertError } = await locals.supabase.from('restock_requests').insert({
-			variant_id: parsed.data.variantId,
-			contact: parsed.data.contact
-		});
+		const result = await requestRestock(
+			publicContext(event),
+			parsed.data.variantId,
+			parsed.data.contact
+		);
 
-		if (insertError) {
-			return fail(500, { restockError: 'No pudimos guardar tu aviso. Intenta de nuevo.' });
+		if (!result.ok) {
+			if (result.status === 404) {
+				return fail(404, { restockError: 'Esa talla ya no está disponible.' });
+			}
+
+			return fail(result.status === 429 ? 429 : 500, {
+				restockError:
+					result.status === 429 ? result.message : 'No pudimos guardar tu aviso. Intenta de nuevo.'
+			});
 		}
 
 		return { restockOk: true };

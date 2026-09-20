@@ -1,34 +1,28 @@
-import { fail } from '@sveltejs/kit';
-
 import type { Actions, PageServerLoad } from './$types';
-import { listRestockRequests } from '$lib/server/admin';
-import { getSettings } from '$lib/server/store';
+import { listRestock, markRestockNotified } from '$lib/server/api/panel-commerce';
+import { failWith, orFail, panelContext } from '$lib/server/context';
 import { serverEnv } from '$lib/server/env';
-import { supabaseAdmin } from '$lib/server/supabase';
 import { buildRestockUrl } from '$lib/utils/whatsapp';
 
-export const load: PageServerLoad = async ({ locals }) => {
-	const [requests, settings] = await Promise.all([
-		listRestockRequests(),
-		getSettings(locals.supabase)
-	]);
-
+export const load: PageServerLoad = async (event) => {
+	const { settings } = await event.parent();
+	const requests = orFail(await listRestock(panelContext(event)));
 	const siteUrl = serverEnv().PUBLIC_SITE_URL;
 
 	return {
 		requests: requests.map((request) => {
-			const product = request.variants?.products;
-			const productUrl = product ? new URL(`/tienda/${product.slug}`, siteUrl).toString() : siteUrl;
+			const product = request.variants.products;
+			const productUrl = new URL(`/tienda/${product.slug}`, siteUrl).toString();
 
 			return {
 				...request,
 				// Solo tiene sentido escribirle si la talla volvió a tener stock.
-				backInStock: (request.variants?.stock ?? 0) > 0,
+				backInStock: request.variants.stock > 0,
 				chatUrl: buildRestockUrl(
 					request.contact,
 					settings.store_name,
-					product?.name ?? 'tu prenda',
-					request.variants?.sizes?.label ?? '',
+					product.name,
+					request.variants.sizes.label,
 					productUrl
 				)
 			};
@@ -37,16 +31,13 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
-	notificado: async ({ request }) => {
-		const formData = await request.formData();
-		const id = String(formData.get('id') ?? '');
+	notificado: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
 
-		const { error } = await supabaseAdmin()
-			.from('restock_requests')
-			.update({ notified_at: new Date().toISOString() })
-			.eq('id', id);
+		const result = await markRestockNotified(ctx, String(formData.get('id') ?? ''), true);
 
-		if (error) return fail(500, { error: 'No pudimos marcar el aviso.' });
+		if (!result.ok) return failWith(result);
 
 		return { ok: true };
 	}

@@ -1,4 +1,4 @@
-import type { OrderWithItems } from '$lib/domain/orders';
+import type { PublicOrderView } from '$lib/domain/orders';
 
 import { formatMoney } from '$lib/utils/money';
 
@@ -15,11 +15,11 @@ export function normalizePhone(phone: string): string {
 	return phone.replace(/\D/g, '');
 }
 
-function line(item: OrderWithItems['items'][number]): string {
+function line(item: PublicOrderView['items'][number]): string {
 	return `• ${item.qty}x ${item.product_name} — ${item.color_name} / ${item.size_label} — ${formatMoney(item.line_total)}`;
 }
 
-export function buildOrderMessage(order: OrderWithItems, options: OrderMessageOptions): string {
+export function buildOrderMessage(order: PublicOrderView, options: OrderMessageOptions): string {
 	const header = [
 		`Hola ${options.storeName}, quiero confirmar este pedido.`,
 		'',

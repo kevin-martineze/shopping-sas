@@ -56,6 +56,23 @@
 	--chart-3: oklch(0.72 0.06 100);
 	--chart-4: oklch(0.45 0.05 250);
 	--chart-5: oklch(0.62 0.13 25);
+
+	/*
+	 * Aurora del asistente: los tres tonos que enmarcan lo que trae IA. Viven
+	 * acá y no en un componente para que cambiar la marca sea un solo sitio, y
+	 * son los únicos colores del producto que no salen de la paleta neutra: es
+	 * justo lo que los hace leerse como algo aparte.
+	 */
+	--ai-1: oklch(0.7 0.19 285);
+	--ai-2: oklch(0.74 0.15 220);
+	--ai-3: oklch(0.76 0.17 345);
+
+	/*
+	 * Las tipografías van en variables propias, no directo en `@theme`, para
+	 * que una plantilla de tienda pueda cambiarlas sin tocar el panel.
+	 */
+	--font-body: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+	--font-title: 'Instrument Serif', ui-serif, Georgia, serif;
 }
 
 /* El panel admin puede usar modo oscuro; la tienda vive en claro. */
@@ -98,8 +115,8 @@
 }
 
 @theme inline {
-	--font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-	--font-display: 'Instrument Serif', ui-serif, Georgia, serif;
+	--font-sans: var(--font-body);
+	--font-display: var(--font-title);
 	--font-mono: ui-monospace, SFMono-Regular, monospace;
 
 	--color-background: var(--background);
@@ -156,6 +173,50 @@
 	--ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/*
+ * ---------------------------------------------------------------------------
+ * Plantillas de tienda
+ *
+ * Cada plantilla redefine los tokens DENTRO de la vitrina y nunca en `:root`:
+ * el panel y el sitio comercial siguen con los colores de Globerce aunque la
+ * tienda que se está editando use otros. Lo que cambia es el vestido —paleta,
+ * tipografía y redondeo—; el contenido y los componentes son los mismos.
+ *
+ * Los códigos y sus nombres viven en `$lib/domain/templates.ts`. `editorial`
+ * es la de por defecto y no necesita bloque: son los tokens de arriba.
+ * ---------------------------------------------------------------------------
+ */
+[data-storefront-template='boutique'] {
+	--background: oklch(0.985 0.012 85);
+	--foreground: oklch(0.27 0.022 55);
+	--card: oklch(1 0.004 85);
+	--card-foreground: oklch(0.27 0.022 55);
+	--popover: oklch(1 0.004 85);
+	--popover-foreground: oklch(0.27 0.022 55);
+	--primary: oklch(0.53 0.12 45);
+	--primary-foreground: oklch(0.99 0.008 85);
+	--secondary: oklch(0.945 0.022 78);
+	--secondary-foreground: oklch(0.32 0.03 55);
+	--muted: oklch(0.95 0.018 78);
+	--muted-foreground: oklch(0.53 0.028 60);
+	--accent: oklch(0.92 0.038 68);
+	--accent-foreground: oklch(0.32 0.03 55);
+	--border: oklch(0.89 0.022 75);
+	--input: oklch(0.89 0.022 75);
+	--ring: oklch(0.53 0.12 45);
+
+	/* Esquinas suaves en todo: tarjetas, botones y campos. */
+	--radius: 1rem;
+
+	/* Titulares en la misma sans del cuerpo, con peso: se leen de lejos. */
+	--font-title: var(--font-body);
+}
+
+[data-storefront-template='boutique'] :is(h1, h2, h3) {
+	font-weight: 600;
+	letter-spacing: -0.025em;
+}
+
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
@@ -182,6 +243,15 @@
 	}
 
 	/*
+	 * El sitio que vende Globerce no es una tienda: su público decide una
+	 * herramienta de trabajo, no una prenda. Los titulares van en la sans, con
+	 * peso, como se espera de un producto; la serif queda para el logotipo.
+	 */
+	.marketing :is(h1, h2, h3) {
+		@apply font-sans font-semibold tracking-tight;
+	}
+
+	/*
 	 * Los contadores del panel llevan sus propios botones, así que se esconden
 	 * las flechas que pinta el navegador.
 	 */
@@ -202,7 +272,88 @@
 	}
 }
 
+/*
+ * El ángulo del degradado, declarado como propiedad para poder animarlo: sin
+ * `@property` el navegador no sabe interpolar un ángulo y el giro no ocurre
+ * (se queda quieto, que es un buen respaldo: sigue siendo un borde de color).
+ */
+@property --ai-angle {
+	syntax: '<angle>';
+	initial-value: 0deg;
+	inherits: false;
+}
+
+@keyframes ai-girar {
+	to {
+		--ai-angle: 360deg;
+	}
+}
+
 @layer utilities {
+	/*
+	 * Marca lo que trae asistente: un borde de degradado que gira, y detrás un
+	 * resplandor del mismo degradado desenfocado.
+	 *
+	 * El borde se dibuja con máscara y no con `border-image` porque así respeta
+	 * el redondeo del elemento. Va en un envoltorio SIN fondo: el resplandor
+	 * vive detrás (`z-index: -1`) y quien lleva el fondo es la tarjeta de
+	 * adentro.
+	 */
+	.ai-aurora {
+		position: relative;
+		isolation: isolate;
+	}
+
+	.ai-aurora::before,
+	.ai-aurora::after {
+		content: '';
+		position: absolute;
+		border-radius: inherit;
+		pointer-events: none;
+		background: conic-gradient(
+			from var(--ai-angle),
+			var(--ai-1),
+			var(--ai-2),
+			var(--ai-3),
+			var(--ai-1)
+		);
+		animation: ai-girar 9s linear infinite;
+	}
+
+	/* El borde: el degradado con el centro recortado. */
+	.ai-aurora::before {
+		inset: -1.5px;
+		padding: 1.5px;
+		-webkit-mask:
+			linear-gradient(#000 0 0) content-box,
+			linear-gradient(#000 0 0);
+		-webkit-mask-composite: xor;
+		mask:
+			linear-gradient(#000 0 0) content-box,
+			linear-gradient(#000 0 0);
+		mask-composite: exclude;
+	}
+
+	/* El resplandor: el mismo degradado, desenfocado y detrás de todo. */
+	.ai-aurora::after {
+		inset: -7px;
+		z-index: -1;
+		opacity: 0.35;
+		filter: blur(16px);
+	}
+
+	/* Versión discreta: solo el borde, sin resplandor. Para listas y formularios. */
+	.ai-aurora-sutil::after {
+		content: none;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.ai-aurora::before,
+		.ai-aurora::after {
+			animation: none;
+		}
+	}
+
 	/*
 	 * Tablas de edición en móvil: cada fila se lee como una ficha, con el
 	 * nombre de la columna delante del dato. Una tabla con scroll horizontal

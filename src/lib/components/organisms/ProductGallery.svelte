@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ProductImage as ProductImageType } from '$lib/domain/catalog';
+	import type { PublicProductImage as ProductImageType } from '$lib/domain/catalog';
 
 	import ProductImage from '$lib/components/molecules/ProductImage.svelte';
 	import { cn } from '$lib/utils';

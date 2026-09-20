@@ -1,0 +1,43 @@
+# Los mismos gates que se corren en local, en cada push y en cada PR.
+#
+# No hay e2e de navegador todavía (ver PENDIENTES.md en ecommerce-api): esto
+# comprueba tipos, estilo, pruebas unitarias y que el sitio compile.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+
+    env:
+      # `build` necesita las variables públicas y el secreto de sesión, aunque
+      # nada de esto se conecte a ninguna parte durante el build.
+      API_URL: http://127.0.0.1:3000/v1
+      SESSION_SECRET: secreto-de-integracion-con-largo-suficiente
+      PUBLIC_SITE_URL: http://localhost:5173
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          # El repositorio no fija `packageManager`, así que la versión va aquí.
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm check
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm test
+      - run: pnpm build

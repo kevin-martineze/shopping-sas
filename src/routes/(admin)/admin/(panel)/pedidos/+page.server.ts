@@ -1,19 +1,19 @@
 import type { PageServerLoad } from './$types';
 import { isOrderStatus } from '$lib/domain/orders';
-import { listOrders } from '$lib/server/orders';
-import { supabaseAdmin } from '$lib/server/supabase';
+import { listOrders } from '$lib/server/api/panel-commerce';
+import { orFail, panelContext } from '$lib/server/context';
 
-export const load: PageServerLoad = async ({ url }) => {
-	const statusParam = url.searchParams.get('estado');
-	const page = Number(url.searchParams.get('pagina') ?? '1');
+export const load: PageServerLoad = async (event) => {
+	const statusParam = event.url.searchParams.get('estado');
+	const page = Number(event.url.searchParams.get('pagina') ?? '1');
 
 	const filters = {
 		status: isOrderStatus(statusParam) ? statusParam : null,
-		q: url.searchParams.get('q'),
+		q: event.url.searchParams.get('q'),
 		page: Number.isFinite(page) && page > 0 ? Math.floor(page) : 1
 	};
 
-	const result = await listOrders(supabaseAdmin(), filters);
+	const result = orFail(await listOrders(panelContext(event), filters));
 
 	return { ...result, filters };
 };

@@ -18,7 +18,7 @@
 </script>
 
 <svelte:head>
-	<title>Ajustes — Panel</title>
+	<title>Ajustes — Globerce</title>
 </svelte:head>
 
 <header class="mb-6">

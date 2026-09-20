@@ -58,7 +58,7 @@
 </script>
 
 <svelte:head>
-	<title>Pedidos — Panel</title>
+	<title>Pedidos — Globerce</title>
 </svelte:head>
 
 <header class="mb-6 space-y-1">
@@ -129,6 +129,10 @@
 							<Badge variant={order.status === 'cancelled' ? 'destructive' : 'secondary'}>
 								{ORDER_STATUS_LABEL[order.status]}
 							</Badge>
+
+							{#if order.payment_status === 'paid'}
+								<Badge class="ml-1.5">Pagado</Badge>
+							{/if}
 						</Table.Cell>
 						<Table.Cell data-label="Total" class="text-right tabular-nums"
 							>{formatMoney(order.total)}</Table.Cell

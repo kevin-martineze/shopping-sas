@@ -17,6 +17,7 @@
 	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 	import NumberField from '$lib/components/molecules/NumberField.svelte';
 	import SelectField from '$lib/components/molecules/SelectField.svelte';
+	import TemplatePicker from '$lib/components/organisms/TemplatePicker.svelte';
 
 	interface Props {
 		data: PageData;
@@ -47,7 +48,7 @@
 </script>
 
 <svelte:head>
-	<title>Portada — Panel</title>
+	<title>Portada — Globerce</title>
 </svelte:head>
 
 <header class="mb-6 space-y-1">
@@ -59,6 +60,20 @@
 </header>
 
 <FormFeedback {error} {message} />
+
+<section class="mb-8">
+	<h2 class="text-xl">Plantilla</h2>
+	<p class="text-muted-foreground mb-4 text-sm">
+		Con qué diseño se viste tu tienda. Cambiarla no toca tus prendas, tus textos ni tus pedidos.
+	</p>
+
+	<TemplatePicker
+		current={data.settings.template}
+		storeName={data.settings.store_name}
+		action="?/plantilla"
+		cta="Cambiar a esta"
+	/>
+</section>
 
 <Card.Root class="mb-8">
 	<Card.Header>

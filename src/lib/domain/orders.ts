@@ -35,6 +35,21 @@ export interface OrderItem {
 	line_total: number;
 }
 
+/**
+ * El cobro de un pedido, aparte de su estado.
+ *
+ * Una venta contra entrega va confirmada y sin pagar, y una pagada puede
+ * terminar cancelada: son dos cosas distintas y por eso no se mezclan.
+ */
+export type OrderPaymentStatus = 'unpaid' | 'pending' | 'paid' | 'failed';
+
+export const ORDER_PAYMENT_LABEL: Record<OrderPaymentStatus, string> = {
+	unpaid: 'Sin pagar',
+	pending: 'Pago en curso',
+	paid: 'Pagado',
+	failed: 'Pago fallido'
+};
+
 export interface Order {
 	id: string;
 	number: number;
@@ -54,12 +69,18 @@ export interface Order {
 	total: number;
 	whatsapp_opened_at: string | null;
 	admin_notes: string | null;
+	/** Cómo va el cobro, que no es cómo va el pedido. */
+	payment_status: OrderPaymentStatus;
+	paid_at: string | null;
 	created_at: string;
 }
 
 export interface OrderWithItems extends Order {
 	items: OrderItem[];
 }
+
+/** El pedido como lo ve la clienta en su enlace: sin los datos internos del panel. */
+export type PublicOrderView = Omit<OrderWithItems, 'id' | 'shipping_zone_id' | 'admin_notes'>;
 
 /** Línea del carrito ya revalidada contra la base de datos. */
 export interface PricedLine {

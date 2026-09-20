@@ -17,7 +17,7 @@
 </script>
 
 <svelte:head>
-	<title>Inventario — Panel</title>
+	<title>Inventario — Globerce</title>
 </svelte:head>
 
 <header class="mb-6 flex flex-wrap items-center justify-between gap-3">

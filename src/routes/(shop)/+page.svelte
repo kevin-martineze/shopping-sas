@@ -1,11 +1,10 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import { parallax } from '$lib/actions/parallax';
 	import { reveal } from '$lib/actions/reveal';
-	import { Button } from '$lib/components/atoms/button';
 	import SectionHeading from '$lib/components/molecules/SectionHeading.svelte';
 	import CollectionBand from '$lib/components/organisms/CollectionBand.svelte';
 	import ProductGrid from '$lib/components/organisms/ProductGrid.svelte';
+	import StoreHero from '$lib/components/organisms/StoreHero.svelte';
 
 	interface Props {
 		data: PageData;
@@ -60,65 +59,14 @@
 	/>
 </svelte:head>
 
-<section class="relative">
-	<div class="relative min-h-[70vh] overflow-hidden md:min-h-[82vh]">
-		{#if heroImage}
-			<img
-				src={heroImage}
-				alt=""
-				class="absolute inset-0 h-[120%] w-full object-cover"
-				fetchpriority="high"
-				use:parallax={{ amount: 0.18 }}
-			/>
-			<div
-				class="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent"
-			></div>
-		{:else}
-			<div class="bg-muted absolute inset-0"></div>
-		{/if}
-
-		<div
-			class="relative mx-auto flex min-h-[70vh] max-w-7xl flex-col justify-end px-4 pb-14 sm:px-6 md:min-h-[82vh] md:pb-20"
-		>
-			<div class="max-w-2xl space-y-5 text-white">
-				<div class="rise-clip">
-					<p class="eyebrow rise rise-1 text-white/80">
-						{hero ? 'Colección en curso' : 'Nueva temporada'}
-					</p>
-				</div>
-
-				<div class="rise-clip">
-					<h1 class="rise rise-2 text-5xl leading-[0.95] text-balance text-white md:text-8xl">
-						{heroTitle}
-					</h1>
-				</div>
-
-				{#if heroSubtitle}
-					<div class="rise-clip">
-						<p class="rise rise-3 max-w-md text-sm text-white/85 md:text-base">{heroSubtitle}</p>
-					</div>
-				{/if}
-
-				<div class="rise rise-3 flex flex-wrap gap-3 pt-2">
-					<Button href="/tienda" size="lg" class="bg-white text-black hover:bg-white/90">
-						Ver la tienda
-					</Button>
-
-					{#if hero}
-						<Button
-							href="/colecciones/{hero.slug}"
-							variant="outline"
-							size="lg"
-							class="border-white/60 bg-transparent text-white hover:bg-white/10 hover:text-white"
-						>
-							Ver la colección
-						</Button>
-					{/if}
-				</div>
-			</div>
-		</div>
-	</div>
-</section>
+<StoreHero
+	template={data.settings.template}
+	eyebrow={hero ? 'Colección en curso' : 'Nueva temporada'}
+	title={heroTitle}
+	subtitle={heroSubtitle}
+	image={heroImage}
+	collectionSlug={hero?.slug ?? null}
+/>
 
 {#if data.featured.length > 0}
 	<section class="mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-28">

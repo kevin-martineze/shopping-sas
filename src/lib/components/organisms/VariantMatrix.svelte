@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Color, Size } from '$lib/domain/catalog';
-	import type { AdminVariantRow } from '$lib/server/admin';
+	import type { AdminVariantRow } from '$lib/server/api/panel-catalog';
 
 	import Trash2 from '@lucide/svelte/icons/trash-2';
 

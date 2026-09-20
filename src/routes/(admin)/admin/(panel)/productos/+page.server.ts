@@ -1,11 +1,12 @@
 import type { PageServerLoad } from './$types';
-import { listAdminProducts } from '$lib/server/admin';
+import { listProducts } from '$lib/server/api/panel-catalog';
+import { orFail, panelContext } from '$lib/server/context';
 
-export const load: PageServerLoad = async ({ url }) => {
-	const search = url.searchParams.get('q');
+export const load: PageServerLoad = async (event) => {
+	const search = event.url.searchParams.get('q');
 
 	return {
-		products: await listAdminProducts(search),
+		products: orFail(await listProducts(panelContext(event), search)),
 		search
 	};
 };
