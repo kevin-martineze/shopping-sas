@@ -3,6 +3,15 @@
 @import '@fontsource-variable/inter';
 @import '@fontsource/instrument-serif/400.css';
 @import '@fontsource/instrument-serif/400-italic.css';
+/*
+ * Las del brandkit de Globerce. Solo las pide `.marketing`: el navegador
+ * descarga una fuente cuando alguna regla la usa, así que las tiendas de
+ * los clientes no cargan un solo byte de esto.
+ */
+@import '@fontsource-variable/newsreader/opsz.css';
+@import '@fontsource-variable/newsreader/opsz-italic.css';
+@import '@fontsource-variable/hanken-grotesk';
+@import '@fontsource-variable/jetbrains-mono';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -73,6 +82,9 @@
 	 */
 	--font-body: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
 	--font-title: 'Instrument Serif', ui-serif, Georgia, serif;
+	--font-data: ui-monospace, SFMono-Regular, monospace;
+	/* Lo que pide atención sin ser un error: «queda poco», «alguien espera». */
+	--caution: oklch(0.6 0.13 50);
 }
 
 /* El panel admin puede usar modo oscuro; la tienda vive en claro. */
@@ -117,7 +129,7 @@
 @theme inline {
 	--font-sans: var(--font-body);
 	--font-display: var(--font-title);
-	--font-mono: ui-monospace, SFMono-Regular, monospace;
+	--font-mono: var(--font-data);
 
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
@@ -126,6 +138,7 @@
 	--color-popover: var(--popover);
 	--color-popover-foreground: var(--popover-foreground);
 	--color-primary: var(--primary);
+	--color-caution: var(--caution);
 	--color-primary-foreground: var(--primary-foreground);
 	--color-secondary: var(--secondary);
 	--color-secondary-foreground: var(--secondary-foreground);
@@ -186,6 +199,78 @@
  * es la de por defecto y no necesita bloque: son los tokens de arriba.
  * ---------------------------------------------------------------------------
  */
+/*
+ * La marca de Globerce, del brandkit (Claude Design, v2 · 2026).
+ *
+ * Se aplica a lo que es de Globerce —el sitio comercial y las páginas de
+ * entrada: registro, login, recuperar— y a nada más. Los tokens base los
+ * comparten también las tiendas de los clientes, que deben verse como su
+ * marca y no como la nuestra; por eso esto no toca `:root`.
+ *
+ * Reglas del kit que viven aquí:
+ * - Teal es el único color que pide clic. Por eso los antetítulos no se
+ *   pintan de teal aunque quedaría bonito: parecerían enlaces.
+ * - El gradiente de la esfera es solo del isotipo. Aquí todo es teal plano.
+ * - Nada de verde WhatsApp: se nombra con palabras, no con color.
+ */
+.marketing {
+	/* Blanco y no el lino del kit: se probó y el lino apagaba la página.
+	   El lino se queda en las superficies secundarias (`--muted`), donde
+	   separa secciones sin teñir todo el fondo. */
+	--background: #ffffff;
+	--foreground: #0e1a1c; /* Pizarra */
+	--card: #ffffff;
+	--card-foreground: #0e1a1c;
+	--popover: #ffffff;
+	--popover-foreground: #0e1a1c;
+	--primary: #1e6f6b; /* Teal Globin: la acción */
+	--primary-foreground: #ffffff;
+	--secondary: #f1eee7;
+	--secondary-foreground: #0e1a1c;
+	--muted: #f1eee7;
+	--muted-foreground: #4a5251; /* Grafito */
+	--accent: #eae6dd;
+	--accent-foreground: #0e1a1c;
+	--border: #e4e0d7; /* Borde Lino */
+	--input: #e4e0d7;
+	--ring: #48a79c; /* Teal Claro */
+	--caution: #c0662f; /* Terracota: queda poco */
+
+	/* Grotesca humanista para lo que se toca, serif para lo que se lee
+	   despacio, mono solo para datos: precios, stock, SKU. */
+	--font-body: 'Hanken Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+	--font-title: 'Newsreader Variable', ui-serif, Georgia, serif;
+	--font-data: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, monospace;
+
+	/* El body pinta con los tokens de `:root`; esta zona pone los suyos. */
+	background-color: var(--background);
+	color: var(--foreground);
+	font-family: var(--font-body);
+	/* Los ajustes del body son de Inter; en Hanken cambiarían glifos. */
+	font-feature-settings: normal;
+}
+
+/*
+ * Botones en 600, el peso de interfaz del kit.
+ *
+ * Va fuera de toda capa a propósito: el átomo del botón trae `font-medium`, y
+ * en Tailwind v4 cualquier utilidad le gana a lo que esté en `@layer base`,
+ * sea cual sea la especificidad. Sin capa, esta regla sí gana.
+ */
+.marketing [data-slot='button'] {
+	font-weight: 600;
+}
+
+/*
+ * La cabecera del sitio es fija, así que un salto a `#precios` dejaría el
+ * título de la sección tapado. Con el suavizador activo lo compensa él; esto
+ * cubre cuando no lo está: quien pidió reducir el movimiento, o sin
+ * JavaScript. Mismo valor que el `offset` de SmoothScroll.
+ */
+.marketing section[id] {
+	scroll-margin-top: 4.5rem;
+}
+
 [data-storefront-template='boutique'] {
 	--background: oklch(0.985 0.012 85);
 	--foreground: oklch(0.27 0.022 55);
@@ -243,12 +328,14 @@
 	}
 
 	/*
-	 * El sitio que vende Globerce no es una tienda: su público decide una
-	 * herramienta de trabajo, no algo que ponerse. Los titulares van en la sans,
-	 * con peso, como se espera de un producto; la serif queda para el logotipo.
+	 * Titulares en Newsreader, como pide el brandkit: «titular con voz,
+	 * interfaz tranquila». Peso 400 y tracking cerrado; para enfatizar se usa
+	 * la itálica, nunca la negrita.
 	 */
 	.marketing :is(h1, h2, h3) {
-		@apply font-sans font-semibold tracking-tight;
+		font-family: var(--font-title);
+		font-weight: 400;
+		letter-spacing: -0.025em;
 	}
 
 	/*

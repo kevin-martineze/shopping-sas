@@ -1,20 +1,15 @@
 <script lang="ts">
 	import ArrowRight from '@lucide/svelte/icons/arrow-right';
-	import BellRing from '@lucide/svelte/icons/bell-ring';
-	import Boxes from '@lucide/svelte/icons/boxes';
 	import Check from '@lucide/svelte/icons/check';
-	import Images from '@lucide/svelte/icons/images';
-	import Receipt from '@lucide/svelte/icons/receipt';
 	import ShieldCheck from '@lucide/svelte/icons/shield-check';
-	import LayoutGrid from '@lucide/svelte/icons/layout-grid';
-	import Ticket from '@lucide/svelte/icons/ticket';
-	import Truck from '@lucide/svelte/icons/truck';
-	import Users from '@lucide/svelte/icons/users';
 
 	import type { PageData } from './$types';
 	import { Button } from '$lib/components/atoms/button';
+	import GloberceMark from '$lib/components/molecules/GloberceMark.svelte';
+	import ModuleIcon, { type ModuleName } from '$lib/components/molecules/ModuleIcon.svelte';
 	import PlanCard from '$lib/components/molecules/PlanCard.svelte';
 	import StorefrontMock from '$lib/components/molecules/StorefrontMock.svelte';
+	import SmoothScroll from '$lib/components/organisms/SmoothScroll.svelte';
 	import { TRIAL_DAYS } from '$lib/domain/account';
 
 	interface Props {
@@ -37,36 +32,58 @@
 			detalle: 'En tu bio de Instagram, en los estados, donde ya tienes a tus clientes.'
 		},
 		{
-			titulo: 'Cierras por WhatsApp',
-			detalle: 'El pedido llega escrito, con variaciones y total. Tú confirmas y envías.'
+			titulo: 'Te pagan en línea',
+			detalle:
+				'Tarjeta, PSE o Nequi, directo a tu cuenta. Y quien prefiera escribirte, también puede.'
 		}
 	];
 
-	const incluye = [
+	/**
+	 * Las ocho piezas del producto, con los iconos de módulo del brandkit.
+	 * Los que piden atención —un cupón que vence, alguien que espera— salen en
+	 * terracota; el resto, en teal.
+	 */
+	const incluye: { modulo: ModuleName; titulo: string; detalle: string }[] = [
 		{
-			icono: LayoutGrid,
+			modulo: 'catalogo',
 			titulo: 'Catálogo',
 			detalle: 'Cada producto se divide por lo que tú decidas: talla, color, peso, formato.'
 		},
 		{
-			icono: Boxes,
+			modulo: 'inventario',
 			titulo: 'Inventario',
-			detalle: 'Stock por variación, con aviso cuando queda poco.'
+			detalle: 'Existencias por variación, con aviso cuando queda poco.'
 		},
-		{ icono: Receipt, titulo: 'Pedidos', detalle: 'Cada pedido con su estado, desde el celular.' },
-		{ icono: Ticket, titulo: 'Cupones', detalle: 'Descuentos con vencimiento y mínimo de compra.' },
 		{
-			icono: Truck,
+			modulo: 'pedidos',
+			titulo: 'Pedidos',
+			detalle: 'Pagados en línea o por WhatsApp, cada uno con su estado.'
+		},
+		{
+			modulo: 'cupones',
+			titulo: 'Cupones',
+			detalle: 'Descuentos con vencimiento y mínimo de compra.'
+		},
+		{
+			modulo: 'envios',
 			titulo: 'Envíos',
 			detalle: 'Zonas con su costo y envío gratis desde un monto.'
 		},
 		{
-			icono: Images,
+			modulo: 'colecciones',
 			titulo: 'Colecciones',
-			detalle: 'Arma looks y etiqueta productos sobre la foto.'
+			detalle: 'Agrupa productos y etiquétalos sobre la foto.'
 		},
-		{ icono: BellRing, titulo: 'Avisos', detalle: 'Quién quedó esperando una variación agotada.' },
-		{ icono: Users, titulo: 'Equipo', detalle: 'Invita a quien te ayuda, con permisos distintos.' }
+		{
+			modulo: 'avisos',
+			titulo: 'Avisos',
+			detalle: 'Quién quedó esperando algo que se agotó.'
+		},
+		{
+			modulo: 'equipo',
+			titulo: 'Equipo',
+			detalle: 'Invita a quien te ayuda, con permisos distintos.'
+		}
 	];
 
 	/**
@@ -93,7 +110,7 @@
 		{
 			pregunta: '¿Cómo me pagan mis clientes?',
 			respuesta:
-				'Cierras la venta por WhatsApp, como ya lo haces: transferencia, Nequi o contra entrega. El pedido llega escrito y con el total calculado, así no hay malentendidos. Los pagos dentro de la tienda están en camino.'
+				'En línea, con tarjeta, PSE o Nequi: conectas tu cuenta de Wompi desde el panel y la plata llega directo a ti, sin pasar por nosotros. Quien prefiera escribirte por WhatsApp también puede, y el pedido le llega escrito con el total.'
 		},
 		{
 			pregunta: '¿Necesito saber de tecnología?',
@@ -121,20 +138,20 @@
 </script>
 
 <svelte:head>
-	<title>Globerce — La tienda en línea de tu marca de ropa</title>
+	<title>Globerce — Tu tienda responde «¿queda?» por ti</title>
 	<meta
 		name="description"
-		content="Catálogo con variaciones y colores, inventario que se descuenta solo y pedidos que llegan escritos a tu WhatsApp. {TRIAL_DAYS} días gratis, sin comisión por venta."
+		content="Tu tienda en línea, se venda lo que se venda: catálogo que se divide como tu producto lo pida, inventario que se descuenta solo y pagos en línea directo a tu cuenta. {TRIAL_DAYS} días gratis, sin comisión por venta."
 	/>
 
 	<!-- Lo que se ve cuando alguien comparte el enlace por WhatsApp, que es por
 	     donde va a llegar casi todo el mundo. -->
 	<meta property="og:type" content="website" />
 	<meta property="og:site_name" content="Globerce" />
-	<meta property="og:title" content="Tu tienda de ropa, en internet" />
+	<meta property="og:title" content="Tu tienda responde «¿queda?» por ti" />
 	<meta
 		property="og:description"
-		content="Catálogo, inventario y pedidos por WhatsApp. {TRIAL_DAYS} días gratis, sin comisión por venta."
+		content="Catálogo, inventario y pagos en línea, vendas ropa, café o libros. {TRIAL_DAYS} días gratis, sin comisión por venta."
 	/>
 	<meta property="og:image" content="{data.siteUrl}/og.png" />
 	<meta property="og:url" content={data.siteUrl} />
@@ -142,9 +159,14 @@
 </svelte:head>
 
 <div class="marketing">
-	<header class="border-border bg-background/85 sticky top-0 z-30 border-b backdrop-blur">
+	<!-- Fija y no sticky: el contenido de abajo se desplaza con transformaciones
+	     (ScrollSmoother), y un sticky dentro de él se movería con la página. -->
+	<header class="border-border bg-background/85 fixed inset-x-0 top-0 z-30 border-b backdrop-blur">
 		<div class="mx-auto flex max-w-6xl items-center gap-6 px-4 py-3.5 sm:px-6">
-			<a href="/" class="font-display text-xl tracking-tight">Globerce</a>
+			<a href="/" class="flex items-center gap-2" aria-label="Globerce, inicio">
+				<GloberceMark size={32} label="" />
+				<span class="font-display text-xl tracking-tight">Globerce</span>
+			</a>
 
 			<nav class="text-muted-foreground hidden items-center gap-6 text-sm md:flex">
 				<a href="#como-funciona" class="hover:text-foreground transition-colors">Cómo funciona</a>
@@ -165,217 +187,236 @@
 		</div>
 	</header>
 
-	<main>
-		<section class="border-border border-b">
-			<div
-				class="mx-auto grid max-w-6xl items-center gap-12 px-4 pt-14 pb-20 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pt-20"
-			>
-				<div>
-					<p class="eyebrow mb-4">El mostrador que no cierra</p>
-					<h1 class="text-4xl leading-[1.08] text-balance md:text-5xl lg:text-6xl">
-						Tu tienda responde «¿queda?» por ti
-					</h1>
-					<p class="text-muted-foreground mt-6 max-w-lg text-lg text-pretty">
-						Lo que hay y lo que se acabó, siempre a la vista. Ropa por talla y color, café por
-						molienda y peso, libros sin nada de eso: tu catálogo se divide como tu producto lo pida.
-						El inventario se descuenta solo y los pedidos llegan escritos a tu WhatsApp, sin
-						comisión por venta.
+	<SmoothScroll>
+		<!-- `pt-16` deja sitio a la cabecera fija. -->
+		<main class="pt-16">
+			<section class="border-border border-b">
+				<div
+					class="mx-auto grid max-w-6xl items-center gap-12 px-4 pt-14 pb-20 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pt-20"
+				>
+					<div>
+						<h1 class="text-4xl leading-[1.08] text-balance md:text-5xl lg:text-6xl">
+							Tu tienda responde<br /><em class="text-primary">«¿queda?»</em> por ti
+						</h1>
+						<p class="text-muted-foreground mt-6 max-w-lg text-lg text-pretty">
+							Lo que hay y lo que se acabó, siempre a la vista. Ropa por talla y color, café por
+							molienda y peso, libros sin nada de eso: tu catálogo se divide como tu producto lo
+							pida. El inventario se descuenta solo y te pagan en línea, directo a tu cuenta. Sin
+							comisión por venta.
+						</p>
+
+						<div class="mt-8 flex flex-wrap items-center gap-3">
+							<Button href="/registro" size="lg">
+								Crear mi tienda
+								<ArrowRight class="ml-2 size-4" />
+							</Button>
+							{#if data.demoUrl}
+								<Button href={data.demoUrl} variant="outline" size="lg">Ver una tienda</Button>
+							{:else}
+								<Button href="#precios" variant="outline" size="lg">Ver precios</Button>
+							{/if}
+						</div>
+
+						<ul class="text-muted-foreground mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+							<li class="flex items-center gap-1.5">
+								<Check class="size-4" />
+								{TRIAL_DAYS} días gratis
+							</li>
+							<li class="flex items-center gap-1.5"><Check class="size-4" /> Sin tarjeta</li>
+							<li class="flex items-center gap-1.5"><Check class="size-4" /> Lista hoy mismo</li>
+						</ul>
+					</div>
+
+					<!-- Paralaje leve: la maqueta baja un poco más despacio que el texto y
+				     da profundidad sin llamar la atención. Lo aplica ScrollSmoother. -->
+					<div class="lg:pl-4" data-speed="0.92">
+						<StorefrontMock />
+					</div>
+				</div>
+			</section>
+
+			<section id="como-funciona" class="bg-foreground text-background">
+				<div class="mx-auto max-w-6xl px-4 py-20 sm:px-6" data-reveal>
+					<p class="text-background/60 mb-3 text-xs font-medium tracking-[0.18em] uppercase">
+						Cómo funciona
+					</p>
+					<h2 class="mb-12 max-w-2xl text-3xl md:text-4xl">De tus fotos a tu primer pedido</h2>
+
+					<ol class="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4" data-reveal-group>
+						{#each pasos as paso, indice (paso.titulo)}
+							<li class="border-background/25 border-t pt-5">
+								<span class="text-background/60 text-xs font-medium tracking-[0.18em]">
+									{String(indice + 1).padStart(2, '0')}
+								</span>
+								<h3 class="mt-3 text-xl">{paso.titulo}</h3>
+								<p class="text-background/70 mt-2 text-sm text-pretty">{paso.detalle}</p>
+							</li>
+						{/each}
+					</ol>
+				</div>
+			</section>
+
+			<section id="incluye" class="border-border border-b">
+				<div class="mx-auto max-w-6xl px-4 py-20 sm:px-6" data-reveal>
+					<p class="eyebrow mb-3">Qué incluye</p>
+					<h2 class="max-w-2xl text-3xl md:text-4xl">Todo lo que hoy llevas en cuadernos</h2>
+					<p class="text-muted-foreground mt-3 max-w-xl text-pretty">
+						Un solo lugar para el catálogo, el inventario y los pedidos. Sin hojas de cálculo ni
+						mensajes perdidos.
 					</p>
 
-					<div class="mt-8 flex flex-wrap items-center gap-3">
+					<!-- Tarjetas sobre el lino y no una rejilla con bordes: cada pieza se
+				     lee sola, y el icono de módulo carga el color. Sin efecto al
+				     pasar el cursor, porque no llevan a ningún lado: en esta marca,
+				     lo que reacciona es lo que se puede pulsar. -->
+					<ul class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-reveal-group>
+						{#each incluye as item (item.titulo)}
+							<li class="bg-muted/60 rounded-2xl p-6">
+								<ModuleIcon name={item.modulo} />
+								<h3 class="mt-5 text-xl">{item.titulo}</h3>
+								<p class="text-muted-foreground mt-1.5 text-sm text-pretty">{item.detalle}</p>
+							</li>
+						{/each}
+					</ul>
+				</div>
+			</section>
+
+			<section id="que-vendes" class="border-border border-b">
+				<div class="mx-auto max-w-6xl px-4 py-20 sm:px-6" data-reveal>
+					<p class="eyebrow mb-3">Para quién es</p>
+					<h2 class="max-w-2xl text-3xl md:text-4xl">No todos los productos se dividen igual</h2>
+					<p class="text-muted-foreground mt-3 max-w-xl text-pretty">
+						Una camisa se vende por talla y color; un café, por molienda y peso; un libro, por nada.
+						Tú declaras los ejes de cada producto y la tienda se acomoda —no al revés—.
+					</p>
+
+					<dl
+						class="border-border mt-12 grid gap-px border sm:grid-cols-2 lg:grid-cols-5"
+						data-reveal-group
+					>
+						{#each rubros as rubro (rubro.que)}
+							<div class="bg-background outline-border p-6 outline">
+								<dt class="text-base">{rubro.que}</dt>
+								<dd class="text-muted-foreground mt-1.5 text-sm text-pretty">{rubro.como}</dd>
+							</div>
+						{/each}
+					</dl>
+				</div>
+			</section>
+
+			<section id="precios" class="bg-muted/40 border-border border-b">
+				<div class="mx-auto max-w-6xl px-4 py-20 sm:px-6" data-reveal>
+					<div class="mb-12 text-center">
+						<p class="eyebrow mb-3">Precios</p>
+						<h2 class="text-3xl md:text-4xl">Una mensualidad, sin comisión por venta</h2>
+						<p class="text-muted-foreground mx-auto mt-3 max-w-lg text-pretty">
+							Empiezas con {TRIAL_DAYS} días gratis. Lo que vendas es tuyo: no cobramos porcentaje de
+							tus pedidos.
+						</p>
+					</div>
+
+					{#if data.plans.length === 0}
+						<p
+							class="text-muted-foreground border-border bg-background border border-dashed px-6 py-12 text-center"
+						>
+							No pudimos cargar los precios. Escríbenos y te los contamos.
+						</p>
+					{:else}
+						<!-- Tres planes: dos columnas en tableta, tres en escritorio. -->
+						<div
+							class="grid items-start gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6"
+							data-reveal-group
+						>
+							{#each data.plans as plan, indice (plan.code)}
+								<PlanCard {plan} destacado={indice === data.plans.length - 1} />
+							{/each}
+						</div>
+					{/if}
+
+					<p class="text-muted-foreground mt-8 text-center text-sm">
+						Al llegar a un límite no se borra nada: solo no puedes crear más hasta cambiar de plan.
+					</p>
+				</div>
+			</section>
+
+			<section class="border-border border-b">
+				<div
+					class="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1fr_1.3fr]"
+					data-reveal
+				>
+					<div>
+						<p class="eyebrow mb-3">Preguntas</p>
+						<h2 class="text-3xl md:text-4xl">Lo que nos preguntan siempre</h2>
+						<p class="text-muted-foreground mt-3 text-pretty">
+							¿Te queda alguna? Escríbenos antes de crear la tienda.
+						</p>
+					</div>
+
+					<dl class="divide-border divide-y border-t" data-reveal-group>
+						{#each preguntas as item (item.pregunta)}
+							<div class="py-6">
+								<dt class="font-medium">{item.pregunta}</dt>
+								<dd class="text-muted-foreground mt-2 text-pretty">{item.respuesta}</dd>
+							</div>
+						{/each}
+					</dl>
+				</div>
+			</section>
+
+			<section class="border-border border-b">
+				<div class="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6" data-reveal>
+					<h2 class="mx-auto max-w-2xl text-3xl text-balance md:text-4xl">
+						Nadie compra a las once de la noche si tiene que esperar tu respuesta
+					</h2>
+					<p class="text-muted-foreground mx-auto mt-4 max-w-md text-pretty">
+						Abre tu tienda hoy y compártela esta misma semana.
+					</p>
+
+					<div class="mt-8">
 						<Button href="/registro" size="lg">
 							Crear mi tienda
 							<ArrowRight class="ml-2 size-4" />
 						</Button>
-						{#if data.demoUrl}
-							<Button href={data.demoUrl} variant="outline" size="lg">Ver una tienda</Button>
-						{:else}
-							<Button href="#precios" variant="outline" size="lg">Ver precios</Button>
-						{/if}
 					</div>
 
-					<ul class="text-muted-foreground mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm">
-						<li class="flex items-center gap-1.5">
-							<Check class="size-4" />
-							{TRIAL_DAYS} días gratis
-						</li>
-						<li class="flex items-center gap-1.5"><Check class="size-4" /> Sin tarjeta</li>
-						<li class="flex items-center gap-1.5"><Check class="size-4" /> Lista hoy mismo</li>
-					</ul>
-				</div>
-
-				<div class="lg:pl-4">
-					<StorefrontMock />
-				</div>
-			</div>
-		</section>
-
-		<section id="como-funciona" class="bg-foreground text-background">
-			<div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
-				<p class="text-background/60 mb-3 text-xs font-medium tracking-[0.18em] uppercase">
-					Cómo funciona
-				</p>
-				<h2 class="mb-12 max-w-2xl text-3xl md:text-4xl">De tus fotos a tu primer pedido</h2>
-
-				<ol class="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
-					{#each pasos as paso, indice (paso.titulo)}
-						<li class="border-background/25 border-t pt-5">
-							<span class="text-background/60 text-xs font-medium tracking-[0.18em]">
-								{String(indice + 1).padStart(2, '0')}
-							</span>
-							<h3 class="mt-3 text-xl">{paso.titulo}</h3>
-							<p class="text-background/70 mt-2 text-sm text-pretty">{paso.detalle}</p>
-						</li>
-					{/each}
-				</ol>
-			</div>
-		</section>
-
-		<section id="incluye" class="border-border border-b">
-			<div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
-				<p class="eyebrow mb-3">Qué incluye</p>
-				<h2 class="max-w-2xl text-3xl md:text-4xl">Todo lo que hoy llevas en cuadernos</h2>
-				<p class="text-muted-foreground mt-3 max-w-xl text-pretty">
-					Un solo lugar para el catálogo, el inventario y los pedidos. Sin hojas de cálculo ni
-					mensajes perdidos.
-				</p>
-
-				<div class="border-border mt-12 grid gap-px border sm:grid-cols-2 lg:grid-cols-4">
-					{#each incluye as item (item.titulo)}
-						{@const Icono = item.icono}
-						<div class="bg-background outline-border p-6 outline">
-							<Icono class="mb-4 size-5" />
-							<h3 class="text-base">{item.titulo}</h3>
-							<p class="text-muted-foreground mt-1.5 text-sm text-pretty">{item.detalle}</p>
-						</div>
-					{/each}
-				</div>
-			</div>
-		</section>
-
-		<section id="que-vendes" class="border-border border-b">
-			<div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
-				<p class="eyebrow mb-3">Para quién es</p>
-				<h2 class="max-w-2xl text-3xl md:text-4xl">No todos los productos se dividen igual</h2>
-				<p class="text-muted-foreground mt-3 max-w-xl text-pretty">
-					Una camisa se vende por talla y color; un café, por molienda y peso; un libro, por nada.
-					Tú declaras los ejes de cada producto y la tienda se acomoda —no al revés—.
-				</p>
-
-				<dl class="border-border mt-12 grid gap-px border sm:grid-cols-2 lg:grid-cols-5">
-					{#each rubros as rubro (rubro.que)}
-						<div class="bg-background outline-border p-6 outline">
-							<dt class="text-base">{rubro.que}</dt>
-							<dd class="text-muted-foreground mt-1.5 text-sm text-pretty">{rubro.como}</dd>
-						</div>
-					{/each}
-				</dl>
-			</div>
-		</section>
-
-		<section id="precios" class="bg-muted/40 border-border border-b">
-			<div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
-				<div class="mb-12 text-center">
-					<p class="eyebrow mb-3">Precios</p>
-					<h2 class="text-3xl md:text-4xl">Una mensualidad, sin comisión por venta</h2>
-					<p class="text-muted-foreground mx-auto mt-3 max-w-lg text-pretty">
-						Empiezas con {TRIAL_DAYS} días gratis. Lo que vendas es tuyo: no cobramos porcentaje de tus
-						pedidos.
-					</p>
-				</div>
-
-				{#if data.plans.length === 0}
 					<p
-						class="text-muted-foreground border-border bg-background border border-dashed px-6 py-12 text-center"
+						class="text-muted-foreground mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm"
 					>
-						No pudimos cargar los precios. Escríbenos y te los contamos.
+						<span class="flex items-center gap-1.5">
+							<ShieldCheck class="size-4" /> Tus datos son tuyos
+						</span>
+						<span class="flex items-center gap-1.5">
+							<Check class="size-4" /> Sin comisión por venta
+						</span>
+						<span class="flex items-center gap-1.5">
+							<Check class="size-4" /> Cancelas cuando quieras
+						</span>
 					</p>
-				{:else}
-					<!-- Tres planes: dos columnas en tableta, tres en escritorio. -->
-					<div class="grid items-start gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
-						{#each data.plans as plan, indice (plan.code)}
-							<PlanCard {plan} destacado={indice === data.plans.length - 1} />
-						{/each}
-					</div>
-				{/if}
+				</div>
+			</section>
+		</main>
 
-				<p class="text-muted-foreground mt-8 text-center text-sm">
-					Al llegar a un límite no se borra nada: solo no puedes crear más hasta cambiar de plan.
-				</p>
-			</div>
-		</section>
-
-		<section class="border-border border-b">
-			<div class="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1fr_1.3fr]">
+		<footer>
+			<div
+				class="text-muted-foreground mx-auto flex max-w-6xl flex-wrap items-center gap-x-8 gap-y-4 px-4 py-10 text-sm sm:px-6"
+			>
 				<div>
-					<p class="eyebrow mb-3">Preguntas</p>
-					<h2 class="text-3xl md:text-4xl">Lo que nos preguntan siempre</h2>
-					<p class="text-muted-foreground mt-3 text-pretty">
-						¿Te queda alguna? Escríbenos antes de crear la tienda.
+					<p class="text-foreground flex items-center gap-2">
+						<GloberceMark size={32} label="" />
+						<span class="font-display text-lg">Globerce</span>
 					</p>
+					<p class="mt-2 text-xs">Hecho en Colombia, para quien vende todos los días · {año}</p>
 				</div>
 
-				<dl class="divide-border divide-y border-t">
-					{#each preguntas as item (item.pregunta)}
-						<div class="py-6">
-							<dt class="font-medium">{item.pregunta}</dt>
-							<dd class="text-muted-foreground mt-2 text-pretty">{item.respuesta}</dd>
-						</div>
-					{/each}
-				</dl>
+				<nav class="flex flex-wrap items-center gap-x-6 gap-y-2 sm:ml-auto">
+					<a href="#precios" class="hover:text-foreground transition-colors">Precios</a>
+					<a href="/registro" class="hover:text-foreground transition-colors">Crear mi tienda</a>
+					<a href="/admin/login" class="hover:text-foreground transition-colors">Entrar</a>
+					<a href="/contacto" class="hover:text-foreground transition-colors">Contacto</a>
+					<a href="/terminos" class="hover:text-foreground transition-colors">Términos</a>
+					<a href="/privacidad" class="hover:text-foreground transition-colors">Privacidad</a>
+				</nav>
 			</div>
-		</section>
-
-		<section class="border-border border-b">
-			<div class="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6">
-				<h2 class="mx-auto max-w-2xl text-3xl text-balance md:text-4xl">
-					Nadie compra a las once de la noche si tiene que esperar tu respuesta
-				</h2>
-				<p class="text-muted-foreground mx-auto mt-4 max-w-md text-pretty">
-					Abre tu tienda hoy y compártela esta misma semana.
-				</p>
-
-				<div class="mt-8">
-					<Button href="/registro" size="lg">
-						Crear mi tienda
-						<ArrowRight class="ml-2 size-4" />
-					</Button>
-				</div>
-
-				<p
-					class="text-muted-foreground mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm"
-				>
-					<span class="flex items-center gap-1.5">
-						<ShieldCheck class="size-4" /> Tus datos son tuyos
-					</span>
-					<span class="flex items-center gap-1.5">
-						<Check class="size-4" /> Sin comisión por venta
-					</span>
-					<span class="flex items-center gap-1.5">
-						<Check class="size-4" /> Cancelas cuando quieras
-					</span>
-				</p>
-			</div>
-		</section>
-	</main>
-
-	<footer>
-		<div
-			class="text-muted-foreground mx-auto flex max-w-6xl flex-wrap items-center gap-x-8 gap-y-4 px-4 py-10 text-sm sm:px-6"
-		>
-			<div>
-				<p class="font-display text-foreground text-lg">Globerce</p>
-				<p class="mt-1 text-xs">Hecho en Colombia, para quien vende todos los días · {año}</p>
-			</div>
-
-			<nav class="flex flex-wrap items-center gap-x-6 gap-y-2 sm:ml-auto">
-				<a href="#precios" class="hover:text-foreground transition-colors">Precios</a>
-				<a href="/registro" class="hover:text-foreground transition-colors">Crear mi tienda</a>
-				<a href="/admin/login" class="hover:text-foreground transition-colors">Entrar</a>
-				<a href="/contacto" class="hover:text-foreground transition-colors">Contacto</a>
-				<a href="/terminos" class="hover:text-foreground transition-colors">Términos</a>
-				<a href="/privacidad" class="hover:text-foreground transition-colors">Privacidad</a>
-			</nav>
-		</div>
-	</footer>
+		</footer>
+	</SmoothScroll>
 </div>

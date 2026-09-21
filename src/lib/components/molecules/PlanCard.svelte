@@ -40,7 +40,8 @@
 			{/if}
 		</div>
 
-		<p class="mt-5 text-4xl font-semibold tabular-nums">
+		<!-- Precio en la mono del kit: los datos se escriben en JetBrains. -->
+		<p class="mt-5 font-mono text-4xl font-medium tabular-nums">
 			{formatMoney(plan.price_cop)}<span
 				class={cn(
 					'text-base font-normal',

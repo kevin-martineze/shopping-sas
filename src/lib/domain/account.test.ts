@@ -99,6 +99,12 @@ describe('planFeatures', () => {
 		expect(planFeatures({ ...basico, max_products: 1 })).toContain('Hasta 1 producto');
 	});
 
+	it('el pago en línea va en todos los planes: no depende del plan', () => {
+		for (const plan of [basico, { ...basico, max_products: null, custom_domain: true }]) {
+			expect(planFeatures(plan).some((f) => f.startsWith('Pagos en línea'))).toBe(true);
+		}
+	});
+
 	it('sin límite no dice "null"', () => {
 		const features = planFeatures({ ...basico, max_products: null, max_orders_per_month: null });
 
