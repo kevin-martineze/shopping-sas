@@ -1,104 +1,115 @@
 <script lang="ts">
-	import type { Color, Size, VariantOption } from '$lib/domain/catalog';
+	import type { ProductOption, VariantOption } from '$lib/domain/catalog';
 
 	import { cn } from '$lib/utils';
 
+	/**
+	 * Elegir una variante, sea cual sea el eje.
+	 *
+	 * Antes eran dos secciones fijas —color y variación— y eso ataba la tienda a la
+	 * ropa. Ahora se pinta una sección por cada eje que el producto declare: una
+	 * camisa enseña Color y Variación, un café Molienda y Peso, un libro nada.
+	 *
+	 * Los ejes con tono se pintan como muestras redondas; el resto, como
+	 * botones con su texto. Es la misma distinción que hacía el diseño anterior,
+	 * pero deducida del dato en vez de del nombre del eje.
+	 */
 	interface Props {
-		colors: Color[];
-		sizes: Size[];
+		options: ProductOption[];
 		variants: VariantOption[];
-		selectedColorId: string | null;
-		selectedSizeId: string | null;
-		onselect: (next: { colorId: string | null; sizeId: string | null }) => void;
+		/** Un valor elegido por eje, indexado por id del eje. */
+		selected: Record<string, string>;
+		onselect: (next: Record<string, string>) => void;
 	}
 
-	let { colors, sizes, variants, selectedColorId, selectedSizeId, onselect }: Props = $props();
+	let { options, variants, selected, onselect }: Props = $props();
 
-	function stockFor(colorId: string | null, sizeId: string): number {
-		if (!colorId) return 0;
+	/**
+	 * Si queda algo por vender con este valor, respetando lo ya elegido en los
+	 * OTROS ejes.
+	 *
+	 * Mirar solo el valor diría "hay rojo" aunque el rojo solo exista en una
+	 * variación que ya se descartó. Mirar todo lo elegido, incluido este eje, diría
+	 * que nada está disponible en cuanto se elige algo agotado.
+	 */
+	function disponible(optionId: string, valueId: string): boolean {
+		const otros = Object.entries(selected).filter(([eje]) => eje !== optionId);
 
-		return (
-			variants.find((variant) => variant.colorId === colorId && variant.sizeId === sizeId)?.stock ??
-			0
+		return variants.some(
+			(variante) =>
+				variante.stock > 0 &&
+				variante.valueIds.includes(valueId) &&
+				otros.every(([, elegido]) => variante.valueIds.includes(elegido))
 		);
 	}
 
-	/** Un color se ofrece si al menos una de sus tallas tiene stock. */
-	function colorHasStock(colorId: string): boolean {
-		return variants.some((variant) => variant.colorId === colorId && variant.stock > 0);
+	/** Un eje se pinta como muestras si TODOS sus valores traen tono. */
+	function esColor(option: ProductOption): boolean {
+		return option.values.length > 0 && option.values.every((valor) => valor.hex !== null);
+	}
+
+	function elegir(optionId: string, valueId: string) {
+		onselect({ ...selected, [optionId]: valueId });
 	}
 </script>
 
 <div class="space-y-6">
-	<section class="space-y-3">
-		<div class="flex items-baseline justify-between">
-			<p class="eyebrow">Color</p>
-			<p class="text-muted-foreground text-xs">
-				{colors.find((color) => color.id === selectedColorId)?.name ?? 'Elige un color'}
-			</p>
-		</div>
+	{#each options as option (option.id)}
+		{@const elegido = selected[option.id]}
 
-		<div class="flex flex-wrap gap-3">
-			{#each colors as color (color.id)}
-				{@const available = colorHasStock(color.id)}
-				<button
-					type="button"
-					onclick={() => onselect({ colorId: color.id, sizeId: selectedSizeId })}
-					aria-label={color.name}
-					aria-pressed={selectedColorId === color.id}
-					title={available ? color.name : `${color.name} — agotado`}
-					class={cn(
-						'relative size-8 rounded-full border transition-all',
-						selectedColorId === color.id
-							? 'ring-foreground ring-1 ring-offset-2'
-							: 'border-border hover:ring-border hover:ring-1 hover:ring-offset-2',
-						!available && 'opacity-40'
-					)}
-					style="background-color: {color.hex}"
-				></button>
-			{/each}
-		</div>
-	</section>
+		<section class="space-y-3">
+			<div class="flex items-baseline justify-between">
+				<p class="eyebrow">{option.name}</p>
+				<p class="text-muted-foreground text-xs">
+					{option.values.find((valor) => valor.id === elegido)?.value ??
+						`Elige ${option.name.toLowerCase()}`}
+				</p>
+			</div>
 
-	<section class="space-y-3">
-		<div class="flex items-baseline justify-between">
-			<p class="eyebrow">Talla</p>
-			<p class="text-muted-foreground text-xs">
-				{sizes.find((size) => size.id === selectedSizeId)?.label ?? 'Elige una talla'}
-			</p>
-		</div>
-
-		<div class="flex flex-wrap gap-2">
-			{#each sizes as size (size.id)}
-				{@const stock = stockFor(selectedColorId, size.id)}
-				<button
-					type="button"
-					onclick={() => onselect({ colorId: selectedColorId, sizeId: size.id })}
-					aria-pressed={selectedSizeId === size.id}
-					class={cn(
-						'border-border relative min-w-12 border px-4 py-2.5 text-sm transition-colors',
-						selectedSizeId === size.id
-							? 'bg-primary text-primary-foreground border-primary'
-							: 'hover:bg-accent',
-						stock === 0 && 'text-muted-foreground'
-					)}
-				>
-					{size.label}
-
-					{#if stock === 0}
-						<!-- Talla agotada: se puede seleccionar para pedir aviso de reposición. -->
-						<span class="bg-muted-foreground/60 pointer-events-none absolute inset-x-1 top-1/2 h-px"
-						></span>
-					{/if}
-				</button>
-			{/each}
-		</div>
-
-		{#if selectedColorId && selectedSizeId}
-			{@const stock = stockFor(selectedColorId, selectedSizeId)}
-			{#if stock > 0 && stock <= 3}
-				<p class="text-sale text-xs">Quedan {stock} unidades.</p>
+			{#if esColor(option)}
+				<div class="flex flex-wrap gap-3">
+					{#each option.values as valor (valor.id)}
+						{@const hay = disponible(option.id, valor.id)}
+						<button
+							type="button"
+							onclick={() => elegir(option.id, valor.id)}
+							aria-label={valor.value}
+							aria-pressed={elegido === valor.id}
+							title={hay ? valor.value : `${valor.value} — agotado`}
+							class={cn(
+								'relative size-8 rounded-full border transition-all',
+								elegido === valor.id
+									? 'ring-foreground ring-1 ring-offset-2'
+									: 'border-border hover:ring-border hover:ring-1 hover:ring-offset-2',
+								!hay && 'opacity-40'
+							)}
+							style="background-color: {valor.hex}"
+						></button>
+					{/each}
+				</div>
+			{:else}
+				<div class="flex flex-wrap gap-2">
+					{#each option.values as valor (valor.id)}
+						{@const hay = disponible(option.id, valor.id)}
+						<button
+							type="button"
+							onclick={() => elegir(option.id, valor.id)}
+							disabled={!hay}
+							aria-pressed={elegido === valor.id}
+							title={hay ? valor.value : `${valor.value} — agotado`}
+							class={cn(
+								'min-w-12 rounded-md border px-3 py-2 text-sm transition-colors',
+								elegido === valor.id
+									? 'border-foreground bg-foreground text-background'
+									: 'border-border hover:border-foreground/40',
+								!hay && 'text-muted-foreground line-through opacity-50'
+							)}
+						>
+							{valor.value}
+						</button>
+					{/each}
+				</div>
 			{/if}
-		{/if}
-	</section>
+		</section>
+	{/each}
 </div>

@@ -11,26 +11,37 @@ export interface Category {
 	active: boolean;
 }
 
-export interface Color {
+/**
+ * Un eje por el que se divide un producto: Variación, Color, Molienda, Formato.
+ *
+ * Es del PRODUCTO y no de la tienda. Antes había dos listas fijas —colores y
+ * variaciones— y eso obligaba a toda tienda a vender ropa.
+ */
+export interface ProductOption {
 	id: string;
-	slug: string;
 	name: string;
-	hex: string;
-	sort_order: number;
-	active: boolean;
+	sortOrder: number;
+	values: ProductOptionValue[];
 }
 
-export interface Size {
+export interface ProductOptionValue {
 	id: string;
-	label: string;
-	sort_order: number;
-	active: boolean;
+	value: string;
+	/** Solo cuando el valor es un color. La vitrina pinta la muestra con esto. */
+	hex: string | null;
+	sortOrder: number;
+}
+
+/** Un dato suelto del producto: Material, ISBN, Origen… */
+export interface ProductAttribute {
+	name: string;
+	value: string;
 }
 
 export interface ProductImage {
 	id: string;
 	product_id: string;
-	color_id: string | null;
+	option_value_id: string | null;
 	storage_path: string;
 	url_full: string;
 	url_card: string;
@@ -75,15 +86,16 @@ export interface ProductCard {
 	price: number;
 	compareAtPrice: number | null;
 	images: Pick<ProductImage, 'url_card' | 'url_thumb' | 'lqip' | 'alt'>[];
-	colors: Pick<Color, 'id' | 'slug' | 'name' | 'hex'>[];
+	/** Tonos con alguna variante activa. Vacío si el producto no tiene ninguno. */
+	swatches: { value: string; hex: string }[];
 	inStock: boolean;
 }
 
-/** Variante enriquecida con color y talla, lista para el selector. */
+/** Variante con los valores que la forman, lista para el selector. */
 export interface VariantOption {
 	id: string;
-	colorId: string;
-	sizeId: string;
+	/** Un valor por cada eje. Vacío si el producto no tiene ejes. */
+	valueIds: string[];
 	sku: string | null;
 	stock: number;
 	price: number;
@@ -97,22 +109,26 @@ export interface ProductDetail {
 	slug: string;
 	name: string;
 	description: string | null;
-	material: string | null;
-	care: string | null;
 	basePrice: number;
 	compareAtPrice: number | null;
 	categoryName: string | null;
 	categorySlug: string | null;
 	images: PublicProductImage[];
-	colors: Color[];
-	sizes: Size[];
+	options: ProductOption[];
+	attributes: ProductAttribute[];
 	variants: VariantOption[];
+}
+
+export interface FacetOption {
+	name: string;
+	sortOrder: number;
+	values: { value: string; hex: string | null; sortOrder: number }[];
 }
 
 export interface CatalogFacets {
 	categories: Category[];
-	colors: Color[];
-	sizes: Size[];
+	/** Los ejes que de verdad usan los productos publicados. */
+	options: FacetOption[];
 	priceRange: { min: number; max: number };
 }
 
@@ -125,8 +141,13 @@ export function isProductSort(value: string | null): value is ProductSort {
 
 export interface ProductFilters {
 	category: string | null;
-	colors: string[];
-	sizes: string[];
+	/**
+	 * Filtros por eje, como `Color:Rojo`.
+	 *
+	 * Un solo arreglo y no un campo por eje: los ejes los declara cada
+	 * producto, así que la tienda no sabe de antemano cuáles hay.
+	 */
+	options: string[];
 	minPrice: number | null;
 	maxPrice: number | null;
 	sort: ProductSort;

@@ -121,7 +121,7 @@
 					<div>
 						<p class="font-medium">{item.product_name}</p>
 						<p class="text-muted-foreground text-xs">
-							{item.color_name} · Talla {item.size_label} · {item.qty}
+							{item.variant_label} · {item.qty}
 							{item.qty === 1 ? 'unidad' : 'unidades'}
 						</p>
 					</div>

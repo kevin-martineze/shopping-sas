@@ -15,8 +15,8 @@ export interface CartLine {
 	preview: {
 		productName: string;
 		productSlug: string;
-		colorName: string;
-		sizeLabel: string;
+		/** "Rojo · M". Vacío si el producto no tiene ejes. */
+		variantLabel: string;
 		unitPrice: number;
 		imageUrl: string | null;
 	};

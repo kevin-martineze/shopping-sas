@@ -70,11 +70,15 @@
 
 	const hasFilters = $derived(
 		filters.category !== null ||
-			filters.colors.length > 0 ||
-			filters.sizes.length > 0 ||
+			filters.options.length > 0 ||
 			filters.maxPrice !== null ||
 			filters.q !== null
 	);
+
+	/** Un eje se pinta como muestras si TODOS sus valores traen tono. */
+	function esColor(option: CatalogFacets['options'][number]): boolean {
+		return option.values.length > 0 && option.values.every((valor) => valor.hex !== null);
+	}
 </script>
 
 <div class="space-y-6">
@@ -106,53 +110,57 @@
 		</div>
 	</section>
 
-	<Separator />
+	<!--
+		Una sección por eje, y solo los que de verdad usan los productos
+		publicados: en una librería no aparece "Variación" porque nadie la declara.
+	-->
+	{#each facets.options as option (option.name)}
+		<Separator />
 
-	<section class="space-y-3">
-		<p class="eyebrow">Talla</p>
+		<section class="space-y-3">
+			<p class="eyebrow">{option.name}</p>
 
-		<div class="flex flex-wrap gap-2">
-			{#each facets.sizes as size (size.id)}
-				{@const selected = filters.sizes.includes(size.label)}
-				<button
-					type="button"
-					class="border-border min-w-11 border px-3 py-2 text-xs transition-colors {selected
-						? 'bg-primary text-primary-foreground border-primary'
-						: 'hover:bg-accent'}"
-					aria-pressed={selected}
-					onclick={() => toggleMulti('talla', size.label, !selected)}
-				>
-					{size.label}
-				</button>
-			{/each}
-		</div>
-	</section>
-
-	<Separator />
-
-	<section class="space-y-3">
-		<p class="eyebrow">Color</p>
-
-		<div class="space-y-2">
-			{#each facets.colors as color (color.id)}
-				{@const selected = filters.colors.includes(color.slug)}
-				<div class="flex items-center gap-2">
-					<Checkbox
-						id="color-{color.slug}"
-						checked={selected}
-						onCheckedChange={(checked) => toggleMulti('color', color.slug, checked === true)}
-					/>
-					<Label for="color-{color.slug}" class="flex cursor-pointer items-center gap-2 text-sm">
-						<span
-							class="border-border size-3.5 rounded-full border"
-							style="background-color: {color.hex}"
-						></span>
-						{color.name}
-					</Label>
+			{#if esColor(option)}
+				<div class="space-y-2">
+					{#each option.values as valor (valor.value)}
+						{@const clave = `${option.name}:${valor.value}`}
+						{@const selected = filters.options.includes(clave)}
+						<div class="flex items-center gap-2">
+							<Checkbox
+								id="opcion-{clave}"
+								checked={selected}
+								onCheckedChange={(checked) => toggleMulti('opcion', clave, checked === true)}
+							/>
+							<Label for="opcion-{clave}" class="flex cursor-pointer items-center gap-2 text-sm">
+								<span
+									class="border-border size-3.5 rounded-full border"
+									style="background-color: {valor.hex}"
+								></span>
+								{valor.value}
+							</Label>
+						</div>
+					{/each}
 				</div>
-			{/each}
-		</div>
-	</section>
+			{:else}
+				<div class="flex flex-wrap gap-2">
+					{#each option.values as valor (valor.value)}
+						{@const clave = `${option.name}:${valor.value}`}
+						{@const selected = filters.options.includes(clave)}
+						<button
+							type="button"
+							class="border-border min-w-11 border px-3 py-2 text-xs transition-colors {selected
+								? 'bg-primary text-primary-foreground border-primary'
+								: 'hover:bg-accent'}"
+							aria-pressed={selected}
+							onclick={() => toggleMulti('opcion', clave, !selected)}
+						>
+							{valor.value}
+						</button>
+					{/each}
+				</div>
+			{/if}
+		</section>
+	{/each}
 
 	{#if priceSteps.length > 0}
 		<Separator />

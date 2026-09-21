@@ -43,7 +43,7 @@
 				Quedó en
 				<a href={data.welcomeUrl} class="font-medium underline underline-offset-4">
 					{data.welcomeUrl.replace(/^https?:\/\//, '')}
-				</a>. Empieza creando tus prendas en
+				</a>. Empieza creando tus productos en
 				<a href="/admin/productos/nuevo" class="underline underline-offset-4">Productos</a>: se
 				publican cuando las marques como activas.
 			</p>
@@ -159,7 +159,7 @@
 							<span class="min-w-0 truncate">
 								{item.productName}
 								<span class="text-muted-foreground text-xs">
-									· {item.colorName} / {item.sizeLabel}
+									· {item.variantLabel}
 								</span>
 							</span>
 							<span class={item.stock === 0 ? 'text-destructive' : 'text-sale'}>

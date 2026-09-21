@@ -13,7 +13,7 @@
 </script>
 
 <svelte:head>
-	<title>Nueva prenda — Globerce</title>
+	<title>Nueva producto — Globerce</title>
 </svelte:head>
 
 <header class="mb-6">
@@ -24,9 +24,9 @@
 		<ArrowLeft class="size-3" />
 		Productos
 	</a>
-	<h1 class="mt-1 text-3xl">Nueva prenda</h1>
+	<h1 class="mt-1 text-3xl">Nueva producto</h1>
 	<p class="text-muted-foreground text-sm">
-		Al guardar podrás subir fotos y crear las tallas con su inventario.
+		Al guardar podrás subir fotos y crear las variaciones con su inventario.
 	</p>
 </header>
 
@@ -34,13 +34,11 @@
 	<ProductForm
 		categories={data.categories}
 		error={form?.error ?? null}
-		submitLabel="Crear prenda"
+		submitLabel="Crear producto"
 		values={{
 			name: '',
 			slug: '',
 			description: '',
-			material: '',
-			care: '',
 			categoryId: '',
 			basePrice: '',
 			compareAtPrice: '',

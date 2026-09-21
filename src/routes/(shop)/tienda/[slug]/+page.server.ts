@@ -10,7 +10,7 @@ export const load: PageServerLoad = async (event) => {
 	const product = await getProduct(ctx, event.params.slug);
 
 	if (!product.ok) {
-		if (product.status === 404) error(404, 'Esta prenda ya no está disponible.');
+		if (product.status === 404) error(404, 'Esta producto ya no está disponible.');
 		error(503, product.message);
 	}
 
@@ -43,7 +43,7 @@ export const actions: Actions = {
 
 		if (!result.ok) {
 			if (result.status === 404) {
-				return fail(404, { restockError: 'Esa talla ya no está disponible.' });
+				return fail(404, { restockError: 'Esa variación ya no está disponible.' });
 			}
 
 			return fail(result.status === 429 ? 429 : 500, {

@@ -17,8 +17,6 @@
 		name: string;
 		slug: string;
 		description: string;
-		material: string;
-		care: string;
 		categoryId: string;
 		basePrice: number | '';
 		compareAtPrice: number | '';
@@ -42,8 +40,6 @@
 			name: values.name,
 			slug: values.slug,
 			description: values.description,
-			material: values.material,
-			care: values.care,
 			categoryId: values.categoryId,
 			basePrice: values.basePrice,
 			compareAtPrice: values.compareAtPrice,
@@ -93,7 +89,7 @@
 				oninput={() => (slugTouched = true)}
 				pattern="[a-z0-9-]+"
 			/>
-			<p class="text-muted-foreground text-xs">/tienda/{form.slug || 'nombre-de-la-prenda'}</p>
+			<p class="text-muted-foreground text-xs">/tienda/{form.slug || 'nombre-de-la-producto'}</p>
 		</div>
 
 		<div class="space-y-2">
@@ -149,16 +145,6 @@
 		<div class="space-y-2 sm:col-span-2">
 			<Label for="description">Descripción</Label>
 			<Textarea id="description" name="description" bind:value={form.description} rows={4} />
-		</div>
-
-		<div class="space-y-2">
-			<Label for="material">Materiales</Label>
-			<Input id="material" name="material" bind:value={form.material} />
-		</div>
-
-		<div class="space-y-2">
-			<Label for="care">Cuidados</Label>
-			<Input id="care" name="care" bind:value={form.care} />
 		</div>
 
 		<div class="flex items-center gap-3 sm:col-span-2">

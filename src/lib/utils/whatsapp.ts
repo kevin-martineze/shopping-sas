@@ -16,7 +16,7 @@ export function normalizePhone(phone: string): string {
 }
 
 function line(item: PublicOrderView['items'][number]): string {
-	return `• ${item.qty}x ${item.product_name} — ${item.color_name} / ${item.size_label} — ${formatMoney(item.line_total)}`;
+	return `• ${item.qty}x ${item.product_name} — ${item.variant_label} — ${formatMoney(item.line_total)}`;
 }
 
 export function buildOrderMessage(order: PublicOrderView, options: OrderMessageOptions): string {
@@ -54,7 +54,7 @@ export function buildOrderMessage(order: PublicOrderView, options: OrderMessageO
 
 	// Pedido largo: se resume y el detalle completo queda en el enlace.
 	const totalUnits = order.items.reduce((sum, item) => sum + item.qty, 0);
-	const summary = [`• ${totalUnits} prendas (${order.items.length} referencias)`];
+	const summary = [`• ${totalUnits} productos (${order.items.length} referencias)`];
 
 	return [...header, ...summary, ...totals].join('\n');
 }
@@ -63,7 +63,7 @@ export function buildWhatsAppUrl(phone: string, message: string): string {
 	return `https://wa.me/${normalizePhone(phone)}?text=${encodeURIComponent(message)}`;
 }
 
-/** Mensaje corto para consultar por una prenda concreta desde su ficha. */
+/** Mensaje corto para consultar por una producto concreta desde su ficha. */
 export function buildProductInquiryUrl(
 	phone: string,
 	storeName: string,
@@ -82,6 +82,6 @@ export function buildRestockUrl(
 	sizeLabel: string,
 	productUrl: string
 ): string {
-	const message = `Hola, te escribimos de ${storeName}. Ya volvió a haber "${productName}" en talla ${sizeLabel}.\n${productUrl}`;
+	const message = `Hola, te escribimos de ${storeName}. Ya volvió a haber "${productName}" en variación ${sizeLabel}.\n${productUrl}`;
 	return buildWhatsAppUrl(phone, message);
 }

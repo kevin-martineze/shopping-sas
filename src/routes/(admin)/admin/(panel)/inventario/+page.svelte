@@ -24,7 +24,7 @@
 	<div>
 		<h1 class="text-3xl">Inventario</h1>
 		<p class="text-muted-foreground text-sm">
-			Edita el stock de cada talla. Los pedidos lo descuentan solos.
+			Edita el stock de cada variación. Los pedidos lo descuentan solos.
 		</p>
 	</div>
 
@@ -71,7 +71,7 @@
 							<Table.Row>
 								<Table.Head class="w-10"></Table.Head>
 								<Table.Head>Color</Table.Head>
-								<Table.Head class="w-20">Talla</Table.Head>
+								<Table.Head class="w-20">Variación</Table.Head>
 								<Table.Head>Referencia</Table.Head>
 								<Table.Head class="w-44">Stock</Table.Head>
 								<Table.Head class="w-28"></Table.Head>
@@ -84,20 +84,20 @@
 									<Table.Cell data-label="">
 										<span
 											class="border-border block size-3.5 rounded-full border"
-											style="background-color: {row.colors?.hex ?? 'transparent'}"
-											title={row.colors?.name ?? ''}
+											style="background-color: {row.hex ?? 'transparent'}"
+											title={row.label ?? ''}
 										></span>
 									</Table.Cell>
 
 									<Table.Cell data-label="Color" class="text-sm">
-										{row.colors?.name ?? '—'}
+										{row.label ?? '—'}
 										{#if !row.active}
 											<span class="text-muted-foreground text-xs">· inactiva</span>
 										{/if}
 									</Table.Cell>
 
-									<Table.Cell data-label="Talla" class="text-sm font-medium"
-										>{row.sizes?.label ?? '—'}</Table.Cell
+									<Table.Cell data-label="Variación" class="text-sm font-medium"
+										>{row.label ?? '—'}</Table.Cell
 									>
 
 									<Table.Cell
@@ -113,7 +113,7 @@
 											name="stock"
 											value={row.stock}
 											invalid={row.stock === 0}
-											aria-label="Stock de {row.colors?.name} talla {row.sizes?.label}"
+											aria-label="Stock de {row.label} variación {row.label}"
 										/>
 									</Table.Cell>
 
