@@ -40,7 +40,7 @@
 	let hilo = $state<HTMLDivElement | null>(null);
 
 	const saludo = $derived(
-		`Hola, soy quien atiende ${storeName}. Pregúntame por tallas, colores o envíos.`
+		`Hola, soy quien atiende ${storeName}. Pregúntame por variaciones, colores o envíos.`
 	);
 
 	async function enviar(event: SubmitEvent) {
@@ -156,7 +156,7 @@
 					<Input
 						bind:value={pregunta}
 						maxlength={500}
-						placeholder="¿Tienen talla M?"
+						placeholder="¿Tienen variación M?"
 						aria-label="Tu pregunta"
 						disabled={esperando}
 					/>

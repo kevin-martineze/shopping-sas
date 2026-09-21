@@ -20,7 +20,7 @@
 	<h1 class="text-3xl">¿Cómo quieres que se vea tu tienda?</h1>
 	<p class="text-muted-foreground max-w-2xl text-sm">
 		Elige con qué plantilla arrancas. Cambia los colores, la tipografía y cómo se arma la portada —
-		nunca tus prendas ni tus pedidos—, así que puedes cambiarla cuando quieras desde Portada.
+		nunca tus productos ni tus pedidos—, así que puedes cambiarla cuando quieras desde Portada.
 	</p>
 </header>
 

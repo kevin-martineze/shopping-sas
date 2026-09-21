@@ -86,7 +86,7 @@ export const actions: Actions = {
 		return { ok: true };
 	},
 
-	/** Etiqueta una prenda sobre la foto editorial, o mueve su punto si ya estaba. */
+	/** Etiqueta una producto sobre la foto editorial, o mueve su punto si ya estaba. */
 	agregarProducto: async (event) => {
 		const ctx = panelContext(event);
 		const formData = await event.request.formData();
@@ -94,7 +94,7 @@ export const actions: Actions = {
 		const productId = String(formData.get('productId') ?? '');
 
 		if (!collectionId || !productId) {
-			return fail(400, { error: 'Elige colección y prenda.' });
+			return fail(400, { error: 'Elige colección y producto.' });
 		}
 
 		const result = await setCollectionProduct(ctx, collectionId, productId, {

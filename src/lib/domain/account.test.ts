@@ -95,14 +95,14 @@ describe('planFeatures', () => {
 	};
 
 	it('un límite se cuenta y se concuerda en plural', () => {
-		expect(planFeatures(basico)).toContain('Hasta 100 prendas');
-		expect(planFeatures({ ...basico, max_products: 1 })).toContain('Hasta 1 prenda');
+		expect(planFeatures(basico)).toContain('Hasta 100 productos');
+		expect(planFeatures({ ...basico, max_products: 1 })).toContain('Hasta 1 producto');
 	});
 
 	it('sin límite no dice "null"', () => {
 		const features = planFeatures({ ...basico, max_products: null, max_orders_per_month: null });
 
-		expect(features).toContain('Prendas sin límite');
+		expect(features).toContain('Productos sin límite');
 		expect(features.join(' ')).not.toContain('null');
 	});
 

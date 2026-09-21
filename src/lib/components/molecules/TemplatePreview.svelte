@@ -18,7 +18,7 @@
 
 	let { template, storeName }: Props = $props();
 
-	const prendas = [
+	const productos = [
 		{ nombre: 'Blusa Vera', precio: '$89.900', tono: 'oklch(0.86 0.02 60)' },
 		{ nombre: 'Vestido Alba', precio: '$139.900', tono: 'oklch(0.78 0.04 40)' },
 		{ nombre: 'Falda Inés', precio: '$99.900', tono: 'oklch(0.72 0.05 25)' }
@@ -69,14 +69,14 @@
 	{/if}
 
 	<div class="grid grid-cols-3 gap-3 px-4 py-4">
-		{#each prendas as prenda (prenda.nombre)}
+		{#each productos as producto (producto.nombre)}
 			<div>
 				<div
 					class="aspect-[3/4] w-full rounded-[calc(var(--radius)/2)]"
-					style={`background-color: ${prenda.tono}`}
+					style={`background-color: ${producto.tono}`}
 				></div>
-				<p class="mt-1.5 truncate text-[10px]">{prenda.nombre}</p>
-				<p class="text-muted-foreground text-[10px]">{prenda.precio}</p>
+				<p class="mt-1.5 truncate text-[10px]">{producto.nombre}</p>
+				<p class="text-muted-foreground text-[10px]">{producto.precio}</p>
 			</div>
 		{/each}
 	</div>

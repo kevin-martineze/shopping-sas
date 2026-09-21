@@ -64,7 +64,7 @@
 <section class="mb-8">
 	<h2 class="text-xl">Plantilla</h2>
 	<p class="text-muted-foreground mb-4 text-sm">
-		Con qué diseño se viste tu tienda. Cambiarla no toca tus prendas, tus textos ni tus pedidos.
+		Con qué diseño se viste tu tienda. Cambiarla no toca tus productos, tus textos ni tus pedidos.
 	</p>
 
 	<TemplatePicker
@@ -124,7 +124,7 @@
 						name="heroTitle"
 						value={data.settings.hero_title ?? ''}
 						maxlength={120}
-						placeholder="Prendas que duran más de una temporada"
+						placeholder="Productos que duran más de una temporada"
 						disabled={chosenCollection !== null}
 					/>
 				</div>
@@ -137,7 +137,7 @@
 						rows={2}
 						maxlength={300}
 						value={data.settings.hero_subtitle ?? ''}
-						placeholder="Selección corta, materiales nobles y tallas reales."
+						placeholder="Selección corta, materiales nobles y variaciones reales."
 						disabled={chosenCollection !== null}
 					/>
 				</div>
@@ -185,7 +185,7 @@
 					id="new-body"
 					name="body"
 					required
-					placeholder="Tienes 8 días para cambiar tu prenda."
+					placeholder="Tienes 8 días para cambiar tu producto."
 				/>
 			</div>
 

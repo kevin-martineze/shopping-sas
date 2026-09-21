@@ -60,7 +60,7 @@
 		<h1 class="text-4xl md:text-5xl">{title}</h1>
 		<p class="text-muted-foreground text-sm">
 			{data.total}
-			{data.total === 1 ? 'prenda' : 'prendas'}
+			{data.total === 1 ? 'producto' : 'productos'}
 		</p>
 	</header>
 
@@ -102,9 +102,9 @@
 				<div
 					class="border-border flex flex-col items-center gap-4 border border-dashed px-6 py-24 text-center"
 				>
-					<h2 class="text-2xl">No encontramos prendas con esos filtros</h2>
+					<h2 class="text-2xl">No encontramos productos con esos filtros</h2>
 					<p class="text-muted-foreground max-w-sm text-sm">
-						Prueba quitando alguna talla o color, o mira el catálogo completo.
+						Prueba quitando alguna variación o color, o mira el catálogo completo.
 					</p>
 					<Button href="/tienda" variant="outline">Ver todo</Button>
 				</div>

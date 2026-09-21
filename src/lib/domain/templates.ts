@@ -6,7 +6,7 @@
  * con un código que ya no existe no se rompe: `templateOf` la devuelve a la de
  * por defecto.
  *
- * Una plantilla cambia el vestido, nunca el contenido: las mismas prendas, los
+ * Una plantilla cambia el vestido, nunca el contenido: las mismas productos, los
  * mismos textos de portada y los mismos pedidos se ven igual de bien en las
  * dos. Cambiar de plantilla no borra nada ni obliga a rehacer la tienda.
  */
@@ -34,7 +34,7 @@ export const TEMPLATES: TemplateInfo[] = [
 		features: [
 			'Portada con la foto a pantalla completa',
 			'Titulares en serif, letras finas',
-			'Blancos y grises: manda la prenda'
+			'Blancos y grises: manda la producto'
 		]
 	},
 	{

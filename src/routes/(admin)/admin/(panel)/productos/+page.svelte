@@ -48,18 +48,18 @@
 <header class="mb-6 flex flex-wrap items-center justify-between gap-3">
 	<div>
 		<h1 class="text-3xl">Productos</h1>
-		<p class="text-muted-foreground text-sm">{data.products.length} prendas.</p>
+		<p class="text-muted-foreground text-sm">{data.products.length} productos.</p>
 	</div>
 
 	<div class="flex w-full flex-wrap items-center gap-2 sm:w-auto">
 		<form onsubmit={submitSearch} class="flex min-w-0 flex-1 gap-2 sm:flex-none">
-			<Input bind:value={search} placeholder="Buscar prenda" class="min-w-0 flex-1 sm:w-48" />
+			<Input bind:value={search} placeholder="Buscar producto" class="min-w-0 flex-1 sm:w-48" />
 			<Button type="submit" variant="outline">Buscar</Button>
 		</form>
 
 		<Button href="/admin/productos/nuevo" class="w-full sm:w-auto">
 			<Plus class="mr-2 size-4" />
-			Nueva prenda
+			Nueva producto
 		</Button>
 	</div>
 </header>
@@ -68,11 +68,11 @@
 	<div
 		class="border-border flex flex-col items-center gap-3 rounded-lg border border-dashed px-6 py-20 text-center"
 	>
-		<h2 class="text-xl">Todavía no hay prendas</h2>
+		<h2 class="text-xl">Todavía no hay productos</h2>
 		<p class="text-muted-foreground max-w-sm text-sm">
-			Crea la primera: nombre, precio, fotos y las tallas con su inventario.
+			Crea la primera: nombre, precio, fotos y las variaciones con su inventario.
 		</p>
-		<Button href="/admin/productos/nuevo">Crear prenda</Button>
+		<Button href="/admin/productos/nuevo">Crear producto</Button>
 	</div>
 {:else}
 	<div class="border-border bg-background border">
@@ -80,7 +80,7 @@
 			<Table.Header>
 				<Table.Row>
 					<Table.Head class="w-16"></Table.Head>
-					<Table.Head>Prenda</Table.Head>
+					<Table.Head>Producto</Table.Head>
 					<Table.Head>Categoría</Table.Head>
 					<Table.Head>Precio</Table.Head>
 					<Table.Head>Stock</Table.Head>
@@ -100,7 +100,7 @@
 							{/if}
 						</Table.Cell>
 
-						<Table.Cell data-label="Prenda">
+						<Table.Cell data-label="Producto">
 							<a href="/admin/productos/{product.id}" class="font-medium">{product.name}</a>
 							<p class="text-muted-foreground text-xs">/{product.slug}</p>
 						</Table.Cell>

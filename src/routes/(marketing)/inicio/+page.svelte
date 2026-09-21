@@ -29,8 +29,8 @@
 			detalle: 'Nombre, WhatsApp y listo. Queda en línea en menos de cinco minutos.'
 		},
 		{
-			titulo: 'Subes tus prendas',
-			detalle: 'Fotos, tallas, colores y precios. Se ven bien en cualquier celular.'
+			titulo: 'Subes tus productos',
+			detalle: 'Fotos, variaciones, colores y precios. Se ven bien en cualquier celular.'
 		},
 		{
 			titulo: 'Compartes el enlace',
@@ -38,16 +38,20 @@
 		},
 		{
 			titulo: 'Cierras por WhatsApp',
-			detalle: 'El pedido llega escrito, con tallas y total. Tú confirmas y envías.'
+			detalle: 'El pedido llega escrito, con variaciones y total. Tú confirmas y envías.'
 		}
 	];
 
 	const incluye = [
-		{ icono: Shirt, titulo: 'Catálogo', detalle: 'Prendas con tallas, colores y fotos por color.' },
+		{
+			icono: Shirt,
+			titulo: 'Catálogo',
+			detalle: 'Productos con variaciones, colores y fotos por color.'
+		},
 		{
 			icono: Boxes,
 			titulo: 'Inventario',
-			detalle: 'Stock por talla, con aviso cuando queda poco.'
+			detalle: 'Stock por variación, con aviso cuando queda poco.'
 		},
 		{ icono: Receipt, titulo: 'Pedidos', detalle: 'Cada pedido con su estado, desde el celular.' },
 		{ icono: Ticket, titulo: 'Cupones', detalle: 'Descuentos con vencimiento y mínimo de compra.' },
@@ -59,9 +63,9 @@
 		{
 			icono: Images,
 			titulo: 'Colecciones',
-			detalle: 'Arma looks y etiqueta prendas sobre la foto.'
+			detalle: 'Arma looks y etiqueta productos sobre la foto.'
 		},
-		{ icono: BellRing, titulo: 'Avisos', detalle: 'Quién quedó esperando una talla agotada.' },
+		{ icono: BellRing, titulo: 'Avisos', detalle: 'Quién quedó esperando una variación agotada.' },
 		{ icono: Users, titulo: 'Equipo', detalle: 'Invita a quien te ayuda, con permisos distintos.' }
 	];
 
@@ -89,7 +93,7 @@
 		{
 			pregunta: '¿La información es mía?',
 			respuesta:
-				'Sí: tus prendas, tus pedidos y tus clientas. Puedes pedir una copia cuando quieras, y los datos de tu tienda no se mezclan con los de ninguna otra.'
+				'Sí: tus productos, tus pedidos y tus clientas. Puedes pedir una copia cuando quieras, y los datos de tu tienda no se mezclan con los de ninguna otra.'
 		}
 	];
 
@@ -100,7 +104,7 @@
 	<title>Globerce — La tienda en línea de tu marca de ropa</title>
 	<meta
 		name="description"
-		content="Catálogo con tallas y colores, inventario que se descuenta solo y pedidos que llegan escritos a tu WhatsApp. {TRIAL_DAYS} días gratis, sin comisión por venta."
+		content="Catálogo con variaciones y colores, inventario que se descuenta solo y pedidos que llegan escritos a tu WhatsApp. {TRIAL_DAYS} días gratis, sin comisión por venta."
 	/>
 
 	<!-- Lo que se ve cuando alguien comparte el enlace por WhatsApp, que es por
@@ -152,8 +156,8 @@
 						Vende tu ropa en línea con el orden que Instagram no te da
 					</h1>
 					<p class="text-muted-foreground mt-6 max-w-lg text-lg text-pretty">
-						Catálogo con tallas y colores, inventario que se descuenta solo y pedidos que llegan
-						escritos a tu WhatsApp. Sin comisión por venta.
+						Catálogo con variaciones y colores, inventario que se descuenta solo y pedidos que
+						llegan escritos a tu WhatsApp. Sin comisión por venta.
 					</p>
 
 					<div class="mt-8 flex flex-wrap items-center gap-3">
@@ -283,7 +287,7 @@
 		<section class="border-border border-b">
 			<div class="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6">
 				<h2 class="mx-auto max-w-2xl text-3xl text-balance md:text-4xl">
-					Tu próxima clienta no debería preguntar si hay talla M
+					Tu próxima clienta no debería preguntar si hay variación M
 				</h2>
 				<p class="text-muted-foreground mx-auto mt-4 max-w-md text-pretty">
 					Abre tu tienda hoy y compártela esta misma semana.

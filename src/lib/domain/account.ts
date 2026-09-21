@@ -251,9 +251,9 @@ export function planFeatures(plan: Plan): string[] {
 			: `Hasta ${limite} ${limite === 1 ? singular : plural}`;
 
 	return [
-		cantidad(plan.max_products, 'prenda', 'prendas'),
+		cantidad(plan.max_products, 'producto', 'productos'),
 		`${cantidad(plan.max_orders_per_month, 'pedido', 'pedidos')} al mes`,
-		cantidad(plan.max_images_per_product, 'foto', 'fotos') + ' por prenda',
+		cantidad(plan.max_images_per_product, 'foto', 'fotos') + ' por producto',
 		plan.custom_domain ? 'Tu propio dominio' : 'Dirección propia en globerce.store',
 		'Pedidos por WhatsApp, sin comisión',
 		// El asistente suma una línea, no reemplaza ninguna: lo que trae el plan

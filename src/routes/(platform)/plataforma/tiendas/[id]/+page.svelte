@@ -129,7 +129,7 @@
 				<dd>{formatDate(store.created_at)}</dd>
 			</div>
 			<div class="flex justify-between gap-4">
-				<dt class="text-muted-foreground">Prendas / pedidos</dt>
+				<dt class="text-muted-foreground">Productos / pedidos</dt>
 				<dd class="tabular-nums">{store.product_count} / {store.order_count}</dd>
 			</div>
 		</dl>

@@ -165,9 +165,9 @@
 			<form onsubmit={submitSearch} class="mx-auto flex max-w-7xl gap-2 px-4 py-3 sm:px-6">
 				<Input
 					bind:value={query}
-					placeholder="Buscar prendas…"
+					placeholder="Buscar productos…"
 					autofocus
-					aria-label="Buscar prendas"
+					aria-label="Buscar productos"
 				/>
 				<Button type="submit">Buscar</Button>
 			</form>

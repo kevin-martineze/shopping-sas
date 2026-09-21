@@ -19,7 +19,7 @@
 
 	// Manda la colección elegida; si no hay, los textos de ajustes.
 	const heroTitle = $derived(
-		hero?.name ?? data.settings.hero_title ?? 'Prendas que duran más de una temporada'
+		hero?.name ?? data.settings.hero_title ?? 'Productos que duran más de una temporada'
 	);
 
 	const heroSubtitle = $derived(hero?.description ?? data.settings.hero_subtitle ?? '');
@@ -30,7 +30,7 @@
 	);
 
 	// Novedades no repite lo que ya salió en la selección: además de aburrir,
-	// dos tarjetas de la misma prenda comparten nombre de transición y el
+	// dos tarjetas de la misma producto comparten nombre de transición y el
 	// navegador descarta la animación al abrir la ficha.
 	const fresh = $derived.by(() => {
 		const shown = new Set(data.featured.map((product) => product.id));
@@ -54,7 +54,7 @@
 	<title>{data.settings.store_name} — Ropa</title>
 	<meta
 		name="description"
-		content="Prendas seleccionadas de {data.settings
+		content="Productos seleccionadas de {data.settings
 			.store_name}. Pide por WhatsApp: te confirmamos disponibilidad y envío."
 	/>
 </svelte:head>

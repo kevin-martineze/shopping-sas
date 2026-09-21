@@ -29,7 +29,7 @@
 		<div class="space-y-3">
 			<p class="font-display text-2xl">{settings.store_name}</p>
 			<p class="text-muted-foreground max-w-xs text-sm">
-				Escríbenos por WhatsApp: te ayudamos con tallas, disponibilidad y envíos.
+				Escríbenos por WhatsApp: te ayudamos con variaciones, disponibilidad y envíos.
 			</p>
 
 			<div class="flex gap-3 pt-2">

@@ -148,7 +148,7 @@
 		<h2 class="text-lg">Uso</h2>
 
 		<UsageMeter
-			label="Prendas"
+			label="Productos"
 			used={subscription.usage.products}
 			limit={plan.max_products}
 			hint="Las archivadas también cuentan."
@@ -162,11 +162,11 @@
 		/>
 
 		<div class="text-sm">
-			<p>Fotos por prenda</p>
+			<p>Fotos por producto</p>
 			<p class="text-muted-foreground">
 				{plan.max_images_per_product === null
 					? 'Sin límite'
-					: `Hasta ${plan.max_images_per_product} por prenda`}
+					: `Hasta ${plan.max_images_per_product} por producto`}
 			</p>
 		</div>
 

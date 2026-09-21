@@ -72,7 +72,7 @@
 
 {#if products.length > 0}
 	<section class="mx-auto max-w-7xl px-4 pb-24 sm:px-6">
-		<h2 class="mb-8 text-2xl">Prendas de la colección</h2>
+		<h2 class="mb-8 text-2xl">Productos de la colección</h2>
 		<ProductGrid {products} />
 	</section>
 {/if}

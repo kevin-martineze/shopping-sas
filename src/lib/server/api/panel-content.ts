@@ -117,7 +117,7 @@ export function removeHighlight(ctx: PanelContext, id: string) {
 // Colecciones
 // ---------------------------------------------------------------------------
 
-/** Prenda etiquetada en una colección, con la forma que ya pinta la pantalla de colecciones. */
+/** Producto etiquetada en una colección, con la forma que ya pinta la pantalla de colecciones. */
 export interface CollectionLink {
 	collection_id: string;
 	product_id: string;

@@ -40,7 +40,7 @@
 <header class="mb-6">
 	<h1 class="text-3xl">Colecciones</h1>
 	<p class="text-muted-foreground text-sm">
-		Páginas editoriales con una foto grande y prendas etiquetadas encima.
+		Páginas editoriales con una foto grande y productos etiquetadas encima.
 	</p>
 </header>
 
@@ -174,7 +174,7 @@
 						<Table.Root class="table-stack">
 							<Table.Header>
 								<Table.Row>
-									<Table.Head>Prenda</Table.Head>
+									<Table.Head>Producto</Table.Head>
 									<Table.Head class="w-56">Etiqueta sobre la foto</Table.Head>
 									<Table.Head class="w-28"></Table.Head>
 								</Table.Row>
@@ -183,8 +183,8 @@
 							<Table.Body>
 								{#each linksOf(collection.id) as link (link.product_id)}
 									<Table.Row>
-										<Table.Cell data-label="Prenda" class="text-sm"
-											>{link.products?.name ?? 'Prenda'}</Table.Cell
+										<Table.Cell data-label="Producto" class="text-sm"
+											>{link.products?.name ?? 'Producto'}</Table.Cell
 										>
 
 										<Table.Cell
@@ -224,12 +224,12 @@
 						<input type="hidden" name="collectionId" value={collection.id} />
 
 						<div class="space-y-1.5">
-							<Label class="text-xs" for="product-{collection.id}">Prenda</Label>
+							<Label class="text-xs" for="product-{collection.id}">Producto</Label>
 							<SelectField
 								id="product-{collection.id}"
 								name="productId"
 								class="w-56"
-								placeholder="Elige una prenda"
+								placeholder="Elige una producto"
 								options={productOptions}
 							/>
 						</div>
@@ -256,7 +256,7 @@
 							/>
 						</div>
 
-						<Button type="submit" size="sm" variant="outline">Agregar prenda</Button>
+						<Button type="submit" size="sm" variant="outline">Agregar producto</Button>
 					</form>
 				</Card.Content>
 			</Card.Root>
