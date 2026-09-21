@@ -255,7 +255,11 @@ export function planFeatures(plan: Plan): string[] {
 		`${cantidad(plan.max_orders_per_month, 'pedido', 'pedidos')} al mes`,
 		cantidad(plan.max_images_per_product, 'foto', 'fotos') + ' por producto',
 		plan.custom_domain ? 'Tu propio dominio' : 'Dirección propia en globerce.store',
-		'Pedidos por WhatsApp, sin comisión',
+		// El pago en línea no depende del plan —el Plan no tiene bandera para
+		// eso—, así que va en los tres. WhatsApp sigue existiendo como opción.
+		'Pagos en línea con tarjeta, PSE o Nequi',
+		'Pedidos por WhatsApp, si el cliente prefiere',
+		'Sin comisión por venta',
 		// El asistente suma una línea, no reemplaza ninguna: lo que trae el plan
 		// de abajo lo trae también este.
 		...(plan.ai_replies_per_month > 0
