@@ -11,9 +11,3 @@ export function slugify(value: string): string {
 		.replace(/^-+|-+$/g, '')
 		.slice(0, 80);
 }
-
-/** SKU legible a partir del producto, color y talla. */
-export function buildSku(productSlug: string, colorSlug: string, sizeLabel: string): string {
-	const base = productSlug.replace(/-/g, '').toUpperCase().slice(0, 10);
-	return `${base}-${colorSlug.toUpperCase()}-${sizeLabel.toUpperCase()}`;
-}
