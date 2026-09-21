@@ -42,7 +42,7 @@
 					<div>
 						<div class="aspect-[3/4] w-full" style={`background-color: ${producto.tono}`}></div>
 						<p class="mt-1.5 truncate text-[11px]">{producto.nombre}</p>
-						<p class="text-muted-foreground text-[11px]">{producto.precio}</p>
+						<p class="text-muted-foreground font-mono text-[11px]">{producto.precio}</p>
 					</div>
 				{/each}
 			</div>
@@ -56,6 +56,6 @@
 		<p class="text-muted-foreground text-[10px] tracking-[0.18em] uppercase">Pedido nuevo</p>
 		<p class="mt-1 text-sm">Café Huila · Molienda fina · 500 g</p>
 		<p class="text-muted-foreground text-xs">Envío Medellín · $12.000</p>
-		<p class="mt-2 text-lg font-semibold tabular-nums">$151.900</p>
+		<p class="mt-2 font-mono text-lg font-medium tabular-nums">$151.900</p>
 	</div>
 </div>

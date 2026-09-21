@@ -5,6 +5,7 @@
 	import { Button } from '$lib/components/atoms/button';
 	import { Input } from '$lib/components/atoms/input';
 	import { Label } from '$lib/components/atoms/label';
+	import GloberceMark from '$lib/components/molecules/GloberceMark.svelte';
 
 	interface Props {
 		data: PageData;
@@ -21,9 +22,13 @@
 	<meta name="robots" content="noindex" />
 </svelte:head>
 
-<main class="admin-shell grid min-h-screen place-items-center px-4">
+<!-- Igual que el registro: la entrada lleva la marca de Globerce. -->
+<main class="marketing grid min-h-screen place-items-center px-4">
 	<div class="w-full max-w-sm space-y-8">
 		<header class="space-y-2 text-center">
+			<a href="/" class="mx-auto mb-4 block w-fit" aria-label="Globerce, inicio">
+				<GloberceMark size={44} label="" />
+			</a>
 			<p class="eyebrow">Globerce</p>
 			<h1 class="text-3xl">Iniciar sesión</h1>
 		</header>
