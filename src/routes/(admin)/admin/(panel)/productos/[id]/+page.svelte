@@ -33,7 +33,7 @@
 	 * A qué valor corresponde la foto.
 	 *
 	 * Solo se ofrecen los valores con tono: asociar una foto a "500 g" no
-	 * significa nada, pero a "Rojo" sí — es la foto de la producto roja.
+	 * significa nada, pero a "Rojo" sí — es la foto de el producto roja.
 	 */
 	const valueOptions = $derived([
 		{ value: '', label: 'Todas' },
@@ -111,7 +111,7 @@
 		<div class="border-destructive/40 mt-8 max-w-3xl border p-6">
 			<h2 class="text-lg">Eliminar producto</h2>
 			<p class="text-muted-foreground mt-1 text-sm">
-				Si la producto ya salió en pedidos no se borra: se archiva para conservar el historial.
+				Si el producto ya salió en pedidos no se borra: se archiva para conservar el historial.
 			</p>
 
 			<form method="POST" action="?/eliminar" class="mt-4" use:enhance>
@@ -166,7 +166,7 @@
 			</form>
 
 			{#if images.length === 0}
-				<p class="text-muted-foreground text-sm">Esta producto todavía no tiene fotos.</p>
+				<p class="text-muted-foreground text-sm">Este producto todavía no tiene fotos.</p>
 			{:else}
 				<div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
 					{#each images as image, index (image.id)}

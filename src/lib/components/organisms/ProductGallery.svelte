@@ -7,7 +7,7 @@
 	interface Props {
 		images: ProductImageType[];
 		productName: string;
-		/** Slug de la producto: nombra la transición compartida con la grilla. */
+		/** Slug de el producto: nombra la transición compartida con la grilla. */
 		productSlug?: string;
 		/** Al elegir color se salta a la primera foto de ese color. */
 		activeValueId: string | null;

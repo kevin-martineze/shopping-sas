@@ -229,7 +229,7 @@
 								id="product-{collection.id}"
 								name="productId"
 								class="w-56"
-								placeholder="Elige una producto"
+								placeholder="Elige un producto"
 								options={productOptions}
 							/>
 						</div>

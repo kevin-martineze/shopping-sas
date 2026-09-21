@@ -18,7 +18,7 @@
 		<p>
 			{EMPRESA.marca} es un servicio por suscripción para que una marca de ropa publique su catálogo en
 			internet, lleve su inventario y reciba pedidos. Los pedidos se cierran por WhatsApp, entre la tienda
-			y su clienta: {EMPRESA.marca} no cobra las ventas, no procesa pagos de las compras ni interviene
+			y su cliente: {EMPRESA.marca} no cobra las ventas, no procesa pagos de las compras ni interviene
 			en el envío.
 		</p>
 	</section>
@@ -32,7 +32,7 @@
 		</p>
 		<p>
 			La dirección de tu tienda (el subdominio) se elige al registrarse y no se puede cambiar
-			después, porque es la dirección que tus clientas van a tener guardada.
+			después, porque es la dirección que tus clientes van a tener guardada.
 		</p>
 	</section>
 
@@ -46,7 +46,7 @@
 		<p>
 			A cambio, respondes por tener derecho a publicarlos y por cumplir la ley que le aplique a lo
 			que vendes: descripciones ciertas, precios claros, derecho de retracto y garantías de tus
-			clientas. No se puede usar {EMPRESA.marca} para vender lo que la ley prohíbe.
+			clientes. No se puede usar {EMPRESA.marca} para vender lo que la ley prohíbe.
 		</p>
 	</section>
 
@@ -71,7 +71,7 @@
 		<h2>5. Si el plan vence</h2>
 		<p>
 			Tu tienda sigue vendiendo: cortarle las ventas a una tienda por un pago atrasado castiga a sus
-			clientas, no a nosotros. Lo que queda en pausa es el panel, que pasa a solo lectura hasta que
+			clientes, no a nosotros. Lo que queda en pausa es el panel, que pasa a solo lectura hasta que
 			el plan se ponga al día. Puedes seguir consultando y exportando lo tuyo.
 		</p>
 	</section>
@@ -107,7 +107,7 @@
 		<h2>9. Responsabilidad</h2>
 		<p>
 			El servicio se presta tal como está. No respondemos por las ventas que hagas o dejes de hacer,
-			ni por lo que ocurra entre tú y tus clientas. Si algo es culpa nuestra, nuestra
+			ni por lo que ocurra entre tú y tus clientes. Si algo es culpa nuestra, nuestra
 			responsabilidad se limita a lo que nos hayas pagado en los últimos tres meses.
 		</p>
 	</section>

@@ -84,7 +84,7 @@ export const actions: Actions = {
 		redirect(303, result.data.url);
 	},
 
-	/** Registra que la clienta sí llegó a abrir el chat. */
+	/** Registra que el cliente sí llegó a abrir el chat. */
 	abierto: async (event) => {
 		const orderNumber = Number(event.params.number);
 		const formData = await event.request.formData();

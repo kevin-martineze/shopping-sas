@@ -10,7 +10,7 @@ export const load: PageServerLoad = async (event) => {
 	const product = await getProduct(ctx, event.params.slug);
 
 	if (!product.ok) {
-		if (product.status === 404) error(404, 'Esta producto ya no está disponible.');
+		if (product.status === 404) error(404, 'Este producto ya no está disponible.');
 		error(503, product.message);
 	}
 

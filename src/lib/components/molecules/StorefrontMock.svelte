@@ -11,9 +11,9 @@
 	 */
 	const productos = [
 		{ nombre: 'Blusa Vera', precio: '$89.900', tono: 'oklch(0.86 0.02 60)' },
-		{ nombre: 'Vestido Alba', precio: '$139.900', tono: 'oklch(0.78 0.04 40)' },
-		{ nombre: 'Pantalón Noa', precio: '$119.900', tono: 'oklch(0.82 0.03 120)' },
-		{ nombre: 'Falda Inés', precio: '$99.900', tono: 'oklch(0.72 0.05 25)' }
+		{ nombre: 'Café Huila', precio: '$38.000', tono: 'oklch(0.78 0.04 40)' },
+		{ nombre: 'Vela Romero', precio: '$52.000', tono: 'oklch(0.82 0.03 120)' },
+		{ nombre: 'Cuaderno Ruta', precio: '$34.900', tono: 'oklch(0.72 0.05 25)' }
 	];
 </script>
 
@@ -33,7 +33,7 @@
 
 		<div class="px-4 py-4">
 			<div class="mb-3 flex items-baseline justify-between">
-				<span class="font-display text-base">Boutique Mariposa</span>
+				<span class="font-display text-base">Tienda Mariposa</span>
 				<span class="text-muted-foreground text-[10px] tracking-[0.18em] uppercase">Nuevo</span>
 			</div>
 
@@ -54,7 +54,7 @@
 	     productos, que es lo que la maqueta tiene que mostrar. -->
 	<div class="border-border bg-background ml-auto -mt-3 w-56 border p-3 shadow-lg sm:-mr-6">
 		<p class="text-muted-foreground text-[10px] tracking-[0.18em] uppercase">Pedido nuevo</p>
-		<p class="mt-1 text-sm">Vestido Alba · Arena / M</p>
+		<p class="mt-1 text-sm">Café Huila · Molienda fina · 500 g</p>
 		<p class="text-muted-foreground text-xs">Envío Medellín · $12.000</p>
 		<p class="mt-2 text-lg font-semibold tabular-nums">$151.900</p>
 	</div>

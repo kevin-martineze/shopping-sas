@@ -63,7 +63,7 @@
 		<p class="eyebrow">Paso 1 de 2</p>
 		<h1 class="text-4xl md:text-5xl">Tu pedido</h1>
 		<p class="text-muted-foreground text-sm">
-			Confirma las productos y tus datos. Al terminar se abre WhatsApp con el pedido escrito.
+			Confirma los productos y tus datos. Al terminar se abre WhatsApp con el pedido escrito.
 		</p>
 	</header>
 

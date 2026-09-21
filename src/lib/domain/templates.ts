@@ -6,7 +6,7 @@
  * con un código que ya no existe no se rompe: `templateOf` la devuelve a la de
  * por defecto.
  *
- * Una plantilla cambia el vestido, nunca el contenido: las mismas productos, los
+ * Una plantilla cambia el vestido, nunca el contenido: las mismos productos, los
  * mismos textos de portada y los mismos pedidos se ven igual de bien en las
  * dos. Cambiar de plantilla no borra nada ni obliga a rehacer la tienda.
  */
@@ -22,7 +22,7 @@ export interface TemplateInfo {
 	name: string;
 	/** Una línea: para quién es. */
 	tagline: string;
-	/** Qué la distingue, en la lengua de quien vende ropa, no en la de quien diseña. */
+	/** Qué la distingue, en la lengua de quien vende, no en la de quien diseña. */
 	features: string[];
 }
 
@@ -30,16 +30,18 @@ export const TEMPLATES: TemplateInfo[] = [
 	{
 		code: 'editorial',
 		name: 'Editorial',
-		tagline: 'Foto grande, mucho blanco y títulos en serif. Como una revista de moda.',
+		tagline: 'Foto grande, mucho blanco y títulos en serif. Para que mande la foto.',
 		features: [
 			'Portada con la foto a pantalla completa',
 			'Titulares en serif, letras finas',
-			'Blancos y grises: manda la producto'
+			'Blancos y grises: manda el producto'
 		]
 	},
 	{
 		code: 'boutique',
-		name: 'Boutique',
+		// El código se queda como está: cambiarlo obligaría a migrar las tiendas
+		// que ya lo eligieron, y el nombre visible es lo único que se lee.
+		name: 'Cálida',
 		tagline: 'Tonos cálidos, esquinas suaves y la portada partida en dos. Cercana y clara.',
 		features: [
 			'Portada con el texto al lado de la foto',

@@ -63,7 +63,7 @@ export function buildWhatsAppUrl(phone: string, message: string): string {
 	return `https://wa.me/${normalizePhone(phone)}?text=${encodeURIComponent(message)}`;
 }
 
-/** Mensaje corto para consultar por una producto concreta desde su ficha. */
+/** Mensaje corto para consultar por un producto concreta desde su ficha. */
 export function buildProductInquiryUrl(
 	phone: string,
 	storeName: string,

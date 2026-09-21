@@ -52,7 +52,7 @@
 		<p class="text-muted-foreground text-sm">
 			{dateFormatter.format(new Date(order.created_at))}
 			{#if order.whatsapp_opened_at}
-				· la clienta abrió el chat
+				· el cliente abrió el chat
 			{:else}
 				· todavía no abrió el chat
 			{/if}
@@ -175,7 +175,7 @@
 	<div class="space-y-6">
 		<Card.Root>
 			<Card.Header>
-				<Card.Title>Clienta</Card.Title>
+				<Card.Title>Cliente</Card.Title>
 			</Card.Header>
 
 			<Card.Content class="space-y-1 text-sm">

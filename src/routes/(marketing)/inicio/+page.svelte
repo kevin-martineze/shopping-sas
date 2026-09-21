@@ -6,7 +6,7 @@
 	import Images from '@lucide/svelte/icons/images';
 	import Receipt from '@lucide/svelte/icons/receipt';
 	import ShieldCheck from '@lucide/svelte/icons/shield-check';
-	import Shirt from '@lucide/svelte/icons/shirt';
+	import LayoutGrid from '@lucide/svelte/icons/layout-grid';
 	import Ticket from '@lucide/svelte/icons/ticket';
 	import Truck from '@lucide/svelte/icons/truck';
 	import Users from '@lucide/svelte/icons/users';
@@ -30,11 +30,11 @@
 		},
 		{
 			titulo: 'Subes tus productos',
-			detalle: 'Fotos, variaciones, colores y precios. Se ven bien en cualquier celular.'
+			detalle: 'Fotos, precios y las variaciones que uses. Se ven bien en cualquier celular.'
 		},
 		{
 			titulo: 'Compartes el enlace',
-			detalle: 'En tu bio de Instagram, en los estados, donde ya tienes a tus clientas.'
+			detalle: 'En tu bio de Instagram, en los estados, donde ya tienes a tus clientes.'
 		},
 		{
 			titulo: 'Cierras por WhatsApp',
@@ -44,9 +44,9 @@
 
 	const incluye = [
 		{
-			icono: Shirt,
+			icono: LayoutGrid,
 			titulo: 'Catálogo',
-			detalle: 'Productos con variaciones, colores y fotos por color.'
+			detalle: 'Cada producto se divide por lo que tú decidas: talla, color, peso, formato.'
 		},
 		{
 			icono: Boxes,
@@ -69,9 +69,29 @@
 		{ icono: Users, titulo: 'Equipo', detalle: 'Invita a quien te ayuda, con permisos distintos.' }
 	];
 
+	/**
+	 * Ejemplos de cómo se divide cada rubro.
+	 *
+	 * Decir "sirve para cualquier producto" no convence a nadie: es lo que dice
+	 * todo el mundo. Cuatro ejemplos concretos —y uno que no se divide en nada—
+	 * hacen que quien vende café se reconozca sin tener que preguntarnos.
+	 */
+	const rubros = [
+		{ que: 'Ropa', como: 'Talla y color' },
+		{ que: 'Calzado', como: 'Talla y color' },
+		{ que: 'Café', como: 'Molienda y peso' },
+		{ que: 'Cosmética', como: 'Presentación' },
+		{ que: 'Libros y piezas únicas', como: 'Sin variaciones' }
+	];
+
 	const preguntas = [
 		{
-			pregunta: '¿Cómo me pagan mis clientas?',
+			pregunta: '¿Sirve si no vendo ropa?',
+			respuesta:
+				'Sí. Cada producto declara cómo se divide: talla y color, molienda y peso, presentación, o nada si no se divide. Globerce empezó con tiendas de ropa y hoy sirve igual para café, libros, cosmética o artesanías.'
+		},
+		{
+			pregunta: '¿Cómo me pagan mis clientes?',
 			respuesta:
 				'Cierras la venta por WhatsApp, como ya lo haces: transferencia, Nequi o contra entrega. El pedido llega escrito y con el total calculado, así no hay malentendidos. Los pagos dentro de la tienda están en camino.'
 		},
@@ -93,7 +113,7 @@
 		{
 			pregunta: '¿La información es mía?',
 			respuesta:
-				'Sí: tus productos, tus pedidos y tus clientas. Puedes pedir una copia cuando quieras, y los datos de tu tienda no se mezclan con los de ninguna otra.'
+				'Sí: tus productos, tus pedidos y tus clientes. Puedes pedir una copia cuando quieras, y los datos de tu tienda no se mezclan con los de ninguna otra.'
 		}
 	];
 
@@ -151,13 +171,15 @@
 				class="mx-auto grid max-w-6xl items-center gap-12 px-4 pt-14 pb-20 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pt-20"
 			>
 				<div>
-					<p class="eyebrow mb-4">Plataforma para marcas de ropa</p>
+					<p class="eyebrow mb-4">Plataforma para tiendas pequeñas</p>
 					<h1 class="text-4xl leading-[1.08] text-balance md:text-5xl lg:text-6xl">
-						Vende tu ropa en línea con el orden que Instagram no te da
+						Vende lo tuyo en línea con el orden que Instagram no te da
 					</h1>
 					<p class="text-muted-foreground mt-6 max-w-lg text-lg text-pretty">
-						Catálogo con variaciones y colores, inventario que se descuenta solo y pedidos que
-						llegan escritos a tu WhatsApp. Sin comisión por venta.
+						Lo que hay y lo que se acabó, siempre a la vista. Ropa por talla y color, café por
+						molienda y peso, libros sin nada de eso: tu catálogo se divide como tu producto lo pida.
+						El inventario se descuenta solo y los pedidos llegan escritos a tu WhatsApp, sin
+						comisión por venta.
 					</p>
 
 					<div class="mt-8 flex flex-wrap items-center gap-3">
@@ -231,6 +253,26 @@
 			</div>
 		</section>
 
+		<section id="que-vendes" class="border-border border-b">
+			<div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+				<p class="eyebrow mb-3">Para quién es</p>
+				<h2 class="max-w-2xl text-3xl md:text-4xl">No todos los productos se dividen igual</h2>
+				<p class="text-muted-foreground mt-3 max-w-xl text-pretty">
+					Una camisa se vende por talla y color; un café, por molienda y peso; un libro, por nada.
+					Tú declaras los ejes de cada producto y la tienda se acomoda —no al revés—.
+				</p>
+
+				<dl class="border-border mt-12 grid gap-px border sm:grid-cols-2 lg:grid-cols-5">
+					{#each rubros as rubro (rubro.que)}
+						<div class="bg-background outline-border p-6 outline">
+							<dt class="text-base">{rubro.que}</dt>
+							<dd class="text-muted-foreground mt-1.5 text-sm text-pretty">{rubro.como}</dd>
+						</div>
+					{/each}
+				</dl>
+			</div>
+		</section>
+
 		<section id="precios" class="bg-muted/40 border-border border-b">
 			<div class="mx-auto max-w-6xl px-4 py-20 sm:px-6">
 				<div class="mb-12 text-center">
@@ -287,7 +329,7 @@
 		<section class="border-border border-b">
 			<div class="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6">
 				<h2 class="mx-auto max-w-2xl text-3xl text-balance md:text-4xl">
-					Tu próxima clienta no debería preguntar si hay variación M
+					Tu próximo cliente no debería escribirte para saber si queda
 				</h2>
 				<p class="text-muted-foreground mx-auto mt-4 max-w-md text-pretty">
 					Abre tu tienda hoy y compártela esta misma semana.
@@ -323,7 +365,7 @@
 		>
 			<div>
 				<p class="font-display text-foreground text-lg">Globerce</p>
-				<p class="mt-1 text-xs">Hecho en Colombia para marcas de ropa · {año}</p>
+				<p class="mt-1 text-xs">Hecho en Colombia para tiendas pequeñas · {año}</p>
 			</div>
 
 			<nav class="flex flex-wrap items-center gap-x-6 gap-y-2 sm:ml-auto">

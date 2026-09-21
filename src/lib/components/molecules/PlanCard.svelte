@@ -63,7 +63,7 @@
 			</p>
 		{/if}
 
-		<ul class={cn('space-y-3 text-sm', conAsistente ? 'mt-4' : 'mt-7')}>
+		<ul class={cn('mb-8 space-y-3 text-sm', conAsistente ? 'mt-4' : 'mt-7')}>
 			{#each caracteristicas as caracteristica (caracteristica)}
 				<li class="flex items-start gap-2.5">
 					<Check class={cn('mt-0.5 size-4 flex-none', destacado && 'text-background/80')} />
@@ -75,11 +75,17 @@
 		<Button
 			href="/registro?plan={plan.code}"
 			class={cn(
-				'mt-8 w-full',
-				// Pegado abajo: con listas de distinto largo, los botones se
-				// alinean entre tarjetas.
-				'mt-auto',
-				destacado && 'bg-background text-foreground hover:bg-background/90'
+				// `mt-auto` empuja el botón abajo para que los tres se alineen
+				// entre tarjetas; `pt-8` garantiza aire aunque la lista sea larga
+				// y no quede espacio libre que repartir. Con `mt-8` no bastaba:
+				// `mt-auto` lo pisa y el botón quedaba pegado al último ítem.
+				'mt-auto w-full',
+				destacado
+					? 'bg-background text-foreground hover:bg-background/90'
+					: // El contorneado por defecto casi no se ve sobre la tarjeta
+						// blanca: el borde se refuerza y al pasar por encima se
+						// invierte, que es lo que lo hace parecer un botón.
+						'border-foreground hover:bg-foreground hover:text-background'
 			)}
 			variant={destacado ? 'default' : 'outline'}
 		>

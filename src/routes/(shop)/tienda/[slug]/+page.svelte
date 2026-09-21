@@ -40,7 +40,7 @@
 	 * Al cambiar de producto se arranca en la primera variante con existencias.
 	 *
 	 * Se propone una combinación entera y no un valor suelto: con tres ejes,
-	 * elegir solo el primero deja a la clienta ante dos listas sin nada
+	 * elegir solo el primero deja a el cliente ante dos listas sin nada
 	 * seleccionado, y la de abajo tachada sin explicar por qué.
 	 */
 	$effect(() => {

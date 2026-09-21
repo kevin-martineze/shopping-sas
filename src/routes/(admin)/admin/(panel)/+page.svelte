@@ -98,7 +98,7 @@
 			<Card.Title class="font-sans text-3xl tabular-nums">{stats.pendingRestock}</Card.Title>
 		</Card.Header>
 		<Card.Content>
-			<p class="text-muted-foreground text-xs">Clientas esperando reposición.</p>
+			<p class="text-muted-foreground text-xs">Clientes esperando reposición.</p>
 		</Card.Content>
 	</Card.Root>
 </div>

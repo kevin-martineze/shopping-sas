@@ -22,7 +22,7 @@ export const load: PageServerLoad = async (event) => {
 		serverEnv().PUBLIC_SITE_URL
 	).toString();
 
-	// Enlace para volver a escribirle a la clienta con el pedido a la vista.
+	// Enlace para volver a escribirle a el cliente con el pedido a la vista.
 	const customerChatUrl = buildWhatsAppUrl(
 		order.customer_phone,
 		buildOrderMessage(order, { storeName: settings.store_name, orderUrl })

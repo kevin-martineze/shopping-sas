@@ -276,7 +276,7 @@ export const actions: Actions = {
 
 		if (result.data.result === 'archived') {
 			return fail(409, {
-				error: 'Esta producto está en pedidos, así que la archivamos en vez de borrarla.'
+				error: 'Este producto está en pedidos, así que la archivamos en vez de borrarla.'
 			});
 		}
 
