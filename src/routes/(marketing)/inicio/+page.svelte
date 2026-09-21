@@ -171,9 +171,9 @@
 				class="mx-auto grid max-w-6xl items-center gap-12 px-4 pt-14 pb-20 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pt-20"
 			>
 				<div>
-					<p class="eyebrow mb-4">Plataforma para tiendas pequeñas</p>
+					<p class="eyebrow mb-4">El mostrador que no cierra</p>
 					<h1 class="text-4xl leading-[1.08] text-balance md:text-5xl lg:text-6xl">
-						Vende lo tuyo en línea con el orden que Instagram no te da
+						Tu tienda responde «¿queda?» por ti
 					</h1>
 					<p class="text-muted-foreground mt-6 max-w-lg text-lg text-pretty">
 						Lo que hay y lo que se acabó, siempre a la vista. Ropa por talla y color, café por
@@ -329,7 +329,7 @@
 		<section class="border-border border-b">
 			<div class="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6">
 				<h2 class="mx-auto max-w-2xl text-3xl text-balance md:text-4xl">
-					Tu próximo cliente no debería escribirte para saber si queda
+					Nadie compra a las once de la noche si tiene que esperar tu respuesta
 				</h2>
 				<p class="text-muted-foreground mx-auto mt-4 max-w-md text-pretty">
 					Abre tu tienda hoy y compártela esta misma semana.
@@ -365,7 +365,7 @@
 		>
 			<div>
 				<p class="font-display text-foreground text-lg">Globerce</p>
-				<p class="mt-1 text-xs">Hecho en Colombia para tiendas pequeñas · {año}</p>
+				<p class="mt-1 text-xs">Hecho en Colombia, para quien vende todos los días · {año}</p>
 			</div>
 
 			<nav class="flex flex-wrap items-center gap-x-6 gap-y-2 sm:ml-auto">
