@@ -8,12 +8,18 @@
 	import { cn } from '$lib/utils';
 
 	interface Props {
-		name: string;
+		/**
+		 * Si se omite, el campo no emite input oculto: el valor lo recoge quien
+		 * lo use, por ejemplo dentro de un JSON.
+		 */
+		name?: string;
 		value?: string;
 		id?: string;
 		/** Id del formulario al que pertenece, cuando el campo vive fuera de él. */
 		form?: string;
 		label?: string;
+		/** Permite quedarse sin tono. Un peso o un formato no tienen color. */
+		optional?: boolean;
 		class?: string;
 	}
 
@@ -23,13 +29,14 @@
 		id,
 		form,
 		label = 'Tono',
+		optional = false,
 		class: className
 	}: Props = $props();
 
 	let open = $state(false);
 
 	/**
-	 * Neutros arriba porque son la base de casi cualquier prenda, y debajo la
+	 * Neutros arriba porque son la base de casi cualquier producto, y debajo la
 	 * rejilla de color con cinco luminosidades por matiz.
 	 */
 	const NEUTROS = [
@@ -60,6 +67,7 @@
 	];
 
 	const hex = $derived(value.toUpperCase());
+	const sinTono = $derived(optional && value === '');
 
 	function elegir(tono: string) {
 		value = tono;
@@ -75,8 +83,12 @@
 		)}
 		aria-label="{label}: {hex}"
 	>
-		<span class="border-border size-5 rounded-sm border" style="background-color: {value}"></span>
-		<span class="text-muted-foreground font-mono text-xs">{hex}</span>
+		<span
+			class="border-border size-5 rounded-sm border"
+			class:bg-muted={sinTono}
+			style={sinTono ? undefined : `background-color: ${value}`}
+		></span>
+		<span class="text-muted-foreground font-mono text-xs">{sinTono ? 'sin tono' : hex}</span>
 	</Popover.Trigger>
 
 	<Popover.Content class="w-auto space-y-3">
@@ -145,11 +157,28 @@
 					maxlength={7}
 					aria-label="Código del tono"
 				/>
+				{#if optional}
+					<Button
+						type="button"
+						variant="outline"
+						size="sm"
+						onclick={() => {
+							value = '';
+							open = false;
+						}}
+					>
+						Sin tono
+					</Button>
+				{/if}
+
 				<Button type="button" size="sm" onclick={() => (open = false)}>Listo</Button>
 			</div>
 		</div>
 	</Popover.Content>
 </Popover.Root>
 
-<!-- El valor viaja aquí: el selector vive en un popover, fuera del formulario. -->
-<input type="hidden" {name} {form} {value} />
+<!-- El valor viaja aquí: el selector vive en un popover, fuera del formulario.
+     Sin `name` no se emite: hay usos donde el valor lo recoge otro campo. -->
+{#if name}
+	<input type="hidden" {name} {form} {value} />
+{/if}
