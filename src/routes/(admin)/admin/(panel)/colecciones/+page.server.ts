@@ -86,7 +86,7 @@ export const actions: Actions = {
 		return { ok: true };
 	},
 
-	/** Etiqueta una producto sobre la foto editorial, o mueve su punto si ya estaba. */
+	/** Etiqueta un producto sobre la foto editorial, o mueve su punto si ya estaba. */
 	agregarProducto: async (event) => {
 		const ctx = panelContext(event);
 		const formData = await event.request.formData();

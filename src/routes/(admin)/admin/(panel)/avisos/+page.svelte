@@ -31,7 +31,7 @@
 <header class="mb-6 space-y-1">
 	<h1 class="text-3xl">Avisos de reposición</h1>
 	<p class="text-muted-foreground text-sm">
-		Clientas que pidieron aviso cuando su variación vuelva. Son ventas casi hechas.
+		Clientes que pidieron aviso cuando su variación vuelva. Son ventas casi hechas.
 	</p>
 </header>
 

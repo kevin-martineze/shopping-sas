@@ -105,7 +105,7 @@
 			<Table.Header>
 				<Table.Row>
 					<Table.Head>Pedido</Table.Head>
-					<Table.Head>Clienta</Table.Head>
+					<Table.Head>Cliente</Table.Head>
 					<Table.Head>Fecha</Table.Head>
 					<Table.Head>Estado</Table.Head>
 					<Table.Head class="text-right">Total</Table.Head>
@@ -118,7 +118,7 @@
 						<Table.Cell data-label="Pedido">
 							<a href="/admin/pedidos/{order.id}" class="font-medium">#{order.number}</a>
 						</Table.Cell>
-						<Table.Cell data-label="Clienta">
+						<Table.Cell data-label="Cliente">
 							<span class="block">{order.customer_name}</span>
 							<span class="text-muted-foreground text-xs">{order.customer_phone}</span>
 						</Table.Cell>

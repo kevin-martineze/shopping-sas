@@ -70,7 +70,7 @@ export const actions: Actions = {
 	borrarCategoria: async (event) => {
 		const ctx = panelContext(event);
 
-		// Las productos apuntan a la categoría con `onDelete: SetNull`, así que
+		// Los productos apuntan a la categoría con `onDelete: SetNull`, así que
 		// borrarla las deja sin categoría en vez de fallar.
 		const result = await removeCategory(ctx, formId(await event.request.formData()));
 

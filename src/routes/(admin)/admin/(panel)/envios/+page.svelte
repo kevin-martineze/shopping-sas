@@ -29,7 +29,7 @@
 <header class="mb-6 space-y-1">
 	<h1 class="text-3xl">Zonas de envío</h1>
 	<p class="text-muted-foreground text-sm">
-		La clienta elige una en el carrito y su costo entra en el total del pedido.
+		El cliente elige una en el carrito y su costo entra en el total del pedido.
 	</p>
 </header>
 

@@ -2,7 +2,7 @@
  * Qué sirve cada host: el sitio comercial de Globerce o una tienda.
  *
  * El dominio raíz (`globerce.store`, o `localhost` en desarrollo) es el sitio
- * que vende la plataforma; los subdominios son las tiendas de las clientas.
+ * que vende la plataforma; los subdominios son las tiendas de los clientes.
  * Como los dos viven en el mismo despliegue, hay que decidirlo por host antes
  * de enrutar.
  *

@@ -20,7 +20,7 @@
 			{:else}
 				Quien opera {EMPRESA.marca}.
 			{/if}
-			Para los datos de tu propia cuenta somos responsables del tratamiento; para los datos de las clientas
+			Para los datos de tu propia cuenta somos responsables del tratamiento; para los datos de los clientes
 			de tu tienda somos encargados: los guardamos por cuenta tuya y hacemos con ellos lo que tú nos indiques.
 		</p>
 	</section>
@@ -33,7 +33,7 @@
 				tu tienda. También el historial de pagos de tu plan.
 			</li>
 			<li>
-				<strong>De tus clientas:</strong> nombre, teléfono y dirección de envío cuando hacen un pedido.
+				<strong>De tus clientes:</strong> nombre, teléfono y dirección de envío cuando hacen un pedido.
 				No pedimos datos de tarjetas: no procesamos pagos de las compras.
 			</li>
 			<li>
@@ -86,7 +86,7 @@
 		<p>
 			Puedes conocer, actualizar y rectificar tus datos, pedir una copia, revocar la autorización y
 			pedir que se supriman cuando no haya un deber legal de conservarlos (Ley 1581 de 2012 y sus
-			decretos, en {EMPRESA.pais}). Las clientas de una tienda pueden ejercer esos derechos ante la
+			decretos, en {EMPRESA.pais}). Los clientes de una tienda pueden ejercer esos derechos ante la
 			tienda; si nos escriben a nosotros, las ponemos en contacto y ayudamos a atender la solicitud.
 		</p>
 		<p>

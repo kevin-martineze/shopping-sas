@@ -16,7 +16,7 @@ export const loginSchema = z.object({
 
 export const productSchema = z
 	.object({
-		name: z.string().trim().min(2, 'Ponle nombre a la producto.').max(120),
+		name: z.string().trim().min(2, 'Ponle nombre a el producto.').max(120),
 		slug: z
 			.string()
 			.trim()

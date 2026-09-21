@@ -7,7 +7,7 @@ import { storeSlugFromHost } from '$lib/tenant';
 
 /**
  * Qué sirve cada host, antes de enrutar: el sitio que vende Globerce en el
- * dominio raíz, y la tienda de cada clienta en su subdominio. Las dos cosas
+ * dominio raíz, y la tienda de cada cliente en su subdominio. Las dos cosas
  * viven en el mismo despliegue y `/` no puede ser dos rutas a la vez.
  *
  * Va en los hooks universales y no en los del servidor porque SvelteKit solo
