@@ -20,8 +20,8 @@
 
 	const productos = [
 		{ nombre: 'Blusa Vera', precio: '$89.900', tono: 'oklch(0.86 0.02 60)' },
-		{ nombre: 'Vestido Alba', precio: '$139.900', tono: 'oklch(0.78 0.04 40)' },
-		{ nombre: 'Falda Inés', precio: '$99.900', tono: 'oklch(0.72 0.05 25)' }
+		{ nombre: 'Café Huila', precio: '$38.000', tono: 'oklch(0.78 0.04 40)' },
+		{ nombre: 'Vela Romero', precio: '$52.000', tono: 'oklch(0.72 0.05 25)' }
 	];
 </script>
 
