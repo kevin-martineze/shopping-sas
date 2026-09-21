@@ -27,8 +27,8 @@ export interface OrderItem {
 	product_id: string | null;
 	product_name: string;
 	product_slug: string;
-	color_name: string;
-	size_label: string;
+	/** "Rojo · M". Vacío si el producto no tiene ejes. */
+	variant_label: string;
 	sku: string | null;
 	unit_price: number;
 	qty: number;
@@ -88,8 +88,8 @@ export interface PricedLine {
 	productId: string;
 	productName: string;
 	productSlug: string;
-	colorName: string;
-	sizeLabel: string;
+	/** "Rojo · M". Vacío si el producto no tiene ejes. */
+	variantLabel: string;
 	unitPrice: number;
 	qty: number;
 	lineTotal: number;

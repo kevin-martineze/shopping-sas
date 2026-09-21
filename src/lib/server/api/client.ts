@@ -23,7 +23,7 @@ export type ApiResult<T> =
 			code: string;
 			/** Mensaje en español, listo para mostrar. */
 			message: string;
-			/** Detalle que adjunta la API (campos inválidos, prendas agotadas). Se valida donde se usa. */
+			/** Detalle que adjunta la API (campos inválidos, productos agotadas). Se valida donde se usa. */
 			details: unknown;
 	  };
 

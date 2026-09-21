@@ -7,23 +7,23 @@
 	interface Props {
 		images: ProductImageType[];
 		productName: string;
-		/** Slug de la prenda: nombra la transición compartida con la grilla. */
+		/** Slug de la producto: nombra la transición compartida con la grilla. */
 		productSlug?: string;
 		/** Al elegir color se salta a la primera foto de ese color. */
-		activeColorId: string | null;
+		activeValueId: string | null;
 	}
 
-	let { images, productName, productSlug, activeColorId }: Props = $props();
+	let { images, productName, productSlug, activeValueId }: Props = $props();
 
 	const transitionName = $derived(
-		productSlug ? `prenda-${productSlug.replace(/[^a-z0-9]/g, '-')}` : 'none'
+		productSlug ? `producto-${productSlug.replace(/[^a-z0-9]/g, '-')}` : 'none'
 	);
 
 	// Fotos del color elegido; si ese color no tiene fotos propias, se muestran todas.
 	const visible = $derived.by(() => {
-		if (!activeColorId) return images;
+		if (!activeValueId) return images;
 
-		const filtered = images.filter((image) => image.color_id === activeColorId);
+		const filtered = images.filter((image) => image.option_value_id === activeValueId);
 		return filtered.length > 0 ? filtered : images;
 	});
 

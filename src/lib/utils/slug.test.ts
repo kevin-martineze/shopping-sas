@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildSku, slugify } from '$lib/utils/slug';
+import { slugify } from '$lib/utils/slug';
 
 describe('slugify', () => {
 	it('quita tildes y espacios', () => {
@@ -23,15 +23,5 @@ describe('slugify', () => {
 
 	it('recorta nombres larguísimos', () => {
 		expect(slugify('a'.repeat(120)).length).toBe(80);
-	});
-});
-
-describe('buildSku', () => {
-	it('arma el código con producto, color y talla', () => {
-		expect(buildSku('blusa-vera', 'crudo', 'M')).toBe('BLUSAVERA-CRUDO-M');
-	});
-
-	it('recorta la parte del producto a diez caracteres', () => {
-		expect(buildSku('abrigo-de-lana-larguisimo', 'negro', 'XL')).toBe('ABRIGODELA-NEGRO-XL');
 	});
 });

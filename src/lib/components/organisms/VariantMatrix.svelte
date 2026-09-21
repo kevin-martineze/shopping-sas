@@ -1,6 +1,5 @@
 <script lang="ts">
-	import type { Color, Size } from '$lib/domain/catalog';
-	import type { AdminVariantRow } from '$lib/server/api/panel-catalog';
+	import type { AdminVariantRow, ProductOption } from '$lib/server/api/panel-catalog';
 
 	import Trash2 from '@lucide/svelte/icons/trash-2';
 
@@ -8,7 +7,6 @@
 
 	import { Button } from '$lib/components/atoms/button';
 	import * as Card from '$lib/components/atoms/card';
-	import { Checkbox } from '$lib/components/atoms/checkbox';
 	import { Label } from '$lib/components/atoms/label';
 	import * as Table from '$lib/components/atoms/table';
 	import CheckboxField from '$lib/components/molecules/CheckboxField.svelte';
@@ -16,45 +14,66 @@
 	import { formatMoney } from '$lib/utils/money';
 
 	interface Props {
-		colors: Color[];
-		sizes: Size[];
+		/** Los ejes declarados por el producto. Vacío: una sola existencia. */
+		options: ProductOption[];
 		variants: AdminVariantRow[];
 		basePrice: number;
 	}
 
-	let { colors, sizes, variants, basePrice }: Props = $props();
+	let { options, variants, basePrice }: Props = $props();
 
-	let selectedColors = $state<string[]>([]);
-	let selectedSizes = $state<string[]>([]);
 	let defaultStock = $state(0);
 
-	interface ColorGroup {
-		colorId: string;
-		color: AdminVariantRow['colors'];
-		rows: AdminVariantRow[];
+	interface Grupo {
+		/** El valor del primer eje, o vacío cuando el producto no tiene ejes. */
+		clave: string;
+		titulo: string;
+		hex: string | null;
+		filas: AdminVariantRow[];
 	}
 
-	// Agrupa por color para que la matriz se lea como el perchero real.
-	const grouped = $derived.by(() => {
-		const groups: ColorGroup[] = [];
+	/**
+	 * Agrupa por el PRIMER eje, sea cual sea.
+	 *
+	 * Antes se agrupaba por color porque no había otra cosa. Ahora el primer eje
+	 * lo elige quien vende: la tienda de ropa verá un bloque por color, la
+	 * tostadora uno por molienda, y el libro un único bloque sin título.
+	 */
+	const grupos = $derived.by(() => {
+		const salida: Grupo[] = [];
 
-		for (const variant of variants) {
-			const existing = groups.find((group) => group.colorId === variant.color_id);
+		for (const variante of variants) {
+			const primero = variante.values.at(0);
+			const clave = primero?.id ?? '';
+			const existente = salida.find((grupo) => grupo.clave === clave);
 
-			if (existing) existing.rows.push(variant);
-			else groups.push({ colorId: variant.color_id, color: variant.colors, rows: [variant] });
+			if (existente) existente.filas.push(variante);
+			else
+				salida.push({
+					clave,
+					titulo: primero?.value ?? '',
+					hex: primero?.hex ?? null,
+					filas: [variante]
+				});
 		}
 
-		for (const group of groups) {
-			group.rows.sort((a, b) => (a.sizes?.sort_order ?? 0) - (b.sizes?.sort_order ?? 0));
-		}
-
-		return groups;
+		return salida;
 	});
 
-	function toggle(list: string[], id: string, checked: boolean): string[] {
-		return checked ? [...new Set([...list, id])] : list.filter((item) => item !== id);
+	/** Cómo se llama la fila dentro de su grupo: los ejes que quedan. */
+	function resto(variante: AdminVariantRow): string {
+		return variante.values
+			.slice(1)
+			.map((valor) => valor.value)
+			.join(' · ');
 	}
+
+	/** Cuántas combinaciones darían los ejes actuales. */
+	const posibles = $derived(
+		options.reduce((total, eje) => total * Math.max(1, eje.values.length), 1)
+	);
+
+	const faltan = $derived(Math.max(0, posibles - variants.length));
 </script>
 
 <div class="space-y-6">
@@ -62,103 +81,67 @@
 		<Card.Header>
 			<Card.Title>Crear combinaciones</Card.Title>
 			<Card.Description>
-				Elige colores y tallas: se crean las que falten, sin tocar las existentes.
+				{#if options.length === 0}
+					Este producto no se divide en nada, así que tiene una sola existencia.
+				{:else if faltan > 0}
+					Faltan {faltan} de las {posibles} que dan tus ejes. Se crean las que falten, sin tocar las que
+					ya existen.
+				{:else}
+					Ya existen las {posibles} combinaciones de tus ejes. Si añades un valor arriba, vuelve aquí
+					para crear las nuevas.
+				{/if}
 			</Card.Description>
 		</Card.Header>
 
 		<Card.Content>
-			<form method="POST" action="?/variantes" class="space-y-5" use:enhance>
-				<div class="grid gap-6 sm:grid-cols-2">
-					<div class="space-y-2">
-						<p class="text-sm font-medium">Colores</p>
-						{#each colors as color (color.id)}
-							<div class="flex items-center gap-2">
-								<Checkbox
-									id="matrix-color-{color.id}"
-									name="colorIds"
-									value={color.id}
-									checked={selectedColors.includes(color.id)}
-									onCheckedChange={(checked) => {
-										selectedColors = toggle(selectedColors, color.id, checked === true);
-									}}
-								/>
-								<Label for="matrix-color-{color.id}" class="flex items-center gap-2 text-sm">
-									<span
-										class="border-border size-3.5 rounded-full border"
-										style="background-color: {color.hex}"
-									></span>
-									{color.name}
-								</Label>
-							</div>
-						{/each}
-					</div>
-
-					<div class="space-y-2">
-						<p class="text-sm font-medium">Tallas</p>
-						{#each sizes as size (size.id)}
-							<div class="flex items-center gap-2">
-								<Checkbox
-									id="matrix-size-{size.id}"
-									name="sizeIds"
-									value={size.id}
-									checked={selectedSizes.includes(size.id)}
-									onCheckedChange={(checked) => {
-										selectedSizes = toggle(selectedSizes, size.id, checked === true);
-									}}
-								/>
-								<Label for="matrix-size-{size.id}" class="text-sm">{size.label}</Label>
-							</div>
-						{/each}
-					</div>
+			<form method="POST" action="?/variantes" class="flex flex-wrap items-end gap-3" use:enhance>
+				<div class="space-y-1.5">
+					<Label class="text-xs" for="defaultStock">Existencias iniciales</Label>
+					<NumberField
+						id="defaultStock"
+						name="defaultStock"
+						bind:value={defaultStock}
+						class="w-36"
+					/>
 				</div>
 
-				<div class="flex flex-wrap items-end gap-3">
-					<div class="space-y-1.5">
-						<Label class="text-xs" for="defaultStock">Stock inicial</Label>
-						<NumberField
-							id="defaultStock"
-							name="defaultStock"
-							bind:value={defaultStock}
-							class="w-36"
-						/>
-					</div>
-
-					<Button
-						type="submit"
-						disabled={selectedColors.length === 0 || selectedSizes.length === 0}
-					>
-						Crear {selectedColors.length * selectedSizes.length || ''} combinaciones
-					</Button>
-				</div>
+				<Button type="submit" disabled={faltan === 0 && variants.length > 0}>
+					{faltan > 0 ? `Crear ${faltan}` : 'Crear'}
+					{faltan === 1 ? 'combinación' : 'combinaciones'}
+				</Button>
 			</form>
 		</Card.Content>
 	</Card.Root>
 
-	{#if grouped.length === 0}
+	{#if grupos.length === 0}
 		<Card.Root>
 			<Card.Content class="text-muted-foreground py-12 text-center text-sm">
-				Esta prenda todavía no tiene tallas. Créalas arriba para poder venderla.
+				Este producto todavía no tiene existencias. Créalas arriba para poder venderlo.
 			</Card.Content>
 		</Card.Root>
 	{:else}
-		{#each grouped as group (group.colorId)}
+		{#each grupos as grupo (grupo.clave)}
 			<Card.Root>
-				<Card.Header>
-					<div class="flex items-center gap-2">
-						<span
-							class="border-border size-4 rounded-full border"
-							style="background-color: {group.color?.hex ?? 'transparent'}"
-						></span>
-						<Card.Title class="text-base">{group.color?.name ?? 'Sin color'}</Card.Title>
-					</div>
-				</Card.Header>
+				{#if grupo.titulo}
+					<Card.Header>
+						<div class="flex items-center gap-2">
+							{#if grupo.hex}
+								<span
+									class="border-border size-4 rounded-full border"
+									style="background-color: {grupo.hex}"
+								></span>
+							{/if}
+							<Card.Title class="text-base">{grupo.titulo}</Card.Title>
+						</div>
+					</Card.Header>
+				{/if}
 
 				<Card.Content>
 					<Table.Root class="table-stack">
 						<Table.Header>
 							<Table.Row>
-								<Table.Head class="w-20">Talla</Table.Head>
-								<Table.Head class="w-44">Stock</Table.Head>
+								<Table.Head class="w-32">Combinación</Table.Head>
+								<Table.Head class="w-44">Existencias</Table.Head>
 								<Table.Head class="w-48">Precio propio</Table.Head>
 								<Table.Head>Se vende a</Table.Head>
 								<Table.Head class="w-28">Activa</Table.Head>
@@ -167,13 +150,13 @@
 						</Table.Header>
 
 						<Table.Body>
-							{#each group.rows as variant (`${variant.id}:${variant.active}`)}
+							{#each grupo.filas as variant (`${variant.id}:${variant.active}`)}
 								<Table.Row>
-									<Table.Cell data-label="Talla" class="text-sm font-medium"
-										>{variant.sizes?.label ?? '—'}</Table.Cell
-									>
+									<Table.Cell data-label="Combinación" class="text-sm font-medium">
+										{resto(variant) || variant.label || 'Única'}
+									</Table.Cell>
 
-									<Table.Cell data-label="Stock">
+									<Table.Cell data-label="Existencias">
 										<NumberField
 											form="variante-{variant.id}"
 											name="stock"
@@ -229,7 +212,7 @@
 													size="sm"
 													variant="ghost"
 													class="text-destructive"
-													aria-label="Borrar talla {variant.sizes?.label}"
+													aria-label="Borrar la combinación {variant.label || variant.sku || ''}"
 												>
 													<Trash2 class="size-3" />
 												</Button>

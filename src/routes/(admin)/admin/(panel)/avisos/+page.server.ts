@@ -16,13 +16,13 @@ export const load: PageServerLoad = async (event) => {
 
 			return {
 				...request,
-				// Solo tiene sentido escribirle si la talla volvió a tener stock.
+				// Solo tiene sentido escribirle si la variación volvió a tener stock.
 				backInStock: request.variants.stock > 0,
 				chatUrl: buildRestockUrl(
 					request.contact,
 					settings.store_name,
 					product.name,
-					request.variants.sizes.label,
+					request.variants.variant_label,
 					productUrl
 				)
 			};

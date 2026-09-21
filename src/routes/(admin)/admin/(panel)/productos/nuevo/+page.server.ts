@@ -21,8 +21,6 @@ export const actions: Actions = {
 			name,
 			slug: rawSlug === '' ? slugify(name) : rawSlug,
 			description: formData.get('description') ?? '',
-			material: formData.get('material') ?? '',
-			care: formData.get('care') ?? '',
 			categoryId: String(formData.get('categoryId') ?? '') || null,
 			basePrice: formData.get('basePrice'),
 			compareAtPrice: String(formData.get('compareAtPrice') ?? '') || null,
@@ -40,8 +38,6 @@ export const actions: Actions = {
 			name: input.name,
 			slug: input.slug,
 			description: input.description,
-			material: input.material,
-			care: input.care,
 			categoryId: input.categoryId ?? null,
 			basePrice: input.basePrice,
 			compareAtPrice: input.compareAtPrice ?? null,
@@ -51,7 +47,7 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		// Se sigue a la edición: ahí se cargan fotos y se arma la matriz de tallas.
+		// Se sigue a la edición: ahí se cargan fotos y se arma la matriz de variaciones.
 		redirect(303, `/admin/productos/${result.data.id}`);
 	}
 };

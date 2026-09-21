@@ -23,7 +23,7 @@
 		{#if cart.isEmpty}
 			<div class="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
 				<ShoppingBag class="text-muted-foreground size-10" />
-				<p class="text-muted-foreground text-sm">Todavía no has agregado prendas.</p>
+				<p class="text-muted-foreground text-sm">Todavía no has agregado productos.</p>
 				<Button href="/tienda" onclick={() => (cart.open = false)}>Ver la tienda</Button>
 			</div>
 		{:else}
@@ -63,7 +63,7 @@
 								</div>
 
 								<p class="text-muted-foreground text-xs">
-									{line.preview.colorName} · Talla {line.preview.sizeLabel}
+									{line.preview.variantLabel}
 								</p>
 
 								<div class="flex items-center justify-between pt-1">

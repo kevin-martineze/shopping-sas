@@ -12,6 +12,7 @@
 	import { Label } from '$lib/components/atoms/label';
 	import * as Tabs from '$lib/components/atoms/tabs';
 	import ProductForm from '$lib/components/organisms/ProductForm.svelte';
+	import OptionEditor from '$lib/components/organisms/OptionEditor.svelte';
 	import VariantMatrix from '$lib/components/organisms/VariantMatrix.svelte';
 	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 	import SelectField from '$lib/components/molecules/SelectField.svelte';
@@ -26,12 +27,33 @@
 	const product = $derived(data.product);
 	const images = $derived([...product.product_images].sort((a, b) => a.sort_order - b.sort_order));
 
-	let uploadColorId = $state('');
+	let uploadOptionValueId = $state('');
 
-	const colorOptions = $derived([
+	/**
+	 * A qué valor corresponde la foto.
+	 *
+	 * Solo se ofrecen los valores con tono: asociar una foto a "500 g" no
+	 * significa nada, pero a "Rojo" sí — es la foto de la producto roja.
+	 */
+	const valueOptions = $derived([
 		{ value: '', label: 'Todas' },
-		...data.colors.map((color) => ({ value: color.id, label: color.name }))
+		...product.options.flatMap((eje) =>
+			eje.values
+				.filter((valor) => valor.hex !== null)
+				.map((valor) => ({ value: valor.id, label: `${eje.name}: ${valor.value}` }))
+		)
 	]);
+
+	/** El nombre de un valor, para etiquetar la foto ya subida. */
+	function nombreValor(id: string): string {
+		for (const eje of product.options) {
+			const valor = eje.values.find((candidato) => candidato.id === id);
+
+			if (valor) return valor.value;
+		}
+
+		return '';
+	}
 	let uploading = $state(false);
 </script>
 
@@ -63,7 +85,7 @@
 	<Tabs.List>
 		<Tabs.Trigger value="datos">Datos</Tabs.Trigger>
 		<Tabs.Trigger value="fotos">Fotos ({images.length})</Tabs.Trigger>
-		<Tabs.Trigger value="tallas">Tallas y stock ({product.variants.length})</Tabs.Trigger>
+		<Tabs.Trigger value="variaciones">Variaciones y stock ({product.variants.length})</Tabs.Trigger>
 	</Tabs.List>
 
 	<Tabs.Content value="datos" class="pt-6">
@@ -77,8 +99,6 @@
 					name: product.name,
 					slug: product.slug,
 					description: product.description ?? '',
-					material: product.material ?? '',
-					care: product.care ?? '',
 					categoryId: product.category_id ?? '',
 					basePrice: product.base_price,
 					compareAtPrice: product.compare_at_price ?? '',
@@ -89,9 +109,9 @@
 		</div>
 
 		<div class="border-destructive/40 mt-8 max-w-3xl border p-6">
-			<h2 class="text-lg">Eliminar prenda</h2>
+			<h2 class="text-lg">Eliminar producto</h2>
 			<p class="text-muted-foreground mt-1 text-sm">
-				Si la prenda ya salió en pedidos no se borra: se archiva para conservar el historial.
+				Si la producto ya salió en pedidos no se borra: se archiva para conservar el historial.
 			</p>
 
 			<form method="POST" action="?/eliminar" class="mt-4" use:enhance>
@@ -128,11 +148,11 @@
 					<Label for="colorId">Color (opcional)</Label>
 					<SelectField
 						id="colorId"
-						name="colorId"
-						bind:value={uploadColorId}
+						name="optionValueId"
+						bind:value={uploadOptionValueId}
 						class="w-44"
 						placeholder="Todas"
-						options={colorOptions}
+						options={valueOptions}
 					/>
 				</div>
 
@@ -146,7 +166,7 @@
 			</form>
 
 			{#if images.length === 0}
-				<p class="text-muted-foreground text-sm">Esta prenda todavía no tiene fotos.</p>
+				<p class="text-muted-foreground text-sm">Esta producto todavía no tiene fotos.</p>
 			{:else}
 				<div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
 					{#each images as image, index (image.id)}
@@ -186,9 +206,9 @@
 								</form>
 							</div>
 
-							{#if image.color_id}
+							{#if image.option_value_id}
 								<p class="text-muted-foreground text-xs">
-									{data.colors.find((color) => color.id === image.color_id)?.name ?? ''}
+									{nombreValor(image.option_value_id)}
 								</p>
 							{/if}
 						</div>
@@ -198,12 +218,15 @@
 		</div>
 	</Tabs.Content>
 
-	<Tabs.Content value="tallas" class="pt-6">
-		<VariantMatrix
-			colors={data.colors}
-			sizes={data.sizes}
-			variants={product.variants}
-			basePrice={product.base_price}
-		/>
+	<Tabs.Content value="variaciones" class="pt-6">
+		<div class="space-y-6">
+			<OptionEditor options={product.options} />
+
+			<VariantMatrix
+				options={product.options}
+				variants={product.variants}
+				basePrice={product.base_price}
+			/>
+		</div>
 	</Tabs.Content>
 </Tabs.Root>

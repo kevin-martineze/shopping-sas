@@ -16,15 +16,13 @@ export const loginSchema = z.object({
 
 export const productSchema = z
 	.object({
-		name: z.string().trim().min(2, 'Ponle nombre a la prenda.').max(120),
+		name: z.string().trim().min(2, 'Ponle nombre a la producto.').max(120),
 		slug: z
 			.string()
 			.trim()
 			.regex(/^[a-z0-9-]+$/, 'El slug solo admite minúsculas, números y guiones.')
 			.max(80),
 		description: z.string().trim().max(2000).optional().default(''),
-		material: z.string().trim().max(200).optional().default(''),
-		care: z.string().trim().max(400).optional().default(''),
 		categoryId: z.string().uuid().nullable().optional(),
 		basePrice: price,
 		compareAtPrice: price.nullable().optional(),
@@ -43,11 +41,52 @@ export const productSchema = z
 		}
 	);
 
+/**
+ * Generar las combinaciones que falten.
+ *
+ * Ya no se manda qué combinar: los ejes los declara el producto, y repetirlos
+ * aquí obligaría a que dos fuentes coincidieran.
+ */
 export const variantMatrixSchema = z.object({
 	productId: z.string().uuid(),
-	colorIds: z.array(z.string().uuid()).min(1, 'Elige al menos un color.'),
-	sizeIds: z.array(z.string().uuid()).min(1, 'Elige al menos una talla.'),
 	defaultStock: z.coerce.number().int().min(0).max(9999).default(0)
+});
+
+/** Un eje del producto con sus valores. El hex solo cuando el valor es un color. */
+export const productOptionsSchema = z.object({
+	productId: z.string().uuid(),
+	options: z
+		.array(
+			z.object({
+				name: z.string().trim().min(1, 'Ponle nombre al eje.').max(40),
+				values: z
+					.array(
+						z.object({
+							value: z.string().trim().min(1, 'Cada valor necesita un nombre.').max(60),
+							hex: z
+								.string()
+								.regex(/^#[0-9a-fA-F]{6}$/, 'El color va en formato #rrggbb.')
+								.optional()
+						})
+					)
+					.min(1, 'Un eje sin valores no divide nada.')
+					.max(50)
+			})
+		)
+		.max(3, 'Un producto admite hasta tres ejes.')
+});
+
+/** Los datos sueltos del producto: Material, ISBN, Origen… */
+export const productAttributesSchema = z.object({
+	productId: z.string().uuid(),
+	attributes: z
+		.array(
+			z.object({
+				name: z.string().trim().min(1, 'Ponle nombre al dato.').max(40),
+				value: z.string().trim().min(1, 'El dato necesita un valor.').max(200)
+			})
+		)
+		.max(20)
 });
 
 export const stockUpdateSchema = z.object({
@@ -112,28 +151,7 @@ export type ShippingZoneInput = z.infer<typeof shippingZoneSchema>;
 export type SettingsInput = z.infer<typeof settingsSchema>;
 export type CollectionInput = z.infer<typeof collectionSchema>;
 
-/** Catálogos base: colores, tallas y categorías. */
-
-export const colorSchema = z.object({
-	name: z.string().trim().min(2, 'Ponle nombre al color.').max(40),
-	hex: z
-		.string()
-		.trim()
-		.regex(/^#[0-9a-fA-F]{6}$/, 'El tono debe ser un color en formato #RRGGBB.'),
-	sortOrder: z.coerce.number().int().min(0).max(999).default(0),
-	active: z.boolean().default(true)
-});
-
-export const sizeSchema = z.object({
-	label: z
-		.string()
-		.trim()
-		.min(1, 'Escribe la talla.')
-		.max(12, 'Máximo 12 caracteres.')
-		.transform((value) => value.toUpperCase()),
-	sortOrder: z.coerce.number().int().min(0).max(999).default(0),
-	active: z.boolean().default(true)
-});
+/** Categorías: cómo agrupa la tienda sus productos. */
 
 export const categorySchema = z.object({
 	name: z.string().trim().min(2, 'Ponle nombre a la categoría.').max(60),
@@ -157,8 +175,6 @@ export const homeHighlightSchema = z.object({
 	active: z.boolean().default(true)
 });
 
-export type ColorInput = z.infer<typeof colorSchema>;
-export type SizeInput = z.infer<typeof sizeSchema>;
 export type CategoryInput = z.infer<typeof categorySchema>;
 export type HomeHighlightInput = z.infer<typeof homeHighlightSchema>;
 

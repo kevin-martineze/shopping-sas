@@ -34,8 +34,7 @@ function makeOrder(overrides: Partial<OrderWithItems> = {}): OrderWithItems {
 				product_id: 'product-1',
 				product_name: 'Blusa Vera',
 				product_slug: 'blusa-vera',
-				color_name: 'Crudo',
-				size_label: 'M',
+				variant_label: 'Crudo · M',
 				sku: 'BLUSAVERA-CRUDO-M',
 				unit_price: 189000,
 				qty: 1,
@@ -53,7 +52,7 @@ describe('buildOrderMessage', () => {
 		const message = buildOrderMessage(makeOrder(), options);
 
 		expect(message).toContain('Pedido #1042');
-		expect(message).toContain('1x Blusa Vera — Crudo / M — $189.000');
+		expect(message).toContain('1x Blusa Vera — Crudo · M — $189.000');
 		expect(message).toContain('Subtotal: $189.000');
 		expect(message).toContain('Envío (Bogotá): $8.000');
 		expect(message).toContain('Total: $197.000');
@@ -91,10 +90,9 @@ describe('buildOrderMessage', () => {
 			id: `item-${index}`,
 			variant_id: `variant-${index}`,
 			product_id: `product-${index}`,
-			product_name: `Prenda de nombre largo número ${index}`,
-			product_slug: `prenda-${index}`,
-			color_name: 'Terracota',
-			size_label: 'M',
+			product_name: `Producto de nombre largo número ${index}`,
+			product_slug: `producto-${index}`,
+			variant_label: 'Terracota',
 			sku: `SKU-${index}`,
 			unit_price: 189000,
 			qty: 2,
@@ -104,7 +102,7 @@ describe('buildOrderMessage', () => {
 		const message = buildOrderMessage(makeOrder({ items }), options);
 
 		expect(message.length).toBeLessThanOrEqual(1800);
-		expect(message).toContain('120 prendas (60 referencias)');
+		expect(message).toContain('120 productos (60 referencias)');
 		expect(message).toContain(options.orderUrl);
 	});
 });

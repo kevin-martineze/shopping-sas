@@ -31,7 +31,7 @@
 <header class="mb-6 space-y-1">
 	<h1 class="text-3xl">Avisos de reposición</h1>
 	<p class="text-muted-foreground text-sm">
-		Clientas que pidieron aviso cuando su talla vuelva. Son ventas casi hechas.
+		Clientas que pidieron aviso cuando su variación vuelva. Son ventas casi hechas.
 	</p>
 </header>
 
@@ -53,7 +53,7 @@
 				<Table.Root class="table-stack">
 					<Table.Header>
 						<Table.Row>
-							<Table.Head>Prenda</Table.Head>
+							<Table.Head>Producto</Table.Head>
 							<Table.Head class="w-48">Contacto</Table.Head>
 							<Table.Head class="w-32">Pedido el</Table.Head>
 							<Table.Head class="w-32">Estado</Table.Head>
@@ -64,12 +64,12 @@
 					<Table.Body>
 						{#each pending as request (request.id)}
 							<Table.Row>
-								<Table.Cell data-label="Prenda">
+								<Table.Cell data-label="Producto">
 									<span class="block text-sm font-medium">
-										{request.variants?.products?.name ?? 'Prenda eliminada'}
+										{request.variants?.products?.name ?? 'Producto eliminada'}
 									</span>
 									<span class="text-muted-foreground text-xs">
-										{request.variants?.colors?.name ?? ''} / {request.variants?.sizes?.label ?? ''}
+										{request.variants?.variant_label ?? ''}
 									</span>
 								</Table.Cell>
 
@@ -126,8 +126,8 @@
 				<Table.Root class="table-stack">
 					<Table.Header>
 						<Table.Row>
-							<Table.Head>Prenda</Table.Head>
-							<Table.Head class="w-32">Talla</Table.Head>
+							<Table.Head>Producto</Table.Head>
+							<Table.Head class="w-32">Variación</Table.Head>
 							<Table.Head class="w-48">Contacto</Table.Head>
 							<Table.Head class="w-32">Pedido el</Table.Head>
 						</Table.Row>
@@ -136,11 +136,11 @@
 					<Table.Body>
 						{#each done as request (request.id)}
 							<Table.Row>
-								<Table.Cell data-label="Prenda" class="text-sm">
-									{request.variants?.products?.name ?? 'Prenda eliminada'}
+								<Table.Cell data-label="Producto" class="text-sm">
+									{request.variants?.products?.name ?? 'Producto eliminada'}
 								</Table.Cell>
-								<Table.Cell data-label="Talla" class="text-muted-foreground text-sm">
-									{request.variants?.sizes?.label ?? ''}
+								<Table.Cell data-label="Variación" class="text-muted-foreground text-sm">
+									{request.variants?.variant_label ?? ''}
 								</Table.Cell>
 								<Table.Cell data-label="Contacto" class="text-muted-foreground text-sm"
 									>{request.contact}</Table.Cell

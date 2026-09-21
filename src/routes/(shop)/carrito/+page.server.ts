@@ -119,7 +119,7 @@ export const actions: Actions = {
 					: '';
 
 				return fail(409, {
-					checkoutError: `Se agotaron algunas prendas mientras armabas el pedido${detail ? `: ${detail}` : ''}. Ajusta las cantidades e intenta de nuevo.`
+					checkoutError: `Se agotaron algunas productos mientras armabas el pedido${detail ? `: ${detail}` : ''}. Ajusta las cantidades e intenta de nuevo.`
 				});
 			}
 

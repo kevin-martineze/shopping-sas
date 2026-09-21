@@ -31,27 +31,44 @@
 
 	const product = $derived(data.product);
 
-	let selectedColorId = $state<string | null>(null);
-	let selectedSizeId = $state<string | null>(null);
+	/** Un valor elegido por eje, indexado por id del eje. */
+	let selected = $state<Record<string, string>>({});
 	let restockContact = $state('');
 	let submittingRestock = $state(false);
 
-	// Al cambiar de prenda se reinicia la selección al primer color con stock.
+	/**
+	 * Al cambiar de producto se arranca en la primera variante con existencias.
+	 *
+	 * Se propone una combinación entera y no un valor suelto: con tres ejes,
+	 * elegir solo el primero deja a la clienta ante dos listas sin nada
+	 * seleccionado, y la de abajo tachada sin explicar por qué.
+	 */
 	$effect(() => {
-		const firstAvailable =
-			product.colors.find((color) =>
-				product.variants.some((variant) => variant.colorId === color.id && variant.stock > 0)
-			) ?? product.colors.at(0);
+		const primera =
+			product.variants.find((variante) => variante.stock > 0) ?? product.variants.at(0);
 
-		selectedColorId = firstAvailable?.id ?? null;
-		selectedSizeId = null;
+		selected = Object.fromEntries(
+			product.options.flatMap((eje) => {
+				const valor = eje.values.find((candidato) => primera?.valueIds.includes(candidato.id));
+
+				return valor ? [[eje.id, valor.id] as const] : [];
+			})
+		);
 	});
 
-	const selectedVariant = $derived(
-		product.variants.find(
-			(variant) => variant.colorId === selectedColorId && variant.sizeId === selectedSizeId
-		) ?? null
-	);
+	const selectedVariant = $derived.by(() => {
+		const elegidos = Object.values(selected);
+
+		if (elegidos.length !== product.options.length) return null;
+
+		return (
+			product.variants.find(
+				(variante) =>
+					variante.valueIds.length === elegidos.length &&
+					elegidos.every((valor) => variante.valueIds.includes(valor))
+			) ?? null
+		);
+	});
 
 	const price = $derived(selectedVariant?.price ?? product.basePrice);
 	const isFavorite = $derived(favorites.has(product.slug));
@@ -69,14 +86,21 @@
 
 	function addToCart() {
 		if (!selectedVariant || selectedVariant.stock === 0) {
-			toast.error('Elige color y talla disponibles.');
+			toast.error('Elige una combinación disponible.');
 			return;
 		}
 
-		const color = product.colors.find((item) => item.id === selectedColorId);
-		const size = product.sizes.find((item) => item.id === selectedSizeId);
+		const etiqueta = product.options
+			.map((eje) => eje.values.find((valor) => valor.id === selected[eje.id])?.value)
+			.filter((valor): valor is string => Boolean(valor))
+			.join(' · ');
+
 		const image =
-			product.images.find((item) => item.color_id === selectedColorId) ?? product.images.at(0);
+			product.images.find((item) =>
+				item.option_value_id === null
+					? false
+					: selectedVariant.valueIds.includes(item.option_value_id)
+			) ?? product.images.at(0);
 
 		cart.add({
 			variantId: selectedVariant.id,
@@ -84,8 +108,7 @@
 			preview: {
 				productName: product.name,
 				productSlug: product.slug,
-				colorName: color?.name ?? '',
-				sizeLabel: size?.label ?? '',
+				variantLabel: etiqueta,
 				unitPrice: selectedVariant.price,
 				imageUrl: image?.url_thumb ?? null
 			}
@@ -143,7 +166,7 @@
 			images={product.images}
 			productName={product.name}
 			productSlug={product.slug}
-			activeColorId={selectedColorId}
+			activeValueId={selectedVariant?.valueIds.at(0) ?? null}
 		/>
 
 		<div class="lg:sticky lg:top-24 lg:self-start">
@@ -154,15 +177,10 @@
 				</header>
 
 				<VariantPicker
-					colors={product.colors}
-					sizes={product.sizes}
+					options={product.options}
 					variants={product.variants}
-					{selectedColorId}
-					{selectedSizeId}
-					onselect={(next) => {
-						selectedColorId = next.colorId;
-						selectedSizeId = next.sizeId;
-					}}
+					{selected}
+					onselect={(next) => (selected = next)}
 				/>
 
 				<div class="space-y-3">
@@ -170,7 +188,7 @@
 						<div class="border-border space-y-3 border p-4">
 							<div class="flex items-center gap-2">
 								<BellRing class="size-4" />
-								<p class="text-sm font-medium">Esta talla está agotada</p>
+								<p class="text-sm font-medium">Esta variación está agotada</p>
 							</div>
 
 							{#if form?.restockOk}
@@ -219,7 +237,7 @@
 							disabled={selectedVariant === null}
 						>
 							<ShoppingBag class="mr-2 size-4" />
-							{selectedVariant ? `Agregar — ${formatMoney(price)}` : 'Elige talla'}
+							{selectedVariant ? `Agregar — ${formatMoney(price)}` : 'Elige variación'}
 						</Button>
 					{/if}
 
@@ -246,19 +264,14 @@
 				{/if}
 
 				<Accordion.Root type="single" class="border-border border-t">
-					{#if product.material}
-						<Accordion.Item value="material">
-							<Accordion.Trigger>Materiales</Accordion.Trigger>
-							<Accordion.Content>{product.material}</Accordion.Content>
+					<!-- Los datos del producto los pone quien vende: "Material" en ropa,
+					     "ISBN" en una librería, "Origen" en café. -->
+					{#each product.attributes as dato (dato.name)}
+						<Accordion.Item value={dato.name}>
+							<Accordion.Trigger>{dato.name}</Accordion.Trigger>
+							<Accordion.Content>{dato.value}</Accordion.Content>
 						</Accordion.Item>
-					{/if}
-
-					{#if product.care}
-						<Accordion.Item value="cuidados">
-							<Accordion.Trigger>Cuidados</Accordion.Trigger>
-							<Accordion.Content>{product.care}</Accordion.Content>
-						</Accordion.Item>
-					{/if}
+					{/each}
 
 					<Accordion.Item value="envios">
 						<Accordion.Trigger>Envíos y pedido</Accordion.Trigger>
@@ -296,7 +309,7 @@
 			disabled={selectedVariant === null}
 		>
 			<ShoppingBag class="mr-2 size-4" />
-			{selectedVariant ? `Agregar — ${formatMoney(price)}` : 'Elige talla'}
+			{selectedVariant ? `Agregar — ${formatMoney(price)}` : 'Elige variación'}
 		</Button>
 	</div>
 {/if}

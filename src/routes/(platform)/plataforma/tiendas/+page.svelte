@@ -112,7 +112,7 @@
 					<Table.Head>Plan</Table.Head>
 					<Table.Head>Pago hasta</Table.Head>
 					<Table.Head>Dueña</Table.Head>
-					<Table.Head class="text-right">Prendas / pedidos</Table.Head>
+					<Table.Head class="text-right">Productos / pedidos</Table.Head>
 				</Table.Row>
 			</Table.Header>
 
@@ -132,7 +132,7 @@
 						<Table.Cell data-label="Dueña" class="max-w-48 truncate">
 							{owner?.email ?? '—'}
 						</Table.Cell>
-						<Table.Cell data-label="Prendas / pedidos" class="text-right tabular-nums">
+						<Table.Cell data-label="Productos / pedidos" class="text-right tabular-nums">
 							{store.product_count} / {store.order_count}
 						</Table.Cell>
 					</Table.Row>
@@ -149,9 +149,9 @@
 			<div class="border-border bg-background border p-4 text-sm">
 				<p class="font-medium">{plan.name} · {formatMoney(plan.price_cop)}/mes</p>
 				<p class="text-muted-foreground">
-					{plan.max_products ?? 'Sin límite de'} prendas ·
+					{plan.max_products ?? 'Sin límite de'} productos ·
 					{plan.max_orders_per_month ?? 'sin límite de'} pedidos/mes ·
-					{plan.max_images_per_product ?? 'sin límite de'} fotos por prenda
+					{plan.max_images_per_product ?? 'sin límite de'} fotos por producto
 					{plan.custom_domain ? '· dominio propio' : ''}
 				</p>
 			</div>

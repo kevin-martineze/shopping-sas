@@ -1,13 +1,19 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 
 import type { Actions, PageServerLoad } from './$types';
-import { productSchema, stockUpdateSchema, variantMatrixSchema } from '$lib/schemas/admin';
+import {
+	productAttributesSchema,
+	productOptionsSchema,
+	productSchema,
+	stockUpdateSchema,
+	variantMatrixSchema
+} from '$lib/schemas/admin';
 import {
 	generateVariants,
 	getProduct,
 	listCategories,
-	listColors,
-	listSizes,
+	setProductAttributes,
+	setProductOptions,
 	removeProduct,
 	removeProductImage,
 	removeVariant,
@@ -24,21 +30,15 @@ export const load: PageServerLoad = async (event) => {
 	const product = await getProduct(ctx, event.params.id);
 
 	if (!product.ok && (product.status === 404 || product.status === 400)) {
-		error(404, 'Esa prenda no existe.');
+		error(404, 'Ese producto no existe.');
 	}
 
-	// Para elegir en la matriz y en el formulario, solo lo visible.
-	const [categories, colors, sizes] = await Promise.all([
-		listCategories(ctx),
-		listColors(ctx),
-		listSizes(ctx)
-	]);
+	// Los ejes ya vienen dentro del producto: son suyos, no de la tienda.
+	const categories = await listCategories(ctx);
 
 	return {
 		product: orFail(product),
-		categories: orFail(categories),
-		colors: orFail(colors),
-		sizes: orFail(sizes)
+		categories: orFail(categories)
 	};
 };
 
@@ -53,8 +53,6 @@ export const actions: Actions = {
 			name,
 			slug: rawSlug === '' ? slugify(name) : rawSlug,
 			description: formData.get('description') ?? '',
-			material: formData.get('material') ?? '',
-			care: formData.get('care') ?? '',
 			categoryId: String(formData.get('categoryId') ?? '') || null,
 			basePrice: formData.get('basePrice'),
 			compareAtPrice: String(formData.get('compareAtPrice') ?? '') || null,
@@ -72,8 +70,6 @@ export const actions: Actions = {
 			name: input.name,
 			slug: input.slug,
 			description: input.description,
-			material: input.material,
-			care: input.care,
 			categoryId: input.categoryId ?? null,
 			basePrice: input.basePrice,
 			compareAtPrice: input.compareAtPrice ?? null,
@@ -87,27 +83,86 @@ export const actions: Actions = {
 	},
 
 	/**
-	 * Crea las combinaciones talla × color que falten. Nunca borra variantes
+	 * Crea las combinaciones variación × color que falten. Nunca borra variantes
 	 * existentes: podrían estar dentro de un pedido.
 	 */
+	/**
+	 * Los ejes del producto.
+	 *
+	 * Llegan como JSON en un campo oculto: son arreglos anidados de largo
+	 * variable y `FormData` los aplanaría a `options[0][values][1][hex]`, que
+	 * habría que volver a armar aquí. El JSON se valida igual antes de salir.
+	 */
+	ejes: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
+
+		let crudo: unknown;
+
+		try {
+			crudo = JSON.parse(String(formData.get('options') ?? '[]'));
+		} catch {
+			return fail(400, { error: 'No se entendieron los ejes. Vuelve a intentarlo.' });
+		}
+
+		const parsed = productOptionsSchema.safeParse({
+			productId: event.params.id,
+			options: crudo
+		});
+
+		if (!parsed.success) {
+			return fail(400, { error: parsed.error.issues.at(0)?.message ?? 'Revisa los ejes.' });
+		}
+
+		const result = await setProductOptions(ctx, event.params.id, parsed.data.options);
+
+		if (!result.ok) return failWith(result);
+
+		return { ok: true, message: 'Ejes guardados.' };
+	},
+
+	atributos: async (event) => {
+		const ctx = panelContext(event);
+		const formData = await event.request.formData();
+
+		let crudo: unknown;
+
+		try {
+			crudo = JSON.parse(String(formData.get('attributes') ?? '[]'));
+		} catch {
+			return fail(400, { error: 'No se entendieron los datos. Vuelve a intentarlo.' });
+		}
+
+		const parsed = productAttributesSchema.safeParse({
+			productId: event.params.id,
+			attributes: crudo
+		});
+
+		if (!parsed.success) {
+			return fail(400, { error: parsed.error.issues.at(0)?.message ?? 'Revisa los datos.' });
+		}
+
+		const result = await setProductAttributes(ctx, event.params.id, parsed.data.attributes);
+
+		if (!result.ok) return failWith(result);
+
+		return { ok: true, message: 'Datos guardados.' };
+	},
+
 	variantes: async (event) => {
 		const ctx = panelContext(event);
 		const formData = await event.request.formData();
 
 		const parsed = variantMatrixSchema.safeParse({
 			productId: event.params.id,
-			colorIds: formData.getAll('colorIds').map(String),
-			sizeIds: formData.getAll('sizeIds').map(String),
 			defaultStock: formData.get('defaultStock') ?? 0
 		});
 
 		if (!parsed.success) {
-			return fail(400, { error: parsed.error.issues.at(0)?.message ?? 'Elige colores y tallas.' });
+			return fail(400, { error: parsed.error.issues.at(0)?.message ?? 'Revisa los datos.' });
 		}
 
 		const result = await generateVariants(ctx, event.params.id, {
-			colorIds: parsed.data.colorIds,
-			sizeIds: parsed.data.sizeIds,
 			defaultStock: parsed.data.defaultStock
 		});
 
@@ -221,7 +276,7 @@ export const actions: Actions = {
 
 		if (result.data.result === 'archived') {
 			return fail(409, {
-				error: 'Esta prenda está en pedidos, así que la archivamos en vez de borrarla.'
+				error: 'Esta producto está en pedidos, así que la archivamos en vez de borrarla.'
 			});
 		}
 

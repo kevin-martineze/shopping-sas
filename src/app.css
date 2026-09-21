@@ -244,8 +244,8 @@
 
 	/*
 	 * El sitio que vende Globerce no es una tienda: su público decide una
-	 * herramienta de trabajo, no una prenda. Los titulares van en la sans, con
-	 * peso, como se espera de un producto; la serif queda para el logotipo.
+	 * herramienta de trabajo, no algo que ponerse. Los titulares van en la sans,
+	 * con peso, como se espera de un producto; la serif queda para el logotipo.
 	 */
 	.marketing :is(h1, h2, h3) {
 		@apply font-sans font-semibold tracking-tight;

@@ -85,7 +85,7 @@
 	<div class="space-y-6">
 		<Card.Root>
 			<Card.Header>
-				<Card.Title>Prendas</Card.Title>
+				<Card.Title>Productos</Card.Title>
 			</Card.Header>
 
 			<Card.Content>
@@ -95,7 +95,7 @@
 							<div>
 								<a href="/tienda/{item.product_slug}" class="font-medium">{item.product_name}</a>
 								<p class="text-muted-foreground text-xs">
-									{item.color_name} · Talla {item.size_label}
+									{item.variant_label}
 									{#if item.sku}· {item.sku}{/if}
 								</p>
 							</div>

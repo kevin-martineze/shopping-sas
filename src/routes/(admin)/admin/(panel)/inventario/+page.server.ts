@@ -8,7 +8,7 @@ import { failWith, orFail, panelContext } from '$lib/server/context';
 export const load: PageServerLoad = async (event) => {
 	const onlyLow = event.url.searchParams.get('bajo') === '1';
 
-	// Agrupado por prenda, empezando por lo que está por agotarse, para editar
+	// Agrupado por producto, empezando por lo que está por agotarse, para editar
 	// como quien revisa el perchero.
 	return { groups: orFail(await listInventory(panelContext(event), onlyLow)), onlyLow };
 };

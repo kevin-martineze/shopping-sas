@@ -1,12 +1,10 @@
 import type {
 	CatalogFacets,
 	Category,
-	Color,
 	ProductCard,
 	ProductDetail,
 	ProductFilters,
-	ProductSort,
-	Size
+	ProductSort
 } from '$lib/domain/catalog';
 import type { Collection, HomeHighlight, StoreSettings } from '$lib/domain/settings';
 import type { ApiResult } from '$lib/server/api/client';
@@ -44,9 +42,7 @@ const cardSchema = z
 				alt: z.string().nullable()
 			})
 		),
-		colors: z.array(
-			z.object({ id: z.string(), slug: z.string(), name: z.string(), hex: z.string() })
-		),
+		swatches: z.array(z.object({ value: z.string(), hex: z.string() })),
 		inStock: z.boolean()
 	})
 	.transform((card): ProductCard => ({
@@ -61,7 +57,7 @@ const cardSchema = z
 			lqip: image.lqip,
 			alt: image.alt
 		})),
-		colors: card.colors,
+		swatches: card.swatches,
 		inStock: card.inStock
 	}));
 
@@ -80,32 +76,6 @@ const categorySchema = z
 		name: category.name,
 		parent_id: category.parentId,
 		sort_order: category.sortOrder,
-		active: true
-	}));
-
-const colorSchema = z
-	.object({
-		id: z.string(),
-		slug: z.string(),
-		name: z.string(),
-		hex: z.string(),
-		sortOrder: z.number()
-	})
-	.transform((color): Color => ({
-		id: color.id,
-		slug: color.slug,
-		name: color.name,
-		hex: color.hex,
-		sort_order: color.sortOrder,
-		active: true
-	}));
-
-const sizeSchema = z
-	.object({ id: z.string(), label: z.string(), sortOrder: z.number() })
-	.transform((size): Size => ({
-		id: size.id,
-		label: size.label,
-		sort_order: size.sortOrder,
 		active: true
 	}));
 
@@ -198,10 +168,27 @@ const pageSchema = z.object({
 	pageCount: z.number()
 });
 
+const facetValueSchema = z.object({
+	value: z.string(),
+	hex: z.string().nullable(),
+	sortOrder: z.number()
+});
+
+/**
+ * Un eje por el que se puede filtrar, agrupado entre todos los productos.
+ *
+ * Sale de lo publicado y no de una lista de la tienda: si nadie vende por
+ * variación, el filtro de variación no aparece.
+ */
+const facetOptionSchema = z.object({
+	name: z.string(),
+	sortOrder: z.number(),
+	values: z.array(facetValueSchema)
+});
+
 const facetsSchema = z.object({
 	categories: z.array(categorySchema),
-	colors: z.array(colorSchema),
-	sizes: z.array(sizeSchema),
+	options: z.array(facetOptionSchema),
 	priceRange: z.object({ min: z.number(), max: z.number() })
 });
 
@@ -211,8 +198,6 @@ const detailSchema = z
 		slug: z.string(),
 		name: z.string(),
 		description: z.string().nullable(),
-		material: z.string().nullable(),
-		care: z.string().nullable(),
 		basePrice: z.number(),
 		compareAtPrice: z.number().nullable(),
 		categoryName: z.string().nullable(),
@@ -220,7 +205,7 @@ const detailSchema = z
 		images: z.array(
 			z.object({
 				id: z.string(),
-				colorId: z.string().nullable(),
+				optionValueId: z.string().nullable(),
 				urlFull: z.string(),
 				urlCard: z.string(),
 				urlThumb: z.string(),
@@ -229,13 +214,26 @@ const detailSchema = z
 				sortOrder: z.number()
 			})
 		),
-		colors: z.array(colorSchema),
-		sizes: z.array(sizeSchema),
+		options: z.array(
+			z.object({
+				id: z.string(),
+				name: z.string(),
+				sortOrder: z.number(),
+				values: z.array(
+					z.object({
+						id: z.string(),
+						value: z.string(),
+						hex: z.string().nullable(),
+						sortOrder: z.number()
+					})
+				)
+			})
+		),
+		attributes: z.array(z.object({ name: z.string(), value: z.string() })),
 		variants: z.array(
 			z.object({
 				id: z.string(),
-				colorId: z.string(),
-				sizeId: z.string(),
+				valueIds: z.array(z.string()),
 				sku: z.string().nullable(),
 				stock: z.number(),
 				price: z.number()
@@ -247,15 +245,13 @@ const detailSchema = z
 		slug: product.slug,
 		name: product.name,
 		description: product.description,
-		material: product.material,
-		care: product.care,
 		basePrice: product.basePrice,
 		compareAtPrice: product.compareAtPrice,
 		categoryName: product.categoryName,
 		categorySlug: product.categorySlug,
 		images: product.images.map((image) => ({
 			id: image.id,
-			color_id: image.colorId,
+			option_value_id: image.optionValueId,
 			url_full: image.urlFull,
 			url_card: image.urlCard,
 			url_thumb: image.urlThumb,
@@ -263,8 +259,8 @@ const detailSchema = z
 			alt: image.alt,
 			sort_order: image.sortOrder
 		})),
-		colors: product.colors,
-		sizes: product.sizes,
+		options: product.options,
+		attributes: product.attributes,
 		variants: product.variants
 	}));
 
@@ -310,14 +306,13 @@ export function parseFilters(url: URL): ProductFilters {
 	// un listado razonable en vez de un error.
 	return {
 		category: url.searchParams.get('categoria')?.slice(0, 80) || null,
-		colors: url.searchParams
-			.getAll('color')
+		// `?opcion=Color:Rojo`. Se descarta lo que no tenga esa forma: un enlace
+		// manipulado muestra el listado completo en vez de un error.
+		options: url.searchParams
+			.getAll('opcion')
 			.slice(0, 20)
-			.map((color) => color.slice(0, 80)),
-		sizes: url.searchParams
-			.getAll('talla')
-			.slice(0, 20)
-			.map((size) => size.slice(0, 12)),
+			.map((entrada) => entrada.slice(0, 120))
+			.filter((entrada) => /^[^:]+:[^:]+$/.test(entrada)),
 		minPrice: Number.isFinite(min) && min > 0 ? Math.min(min, MAX_PRICE) : null,
 		maxPrice: Number.isFinite(max) && max > 0 ? Math.min(max, MAX_PRICE) : null,
 		sort: isProductSort(sortParam) ? sortParam : 'nuevo',
@@ -353,8 +348,7 @@ export function searchProducts(
 	const params = new URLSearchParams();
 
 	if (filters.category) params.set('category', filters.category);
-	for (const color of filters.colors) params.append('colors', color);
-	for (const size of filters.sizes) params.append('sizes', size);
+	for (const opcion of filters.options) params.append('options', opcion);
 	if (filters.minPrice !== null) params.set('minPrice', String(filters.minPrice));
 	if (filters.maxPrice !== null) params.set('maxPrice', String(filters.maxPrice));
 	if (filters.q) params.set('q', filters.q);

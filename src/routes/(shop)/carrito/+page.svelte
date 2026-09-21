@@ -63,7 +63,7 @@
 		<p class="eyebrow">Paso 1 de 2</p>
 		<h1 class="text-4xl md:text-5xl">Tu pedido</h1>
 		<p class="text-muted-foreground text-sm">
-			Confirma las prendas y tus datos. Al terminar se abre WhatsApp con el pedido escrito.
+			Confirma las productos y tus datos. Al terminar se abre WhatsApp con el pedido escrito.
 		</p>
 	</header>
 
@@ -105,7 +105,7 @@
 			<section class="space-y-6">
 				{#if priced && priced.removed.length > 0}
 					<div class="border-destructive/40 bg-destructive/5 border p-4 text-sm">
-						<p class="font-medium">Quitamos prendas que ya no están disponibles:</p>
+						<p class="font-medium">Quitamos productos que ya no están disponibles:</p>
 						<ul class="text-muted-foreground mt-1 list-inside list-disc">
 							{#each priced.removed as removed (removed.variantId)}
 								<li>{removed.label}</li>
@@ -136,7 +136,7 @@
 											{line.preview.productName}
 										</a>
 										<p class="text-muted-foreground text-xs">
-											{line.preview.colorName} · Talla {line.preview.sizeLabel}
+											{line.preview.variantLabel}
 										</p>
 									</div>
 
@@ -144,7 +144,7 @@
 										type="button"
 										onclick={() => cart.remove(line.variantId)}
 										class="text-muted-foreground hover:text-destructive"
-										aria-label="Quitar prenda"
+										aria-label="Quitar producto"
 									>
 										<Trash2 class="size-4" />
 									</button>

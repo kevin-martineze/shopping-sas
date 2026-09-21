@@ -39,7 +39,7 @@
 	<section>
 		<h2>3. Lo que publicas</h2>
 		<p>
-			Tus prendas, tus fotos y tus textos son tuyos. Nos das permiso para alojarlos y mostrarlos,
+			Tus productos, tus fotos y tus textos son tuyos. Nos das permiso para alojarlos y mostrarlos,
 			que es lo que hace falta para que tu tienda exista en internet, y para nada más: no los usamos
 			en publicidad ni los cedemos a terceros.
 		</p>
@@ -58,8 +58,8 @@
 				Después, el plan se paga por mes adelantado. Los precios están en la página de inicio.
 			</li>
 			<li>
-				Cada plan tiene límites (prendas, pedidos al mes, fotos por prenda). Al llegar a uno no se
-				borra nada: solo no se puede crear más hasta cambiar de plan.
+				Cada plan tiene límites (productos, pedidos al mes, fotos por producto). Al llegar a uno no
+				se borra nada: solo no se puede crear más hasta cambiar de plan.
 			</li>
 			<li>
 				Cambiar de plan se aplica al pagarlo y el mes nuevo corre desde que termina el vigente.

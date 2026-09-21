@@ -64,12 +64,12 @@
 			<Heart class="text-muted-foreground size-10" />
 			<h2 class="text-2xl">Todavía no guardas nada</h2>
 			<p class="text-muted-foreground max-w-sm text-sm">
-				Toca el corazón en cualquier prenda para tenerla a mano.
+				Toca el corazón en cualquier producto para tenerla a mano.
 			</p>
 			<Button href="/tienda">Ver la tienda</Button>
 		</div>
 	{:else if loading && products.length === 0}
-		<p class="text-muted-foreground text-sm">Cargando tus prendas…</p>
+		<p class="text-muted-foreground text-sm">Cargando tus productos…</p>
 	{:else}
 		<ProductGrid {products} columns={4} />
 	{/if}

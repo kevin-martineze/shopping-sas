@@ -21,7 +21,7 @@
 
 	<p class="text-muted-foreground max-w-md text-balance">
 		{isNotFound
-			? 'Puede que la prenda ya no esté disponible o que el enlace haya cambiado.'
+			? 'Puede que la producto ya no esté disponible o que el enlace haya cambiado.'
 			: (page.error?.message ?? 'Vuelve a intentarlo en un momento.')}
 	</p>
 

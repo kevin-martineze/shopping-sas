@@ -76,8 +76,7 @@ const orderItemSchema = z
 		productId: z.string().nullable(),
 		productName: z.string(),
 		productSlug: z.string(),
-		colorName: z.string(),
-		sizeLabel: z.string(),
+		variantLabel: z.string(),
 		sku: z.string().nullable(),
 		unitPrice: z.number(),
 		qty: z.number(),
@@ -89,8 +88,7 @@ const orderItemSchema = z
 		product_id: item.productId,
 		product_name: item.productName,
 		product_slug: item.productSlug,
-		color_name: item.colorName,
-		size_label: item.sizeLabel,
+		variant_label: item.variantLabel,
 		sku: item.sku,
 		unit_price: item.unitPrice,
 		qty: item.qty,
@@ -166,8 +164,7 @@ const dashboardSchema = z
 				variantId: z.string(),
 				stock: z.number(),
 				productName: z.string(),
-				colorName: z.string(),
-				sizeLabel: z.string()
+				variantLabel: z.string()
 			})
 		),
 		pendingRestock: z.number()
@@ -328,8 +325,7 @@ const restockSchema = z
 		stock: z.number(),
 		productName: z.string(),
 		productSlug: z.string(),
-		colorName: z.string(),
-		sizeLabel: z.string()
+		variantLabel: z.string()
 	})
 	.transform((request) => ({
 		id: request.id,
@@ -339,8 +335,7 @@ const restockSchema = z
 		variants: {
 			id: request.variantId,
 			stock: request.stock,
-			colors: { name: request.colorName },
-			sizes: { label: request.sizeLabel },
+			variant_label: request.variantLabel,
 			products: { name: request.productName, slug: request.productSlug }
 		}
 	}));

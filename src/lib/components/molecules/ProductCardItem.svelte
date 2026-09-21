@@ -26,7 +26,7 @@
 	<a href="/tienda/{product.slug}" class="block focus-visible:outline-none">
 		<div
 			class="relative overflow-hidden"
-			style="view-transition-name: prenda-{product.slug.replace(/[^a-z0-9]/g, '-')}"
+			style="view-transition-name: producto-{product.slug.replace(/[^a-z0-9]/g, '-')}"
 		>
 			{#if primary}
 				<ProductImage
@@ -72,7 +72,7 @@
 				<span
 					class="bg-background/95 text-foreground block rounded-full px-4 py-2 text-center text-xs font-medium backdrop-blur"
 				>
-					Ver prenda
+					Ver producto
 				</span>
 			</div>
 		</div>
@@ -84,11 +84,11 @@
 	</a>
 
 	<div class="mt-2 flex items-center gap-1.5">
-		{#each product.colors as color (color.id)}
+		{#each product.swatches as color (color.value)}
 			<span
 				class="border-border size-3 rounded-full border"
 				style="background-color: {color.hex}"
-				title={color.name}
+				title={color.value}
 			></span>
 		{/each}
 	</div>
