@@ -128,7 +128,7 @@
 		{
 			pregunta: '¿Cómo me pagan mis clientes?',
 			respuesta:
-				'En línea, con tarjeta, PSE o Nequi: conectas tu cuenta de Wompi desde el panel y la plata llega directo a ti, sin pasar por nosotros. Quien prefiera escribirte por WhatsApp también puede, y el pedido le llega escrito con el total.'
+				'En línea, con tarjeta, transferencia o billetera: conectas tu cuenta de Wompi desde el panel y la plata llega directo a ti, sin pasar por nosotros. Quien prefiera escribirte por WhatsApp también puede, y el pedido le llega escrito con el total.'
 		},
 		{
 			pregunta: '¿Necesito saber de tecnología?',
@@ -181,7 +181,8 @@
 		<main>
 			<!-- Portada en pizarra: titular al centro, y debajo el producto
 			     flotando —un pedido que acaba de llegar y la ficha de inventario
-			     que lo descontó—. Las dos son HTML, no imágenes. -->
+			     que lo descontó—. Las dos son HTML, no imágenes. Las insignias
+			     dicen lo que se promete, no de dónde es la empresa. -->
 			<section
 				class="marketing-dark bg-background text-foreground overflow-hidden pt-32 pb-16 md:pt-40 md:pb-24 lg:pt-44"
 			>
@@ -193,7 +194,7 @@
 						</li>
 						<li class="flex items-center gap-2">
 							<BadgeCheck class="text-primary size-4" aria-hidden="true" />
-							Hecho en Colombia
+							Sin comisión por venta
 						</li>
 					</ul>
 
@@ -340,8 +341,8 @@
 								<p class="text-primary text-sm font-semibold tabular-nums">03</p>
 								<h3 class="mt-2 text-xl md:text-2xl">Te pagan en línea, directo a tu cuenta</h3>
 								<p class="text-muted-foreground mt-2 text-pretty">
-									Tarjeta, PSE o Nequi con tu propia cuenta de Wompi. Quien prefiera escribirte por
-									WhatsApp, también puede.
+									Tarjeta, transferencia o billetera, con tu propia cuenta de Wompi. Quien prefiera
+									escribirte por WhatsApp, también puede.
 								</p>
 							</div>
 						</div>

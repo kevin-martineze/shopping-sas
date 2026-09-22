@@ -55,9 +55,7 @@
 				<p class="text-muted-foreground mt-5 text-sm text-pretty">
 					Tu tienda en línea, se venda lo que se venda. {TRIAL_DAYS} días gratis, sin comisión por venta.
 				</p>
-				<p class="text-muted-foreground mt-5 text-sm">
-					Hecho en Colombia, para quien vende todos los días.
-				</p>
+				<p class="text-muted-foreground mt-5 text-sm">Para quien vende todos los días.</p>
 			</div>
 
 			{#each columnas as columna (columna.titulo)}

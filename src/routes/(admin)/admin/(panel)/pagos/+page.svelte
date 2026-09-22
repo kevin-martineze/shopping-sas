@@ -37,8 +37,9 @@
 <header class="mb-6 space-y-1">
 	<h1 class="text-3xl">Cobrar en línea</h1>
 	<p class="text-muted-foreground max-w-2xl text-sm">
-		Conecta tu cuenta de Wompi y tus clientes podrán pagar con tarjeta, PSE o Nequi sin salir de tu
-		tienda. La plata llega a tu cuenta: Globerce no la toca ni cobra comisión por venta.
+		Conecta tu cuenta de Wompi y tus clientes podrán pagar con tarjeta, transferencia o billetera
+		sin salir de tu tienda. La plata llega a tu cuenta: Globerce no la toca ni cobra comisión por
+		venta.
 	</p>
 </header>
 
