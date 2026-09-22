@@ -1,6 +1,7 @@
 import { fail } from '@sveltejs/kit';
 
 import type { Actions, PageServerLoad } from './$types';
+import { completeWompiKeys, parseWompiKeys } from '$lib/domain/wompi';
 import { paymentKeysSchema } from '$lib/schemas/admin';
 import {
 	connectPaymentAccount,
@@ -22,14 +23,28 @@ export const load: PageServerLoad = async (event) => {
 export const actions: Actions = {
 	conectar: async (event) => {
 		const formData = await event.request.formData();
+
+		// El cuadro de pegado ya manda las cuatro reconocidas en campos ocultos
+		// (`WompiKeysPaste`), pero sin JavaScript llegan vacíos y lo único que
+		// viaja es el texto: se reconoce aquí, igual que en el cliente.
+		const pasteText = String(formData.get('pasteText') ?? '');
+		const pasted = pasteText ? completeWompiKeys(parseWompiKeys(pasteText)) : null;
+
 		const parsed = paymentKeysSchema.safeParse({
-			publicKey: formData.get('publicKey'),
-			privateKey: formData.get('privateKey'),
-			integritySecret: formData.get('integritySecret'),
-			eventsSecret: formData.get('eventsSecret')
+			publicKey: pasted?.publicKey ?? formData.get('publicKey'),
+			privateKey: pasted?.privateKey ?? formData.get('privateKey'),
+			integritySecret: pasted?.integritySecret ?? formData.get('integritySecret'),
+			eventsSecret: pasted?.eventsSecret ?? formData.get('eventsSecret')
 		});
 
-		if (!parsed.success) return fail(400, { errors: fieldErrors(parsed.error) });
+		if (!parsed.success) {
+			return fail(400, {
+				errors: fieldErrors(parsed.error),
+				error: pasteText
+					? 'No reconocimos las cuatro llaves en lo que pegaste. Revisa el formulario manual, abajo.'
+					: undefined
+			});
+		}
 
 		const result = await connectPaymentAccount(panelContext(event), parsed.data);
 

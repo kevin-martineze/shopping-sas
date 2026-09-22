@@ -6,9 +6,11 @@
 	import { enhance } from '$app/forms';
 
 	import type { ActionData, PageData } from './$types';
+	import * as Accordion from '$lib/components/atoms/accordion';
 	import { Button } from '$lib/components/atoms/button';
 	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 	import TextField from '$lib/components/molecules/TextField.svelte';
+	import WompiKeysPaste from '$lib/components/molecules/WompiKeysPaste.svelte';
 
 	interface Props {
 		data: PageData;
@@ -80,41 +82,52 @@
 					};
 				}}
 			>
-				<TextField
-					name="publicKey"
-					label="Llave pública"
-					error={errors.publicKey}
-					hint="Empieza por pub_. Es la que viaja en cada enlace de pago."
-					required
-				/>
-
-				<TextField
-					name="privateKey"
-					label="Llave privada"
-					error={errors.privateKey}
-					hint="Empieza por prv_. No vuelve a mostrarse."
-					required
-				/>
-
-				<div class="grid gap-4 sm:grid-cols-2">
-					<TextField
-						name="integritySecret"
-						label="Secreto de integridad"
-						error={errors.integritySecret}
-						required
-					/>
-
-					<TextField
-						name="eventsSecret"
-						label="Secreto de eventos"
-						error={errors.eventsSecret}
-						required
-					/>
-				</div>
+				<WompiKeysPaste error={errors.publicKey ?? errors.privateKey ?? null} />
 
 				<Button type="submit" disabled={submitting}>
 					{submitting ? 'Guardando…' : data.account.connected ? 'Reemplazar llaves' : 'Conectar'}
 				</Button>
+
+				<!-- Respaldo para quien prefiera pegarlas una por una, o llegó sin
+				     JavaScript: los mismos cuatro campos de siempre, en el mismo
+				     `<form>` —el servidor prioriza el texto pegado si lo reconoce
+				     entero; si no, usa lo que haya en estos—. -->
+				<Accordion.Root type="single" id="wompi-manual">
+					<Accordion.Item value="manual">
+						<Accordion.Trigger class="text-muted-foreground text-sm hover:no-underline">
+							Prefiero pegarlas una por una
+						</Accordion.Trigger>
+						<Accordion.Content class="space-y-4 pt-2">
+							<TextField
+								name="publicKey"
+								label="Llave pública"
+								error={errors.publicKey}
+								hint="Empieza por pub_. Es la que viaja en cada enlace de pago."
+							/>
+
+							<TextField
+								name="privateKey"
+								label="Llave privada"
+								error={errors.privateKey}
+								hint="Empieza por prv_. No vuelve a mostrarse."
+							/>
+
+							<div class="grid gap-4 sm:grid-cols-2">
+								<TextField
+									name="integritySecret"
+									label="Secreto de integridad"
+									error={errors.integritySecret}
+								/>
+
+								<TextField
+									name="eventsSecret"
+									label="Secreto de eventos"
+									error={errors.eventsSecret}
+								/>
+							</div>
+						</Accordion.Content>
+					</Accordion.Item>
+				</Accordion.Root>
 			</form>
 
 			{#if data.account.connected}
