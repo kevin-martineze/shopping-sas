@@ -289,10 +289,11 @@
 			<legend class="mb-3 text-sm font-medium">Elige tu plan</legend>
 
 			<div class="grid gap-3 sm:grid-cols-3">
-				{#each plans as plan (plan.code)}
+				{#each plans as plan, indice (plan.code)}
 					<PlanOption
 						{plan}
 						seleccionado={planCode === plan.code}
+						recomendado={indice === plans.length - 1}
 						onseleccionar={() => (planElegido = plan.code)}
 					/>
 				{/each}
