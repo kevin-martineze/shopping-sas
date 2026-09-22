@@ -51,7 +51,7 @@
 	</p>
 {:else}
 	<div class="grid gap-6 lg:grid-cols-3">
-		<section class="border-border bg-background space-y-4 border p-6 lg:col-span-2">
+		<section class="border-border bg-card rounded-lg space-y-4 border p-6 lg:col-span-2">
 			<div class="flex items-center gap-2">
 				<CreditCard class="size-5" />
 				<h2 class="text-lg">
@@ -141,7 +141,7 @@
 			{/if}
 		</section>
 
-		<section class="border-border bg-background space-y-4 border p-6">
+		<section class="border-border bg-card rounded-lg space-y-4 border p-6">
 			<h2 class="text-lg">Cómo se hace</h2>
 
 			<ol class="text-muted-foreground space-y-3 text-sm">

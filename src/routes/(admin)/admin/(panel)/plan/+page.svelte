@@ -62,7 +62,7 @@
 <div class="grid gap-6 lg:grid-cols-3">
 	<section
 		class={cn(
-			'border-border bg-background space-y-4 rounded-lg border p-6 lg:col-span-1',
+			'border-border bg-card space-y-4 rounded-lg border p-6 lg:col-span-1',
 			plan.ai_replies_per_month > 0 && 'ai-aurora border-transparent'
 		)}
 	>
@@ -144,7 +144,7 @@
 		{/if}
 	</section>
 
-	<section class="border-border bg-background space-y-6 border p-6 lg:col-span-2">
+	<section class="border-border bg-card rounded-lg space-y-6 border p-6 lg:col-span-2">
 		<h2 class="text-lg">Uso</h2>
 
 		<UsageMeter
@@ -187,7 +187,7 @@
 			{#each otros as otro (otro.code)}
 				<div
 					class={cn(
-						'border-border bg-background flex flex-col rounded-lg border p-6',
+						'border-border bg-card flex flex-col rounded-lg border p-6',
 						otro.ai_replies_per_month > 0 && 'ai-aurora border-transparent'
 					)}
 				>
@@ -244,7 +244,7 @@
 {/if}
 
 {#if subscription.payments.length > 0}
-	<section class="border-border bg-background mt-8 border p-6">
+	<section class="border-border bg-card rounded-lg mt-8 border p-6">
 		<h2 class="mb-4 text-lg">Tus pagos</h2>
 
 		<Table.Root>

@@ -28,7 +28,7 @@
 	</p>
 </header>
 
-<div class="border-border bg-background max-w-2xl border p-6">
+<div class="border-border bg-card rounded-lg max-w-2xl border p-6">
 	<form
 		method="POST"
 		class="space-y-5"

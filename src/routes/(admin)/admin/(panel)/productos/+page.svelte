@@ -75,7 +75,7 @@
 		<Button href="/admin/productos/nuevo">Crear producto</Button>
 	</div>
 {:else}
-	<div class="border-border bg-background border">
+	<div class="border-border bg-card overflow-hidden rounded-lg border">
 		<Table.Root class="table-stack">
 			<Table.Header>
 				<Table.Row>

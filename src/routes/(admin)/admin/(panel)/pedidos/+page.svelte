@@ -100,7 +100,7 @@
 		No hay pedidos con ese filtro.
 	</p>
 {:else}
-	<div class="border-border bg-background border">
+	<div class="border-border bg-card overflow-hidden rounded-lg border">
 		<Table.Root class="table-stack">
 			<Table.Header>
 				<Table.Row>
