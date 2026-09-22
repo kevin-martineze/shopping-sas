@@ -254,7 +254,6 @@
  * oscuro, o una banda oscura en medio de la página blanca. No pintan ni
  * ponen fuente —eso lo hace cada elemento con `bg-background` y demás—,
  * porque una regla sin capa le ganaría a `bg-background/80` en la cabecera.
- * Los valores oscuros son los del panel y se comparten en su bloque, abajo.
  */
 .marketing {
 	/* Una sola familia en todo el sitio comercial: el peso hace de titular. */
@@ -293,35 +292,18 @@
 }
 
 /*
- * El panel, del brandkit: «panel oscuro, tienda clara».
- *
- * Aislado en `.admin-shell` por la misma razón que `.marketing`: los átomos
- * —botón, campo, tarjeta— son los mismos que usan las tiendas de los clientes,
- * y una tienda no puede amanecer oscura porque el panel lo sea. Los valores
- * sobre fondo oscuro son los que el kit usa en sus propias tarjetas y mockups
- * del panel; los del tema `.dark` de fábrica de shadcn no se reutilizan porque
- * son grises cálidos de otra paleta.
- *
- * `color-scheme: dark` es lo que hace que el navegador pinte oscuros los
- * controles que no pasan por nuestros átomos: la barra de desplazamiento, el
- * calendario de un `<input type="date">`, el selector nativo del cambio de
- * tienda.
- *
- * Los colores los comparte `.marketing-dark`: las bandas oscuras del sitio
- * comercial son la misma pizarra, con el mismo teal claro para lo que se
- * pulsa. Lo que es solo del panel —radio, esquema, fuente— va aparte.
+ * Las bandas oscuras del sitio comercial —hero, celular, cierre, pie—: la
+ * pizarra del brandkit, con el teal claro para lo que se pulsa, porque sobre
+ * oscuro el Teal Globin se hunde. Solo tokens; quien pinta es cada banda.
  */
-.admin-shell,
 .marketing-dark {
 	--background: #0e1a1c; /* Pizarra */
 	--foreground: #f6f4ef; /* Lino, como texto */
-	--card: #1a2628; /* Panel */
+	--card: #1a2628;
 	--card-foreground: #f6f4ef;
 	--popover: #1a2628;
 	--popover-foreground: #f6f4ef;
-	/* La acción sigue siendo teal, pero sobre oscuro el Teal Globin se hunde:
-	   el kit sube al Teal Claro para lo que hay que ver y pulsar. */
-	--primary: #48a79c;
+	--primary: #48a79c; /* Teal Claro */
 	--primary-foreground: #0e1a1c;
 	--secondary: #1a2628;
 	--secondary-foreground: #f6f4ef;
@@ -345,19 +327,50 @@
 	--success-foreground: #0e1a1c;
 	--whatsapp: #7fbdb4;
 	--whatsapp-foreground: #0e1a1c;
-
-	/* La barra lateral, un paso más oscura que las tarjetas. */
-	--sidebar: #0e1a1c;
-	--sidebar-foreground: #f6f4ef;
-	--sidebar-primary: #48a79c;
-	--sidebar-primary-foreground: #0e1a1c;
-	--sidebar-accent: #1a2628;
-	--sidebar-accent-foreground: #f6f4ef;
-	--sidebar-border: rgb(255 255 255 / 9%);
-	--sidebar-ring: #7fbdb4;
 }
 
+/*
+ * El panel: claro, con la marca. Lino de fondo, tarjetas blancas, texto
+ * pizarra y teal para lo que se pulsa. Se probó oscuro —el kit lo proponía—
+ * y no gustó: una herramienta que se usa horas cansa menos en claro.
+ *
+ * Aislado en `.admin-shell` por la misma razón que `.marketing`: los átomos
+ * —botón, campo, tarjeta— son los mismos que usan las tiendas de los
+ * clientes, y una tienda no puede cambiar de color porque el panel lo haga.
+ * Tres niveles de luz para que la jerarquía se lea sin bordes gruesos: barra
+ * lateral blanca, lienzo lino, tarjetas blancas.
+ */
 .admin-shell {
+	--background: #f6f4ef; /* Lino */
+	--foreground: #0e1a1c; /* Pizarra */
+	--card: #ffffff;
+	--card-foreground: #0e1a1c;
+	--popover: #ffffff;
+	--popover-foreground: #0e1a1c;
+	--primary: #1e6f6b; /* Teal Globin: la acción */
+	--primary-foreground: #ffffff;
+	/* Un paso más oscuro que el lino del fondo, si no desaparece. */
+	--secondary: #eae6dd;
+	--secondary-foreground: #0e1a1c;
+	--muted: #eae6dd;
+	--muted-foreground: #4a5251; /* Grafito */
+	--accent: #e4e0d7;
+	--accent-foreground: #0e1a1c;
+	--border: #e0dcd2;
+	--input: #e0dcd2;
+	--ring: #48a79c; /* Teal Claro */
+	--caution: #c0662f; /* Terracota: queda poco, alguien espera */
+
+	/* La barra lateral, blanca sobre el lienzo lino. */
+	--sidebar: #ffffff;
+	--sidebar-foreground: #0e1a1c;
+	--sidebar-primary: #1e6f6b;
+	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: #f1eee7;
+	--sidebar-accent-foreground: #0e1a1c;
+	--sidebar-border: #e4e0d7;
+	--sidebar-ring: #48a79c;
+
 	/* Interfaz tranquila: sin serif en el panel, aunque `.admin-shell` no
 	   necesite decirlo — hereda la Hanken de `:root` y el título de página ya
 	   la fuerza a sans en `@layer base`, más abajo. */
@@ -365,7 +378,7 @@
 
 	background-color: var(--background);
 	color: var(--foreground);
-	color-scheme: dark;
+	color-scheme: light;
 	font-family: var(--font-body);
 }
 
