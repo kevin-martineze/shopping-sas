@@ -72,7 +72,7 @@
 		<Input
 			name="q"
 			value={data.filters.q ?? ''}
-			placeholder="Nombre, dirección o correo de la dueña"
+			placeholder="Nombre, dirección o correo del creador"
 			class="pl-9"
 			aria-label="Buscar tiendas"
 		/>
@@ -111,7 +111,7 @@
 					<Table.Head>Estado</Table.Head>
 					<Table.Head>Plan</Table.Head>
 					<Table.Head>Pago hasta</Table.Head>
-					<Table.Head>Dueña</Table.Head>
+					<Table.Head>Creador</Table.Head>
 					<Table.Head class="text-right">Productos / pedidos</Table.Head>
 				</Table.Row>
 			</Table.Header>
@@ -129,7 +129,7 @@
 						<Table.Cell data-label="Estado"><StoreStatusBadge status={store.status} /></Table.Cell>
 						<Table.Cell data-label="Plan">{planName(store.plan_code)}</Table.Cell>
 						<Table.Cell data-label="Pago hasta">{formatDate(store.current_period_end)}</Table.Cell>
-						<Table.Cell data-label="Dueña" class="max-w-48 truncate">
+						<Table.Cell data-label="Creador" class="max-w-48 truncate">
 							{owner?.email ?? '—'}
 						</Table.Cell>
 						<Table.Cell data-label="Productos / pedidos" class="text-right tabular-nums">
