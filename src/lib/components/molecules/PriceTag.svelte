@@ -20,7 +20,7 @@
 	};
 </script>
 
-<div class={cn('flex flex-wrap items-baseline gap-2', sizeClass[size], className)}>
+<div class={cn('price-tag flex flex-wrap items-baseline gap-2', sizeClass[size], className)}>
 	<span class="tabular-nums">{formatMoney(price)}</span>
 
 	{#if percent !== null && compareAtPrice !== null}
