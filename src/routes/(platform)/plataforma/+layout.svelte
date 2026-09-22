@@ -34,7 +34,7 @@
 	<meta name="robots" content="noindex" />
 </svelte:head>
 
-<div class="admin-shell bg-muted/40 min-h-screen">
+<div class="admin-shell min-h-screen">
 	<header class="bg-background border-border border-b">
 		<div class="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-3 sm:px-6">
 			<a href="/plataforma" class="flex items-center gap-2 font-semibold tracking-tight">

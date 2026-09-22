@@ -133,7 +133,7 @@
 		{:else}
 			<p class="text-muted-foreground border-border border-t pt-4 text-xs">
 				{#if !data.canPay}
-					Solo las dueñas de la tienda pueden cambiar o pagar el plan.
+					Solo el creador de la tienda puede cambiar o pagar el plan.
 				{:else if subscription.store_status === 'suspended'}
 					Tu tienda está suspendida: escríbenos por WhatsApp para reactivarla.
 				{:else}

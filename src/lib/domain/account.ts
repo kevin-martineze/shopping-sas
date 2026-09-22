@@ -3,7 +3,8 @@
 export type MemberRole = 'owner' | 'staff';
 
 export const MEMBER_ROLE_LABEL: Record<MemberRole, string> = {
-	owner: 'Dueña',
+	// «Creador» y no «Dueña»: es quien abrió la tienda, sea quien sea.
+	owner: 'Creador',
 	staff: 'Personal'
 };
 

@@ -13,7 +13,7 @@
 </script>
 
 <svelte:head>
-	<title>Nueva producto — Globerce</title>
+	<title>Nuevo producto — Globerce</title>
 </svelte:head>
 
 <header class="mb-6">
@@ -24,7 +24,7 @@
 		<ArrowLeft class="size-3" />
 		Productos
 	</a>
-	<h1 class="mt-1 text-3xl">Nueva producto</h1>
+	<h1 class="mt-1 text-3xl">Nuevo producto</h1>
 	<p class="text-muted-foreground text-sm">
 		Al guardar podrás subir fotos y crear las variaciones con su inventario.
 	</p>

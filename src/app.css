@@ -1,17 +1,21 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
-@import '@fontsource-variable/inter';
-@import '@fontsource/instrument-serif/400.css';
-@import '@fontsource/instrument-serif/400-italic.css';
 /*
- * Las del brandkit de Globerce. Solo las pide `.marketing`: el navegador
- * descarga una fuente cuando alguna regla la usa, así que las tiendas de
- * los clientes no cargan un solo byte de esto.
+ * Tres familias, cada una con su sitio:
+ * - Hanken Grotesk: el panel y las tiendas de los clientes (cuerpo).
+ * - Fraunces: titulares de la plantilla de tienda por defecto.
+ * - Inter Tight: el sitio comercial de Globerce entero, títulos y cuerpo.
+ *   Grotesca cerrada y pesada en titular: es lo que hace que una portada
+ *   de producto se lea como producto y no como revista.
+ * El navegador solo descarga la que alguna regla use en la página, así que
+ * una tienda no carga un byte de Inter Tight ni el sitio comercial de Fraunces.
+ * Nada de mono para números: los datos van en la misma fuente del cuerpo,
+ * con cifras tabulares.
  */
-@import '@fontsource-variable/newsreader/opsz.css';
-@import '@fontsource-variable/newsreader/opsz-italic.css';
 @import '@fontsource-variable/hanken-grotesk';
-@import '@fontsource-variable/jetbrains-mono';
+@import '@fontsource-variable/fraunces/opsz.css';
+@import '@fontsource-variable/fraunces/opsz-italic.css';
+@import '@fontsource-variable/inter-tight';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -79,10 +83,16 @@
 	/*
 	 * Las tipografías van en variables propias, no directo en `@theme`, para
 	 * que una plantilla de tienda pueda cambiarlas sin tocar el panel.
+	 *
+	 * `--font-data` es la misma Hanken: los números no llevan una fuente
+	 * aparte, llevan `font-variant-numeric: tabular-nums` (ver `.font-mono`
+	 * más abajo), que es lo que de verdad pedían —cifras del mismo ancho,
+	 * que no bailen al cambiar—, sin que un precio se lea como una línea de
+	 * código.
 	 */
-	--font-body: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-	--font-title: 'Instrument Serif', ui-serif, Georgia, serif;
-	--font-data: ui-monospace, SFMono-Regular, monospace;
+	--font-body: 'Hanken Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+	--font-title: 'Fraunces Variable', ui-serif, Georgia, serif;
+	--font-data: var(--font-body);
 	/* Lo que pide atención sin ser un error: «queda poco», «alguien espera». */
 	--caution: oklch(0.6 0.13 50);
 }
@@ -213,7 +223,8 @@
  * - El gradiente de la esfera es solo del isotipo. Aquí todo es teal plano.
  * - Nada de verde WhatsApp: se nombra con palabras, no con color.
  */
-.marketing {
+.marketing,
+.marketing-light {
 	/* Blanco y no el lino del kit: se probó y el lino apagaba la página.
 	   El lino se queda en las superficies secundarias (`--muted`), donde
 	   separa secciones sin teñir todo el fondo. */
@@ -235,29 +246,39 @@
 	--input: #e4e0d7;
 	--ring: #48a79c; /* Teal Claro */
 	--caution: #c0662f; /* Terracota: queda poco */
-
-	/* Grotesca humanista para lo que se toca, serif para lo que se lee
-	   despacio, mono solo para datos: precios, stock, SKU. */
-	--font-body: 'Hanken Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
-	--font-title: 'Newsreader Variable', ui-serif, Georgia, serif;
-	--font-data: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, monospace;
-
-	/* El body pinta con los tokens de `:root`; esta zona pone los suyos. */
-	background-color: var(--background);
-	color: var(--foreground);
-	font-family: var(--font-body);
-	/* Los ajustes del body son de Inter; en Hanken cambiarían glifos. */
-	font-feature-settings: normal;
 }
 
 /*
- * Botones en 600, el peso de interfaz del kit.
+ * `.marketing` es la página; `.marketing-light` y `.marketing-dark` son
+ * ámbitos de tokens y nada más: una ficha clara flotando sobre el hero
+ * oscuro, o una banda oscura en medio de la página blanca. No pintan ni
+ * ponen fuente —eso lo hace cada elemento con `bg-background` y demás—,
+ * porque una regla sin capa le ganaría a `bg-background/80` en la cabecera.
+ * Los valores oscuros son los del panel y se comparten en su bloque, abajo.
+ */
+.marketing {
+	/* Una sola familia en todo el sitio comercial: el peso hace de titular. */
+	--font-body: 'Inter Tight Variable', ui-sans-serif, system-ui, sans-serif;
+	--font-title: var(--font-body);
+
+	/* Tarjetas muy redondeadas: es lo que separa una portada de producto de
+	   una de documento. Los botones van en píldora aparte, más abajo. */
+	--radius: 1.25rem;
+
+	background-color: var(--background);
+	color: var(--foreground);
+	font-family: var(--font-body);
+}
+
+/*
+ * Botones en píldora y en 600, el peso de interfaz del kit.
  *
- * Va fuera de toda capa a propósito: el átomo del botón trae `font-medium`, y
- * en Tailwind v4 cualquier utilidad le gana a lo que esté en `@layer base`,
- * sea cual sea la especificidad. Sin capa, esta regla sí gana.
+ * Va fuera de toda capa a propósito: el átomo del botón trae `font-medium` y
+ * `rounded-lg`, y en Tailwind v4 cualquier utilidad le gana a lo que esté en
+ * `@layer base`, sea cual sea la especificidad. Sin capa, esta regla sí gana.
  */
 .marketing [data-slot='button'] {
+	border-radius: 999px;
 	font-weight: 600;
 }
 
@@ -269,6 +290,116 @@
  */
 .marketing section[id] {
 	scroll-margin-top: 4.5rem;
+}
+
+/*
+ * El panel, del brandkit: «panel oscuro, tienda clara».
+ *
+ * Aislado en `.admin-shell` por la misma razón que `.marketing`: los átomos
+ * —botón, campo, tarjeta— son los mismos que usan las tiendas de los clientes,
+ * y una tienda no puede amanecer oscura porque el panel lo sea. Los valores
+ * sobre fondo oscuro son los que el kit usa en sus propias tarjetas y mockups
+ * del panel; los del tema `.dark` de fábrica de shadcn no se reutilizan porque
+ * son grises cálidos de otra paleta.
+ *
+ * `color-scheme: dark` es lo que hace que el navegador pinte oscuros los
+ * controles que no pasan por nuestros átomos: la barra de desplazamiento, el
+ * calendario de un `<input type="date">`, el selector nativo del cambio de
+ * tienda.
+ *
+ * Los colores los comparte `.marketing-dark`: las bandas oscuras del sitio
+ * comercial son la misma pizarra, con el mismo teal claro para lo que se
+ * pulsa. Lo que es solo del panel —radio, esquema, fuente— va aparte.
+ */
+.admin-shell,
+.marketing-dark {
+	--background: #0e1a1c; /* Pizarra */
+	--foreground: #f6f4ef; /* Lino, como texto */
+	--card: #1a2628; /* Panel */
+	--card-foreground: #f6f4ef;
+	--popover: #1a2628;
+	--popover-foreground: #f6f4ef;
+	/* La acción sigue siendo teal, pero sobre oscuro el Teal Globin se hunde:
+	   el kit sube al Teal Claro para lo que hay que ver y pulsar. */
+	--primary: #48a79c;
+	--primary-foreground: #0e1a1c;
+	--secondary: #1a2628;
+	--secondary-foreground: #f6f4ef;
+	--muted: #1a2628;
+	/* Un escalón más claro que el #7A8280 del kit: sobre pizarra daba 3.9:1
+	   y el mínimo legible es 4.5:1. Medido, no estimado. */
+	--muted-foreground: #96a09e;
+	--accent: #243133;
+	--accent-foreground: #f6f4ef;
+	--destructive: #e06c5a;
+	--destructive-foreground: #0e1a1c;
+	--border: rgb(255 255 255 / 9%);
+	--input: rgb(255 255 255 / 12%);
+	--ring: #7fbdb4;
+	--caution: #c0662f; /* Terracota: queda poco, alguien espera */
+
+	/* Las señales de tienda, subidas de luz para que lean sobre pizarra. */
+	--sale: #e39a6a;
+	--sale-foreground: #0e1a1c;
+	--success: #48a79c;
+	--success-foreground: #0e1a1c;
+	--whatsapp: #7fbdb4;
+	--whatsapp-foreground: #0e1a1c;
+
+	/* La barra lateral, un paso más oscura que las tarjetas. */
+	--sidebar: #0e1a1c;
+	--sidebar-foreground: #f6f4ef;
+	--sidebar-primary: #48a79c;
+	--sidebar-primary-foreground: #0e1a1c;
+	--sidebar-accent: #1a2628;
+	--sidebar-accent-foreground: #f6f4ef;
+	--sidebar-border: rgb(255 255 255 / 9%);
+	--sidebar-ring: #7fbdb4;
+}
+
+.admin-shell {
+	/* Interfaz tranquila: sin serif en el panel, aunque `.admin-shell` no
+	   necesite decirlo — hereda la Hanken de `:root` y el título de página ya
+	   la fuerza a sans en `@layer base`, más abajo. */
+	--radius: 0.875rem;
+
+	background-color: var(--background);
+	color: var(--foreground);
+	color-scheme: dark;
+	font-family: var(--font-body);
+}
+
+/*
+ * Toda vista previa de tienda parte de los tokens claros de `:root`, sea cual
+ * sea la plantilla. Sin esto, la plantilla editorial —la de por defecto, sin
+ * bloque propio— hereda el tema de donde se pinte, y dentro del panel oscuro
+ * salía texto pizarra sobre fondo pizarra. El bloque de `boutique` va después
+ * y pisa lo suyo.
+ */
+[data-storefront-template] {
+	--background: oklch(1 0 0);
+	--foreground: oklch(0.2 0 0);
+	--card: oklch(1 0 0);
+	--card-foreground: oklch(0.2 0 0);
+	--primary: oklch(0.2 0 0);
+	--primary-foreground: oklch(1 0 0);
+	--secondary: oklch(0.97 0 0);
+	--secondary-foreground: oklch(0.2 0 0);
+	--muted: oklch(0.97 0 0);
+	--muted-foreground: oklch(0.55 0 0);
+	--accent: oklch(0.95 0 0);
+	--accent-foreground: oklch(0.2 0 0);
+	--border: oklch(0.92 0 0);
+	--input: oklch(0.92 0 0);
+	--ring: oklch(0.55 0 0);
+	--font-body: 'Hanken Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+	--font-title: 'Fraunces Variable', ui-serif, Georgia, serif;
+	--radius: 0.625rem;
+	/* El color también, no solo los tokens: sin esto el texto hereda el lino
+	   de la banda oscura de afuera y sale blanco sobre la tarjeta blanca. */
+	color: var(--foreground);
+	color-scheme: light;
+	font-family: var(--font-body);
 }
 
 [data-storefront-template='boutique'] {
@@ -309,7 +440,6 @@
 
 	body {
 		@apply bg-background text-foreground font-sans antialiased;
-		font-feature-settings: 'cv11', 'ss01';
 		text-rendering: optimizeLegibility;
 	}
 
@@ -328,14 +458,29 @@
 	}
 
 	/*
-	 * Titulares en Newsreader, como pide el brandkit: «titular con voz,
-	 * interfaz tranquila». Peso 400 y tracking cerrado; para enfatizar se usa
-	 * la itálica, nunca la negrita.
+	 * Titulares del sitio comercial: la misma grotesca del cuerpo, en 600 y
+	 * con el tracking cerrado. El énfasis dentro de un titular es el color
+	 * (`text-primary`) o el gris (`text-muted-foreground`), nunca otro peso.
 	 */
 	.marketing :is(h1, h2, h3) {
 		font-family: var(--font-title);
-		font-weight: 400;
+		font-weight: 600;
 		letter-spacing: -0.025em;
+		line-height: 1.1;
+	}
+
+	.marketing :is(h1, h2, h3) em {
+		font-style: normal;
+	}
+
+	/*
+	 * Cifras tabulares en todo lo que se marca `font-mono`: precios, stock,
+	 * SKU. Es la misma Hanken del cuerpo —nada de fuente de código—, solo que
+	 * cada dígito ocupa el mismo ancho, así una lista de precios no baila y
+	 * un total no se corre al cambiar de cifra.
+	 */
+	.font-mono {
+		font-variant-numeric: tabular-nums;
 	}
 
 	/*
@@ -512,6 +657,34 @@
 		animation-delay: 400ms;
 	}
 
+	/*
+	 * Las fichas que flotan en el hero: suben y bajan despacio, cada una a su
+	 * ritmo, como si estuvieran posadas sobre la página. Sin movimiento
+	 * cuando quien mira lo pidió.
+	 */
+	.float {
+		animation: float 6s ease-in-out infinite;
+	}
+
+	.float-slow {
+		animation: float 8s ease-in-out 1s infinite;
+	}
+
+	/*
+	 * Entrada suave para lo que cambia sin recargar —la ficha de cada rubro
+	 * al pulsar su pestaña—: sube un poco y aparece. Corta, para que cambiar
+	 * de pestaña no se sienta como esperar.
+	 */
+	.fade-up {
+		animation: fade-up 450ms var(--ease-editorial) both;
+	}
+
+	/* Rejilla de puntos: la textura del pie, dibujada con el color del borde. */
+	.dot-grid {
+		background-image: radial-gradient(var(--border) 1.5px, transparent 1.5px);
+		background-size: 22px 22px;
+	}
+
 	/* Reveal al hacer scroll — lo activa la action `use:reveal` */
 	.reveal {
 		opacity: 0;
@@ -559,8 +732,32 @@
 	}
 }
 
+@keyframes fade-up {
+	from {
+		opacity: 0;
+		transform: translateY(0.75rem);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+@keyframes float {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-14px);
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
-	.rise {
+	.rise,
+	.fade-up,
+	.float,
+	.float-slow {
 		animation: none;
 	}
 }

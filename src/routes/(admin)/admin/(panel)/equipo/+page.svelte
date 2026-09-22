@@ -26,7 +26,7 @@
 
 	const roleOptions = [
 		{ value: 'staff', label: 'Personal: catálogo y pedidos' },
-		{ value: 'owner', label: 'Dueña: todo, incluido el equipo' }
+		{ value: 'owner', label: 'Creador: todo, incluido el equipo' }
 	];
 
 	const dateFormatter = new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium' });

@@ -59,7 +59,7 @@
 
 		<Button href="/admin/productos/nuevo" class="w-full sm:w-auto">
 			<Plus class="mr-2 size-4" />
-			Nueva producto
+			Nuevo producto
 		</Button>
 	</div>
 </header>
