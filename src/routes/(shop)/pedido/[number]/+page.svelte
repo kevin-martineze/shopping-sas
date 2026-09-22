@@ -91,7 +91,9 @@
 				<p class="text-destructive text-center text-sm">{form.error}</p>
 			{/if}
 
-			<p class="text-muted-foreground text-center text-xs">Tarjeta, PSE o Nequi. O si prefieres:</p>
+			<p class="text-muted-foreground text-center text-xs">
+				Tarjeta, transferencia o billetera. O si prefieres:
+			</p>
 		{/if}
 
 		<Button

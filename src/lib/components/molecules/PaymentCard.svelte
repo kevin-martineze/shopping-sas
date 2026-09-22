@@ -1,11 +1,13 @@
 <script lang="ts">
+	import { TIENDA_MAQUETA } from '$lib/config/maqueta';
 	import { cn } from '$lib/utils';
 
 	/**
 	 * La pantalla de pago de una tienda, dibujada con HTML: el resumen, los
-	 * medios que acepta y el pago aprobado. Los medios se nombran con
-	 * palabras, sin logos ni el verde de nadie: regla del kit. Los números
-	 * cuadran con los de `OrderCard`.
+	 * medios que acepta y el pago aprobado. Los medios se nombran por su
+	 * categoría y no por marcas —sin logos, sin el verde de nadie, sin
+	 * nombres que solo signifiquen algo en un país—: regla del kit. Los
+	 * números cuadran con los de `OrderCard`.
 	 *
 	 * Decorativa, como las demás fichas del sitio comercial.
 	 */
@@ -20,7 +22,7 @@
 		{ concepto: 'Envío Medellín', valor: '$12.000' }
 	];
 
-	const medios = ['Tarjeta', 'PSE', 'Nequi'];
+	const medios = ['Tarjeta', 'Transferencia', 'Billetera'];
 </script>
 
 <div
@@ -32,7 +34,7 @@
 >
 	<div class="flex items-center gap-2 text-sm font-semibold">
 		<span class="bg-primary size-2 rounded-full"></span>
-		Mariposa · Pago seguro
+		{TIENDA_MAQUETA.nombre} · Pago seguro
 	</div>
 
 	<dl class="mt-4 space-y-2 text-sm">

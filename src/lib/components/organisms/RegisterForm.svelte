@@ -13,6 +13,7 @@
 	import PlanOption from '$lib/components/molecules/PlanOption.svelte';
 	import Stepper from '$lib/components/molecules/Stepper.svelte';
 	import TextField from '$lib/components/molecules/TextField.svelte';
+	import { TIENDA_MAQUETA } from '$lib/config/maqueta';
 	import { TRIAL_DAYS } from '$lib/domain/account';
 	import { joinPhone, splitPhone } from '$lib/domain/phone';
 	import { PASSWORD_MIN, registerSchema, storeFieldsSchema } from '$lib/schemas/account';
@@ -321,7 +322,7 @@
 				error={errors.storeName}
 				required
 				maxlength={80}
-				placeholder="Boutique Mariposa"
+				placeholder={TIENDA_MAQUETA.nombre}
 				oninput={() => clear('storeName')}
 				onblur={() => check('storeName')}
 			/>

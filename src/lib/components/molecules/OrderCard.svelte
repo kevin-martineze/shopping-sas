@@ -33,7 +33,7 @@
 
 	<p class="mt-4 text-sm">Blusa Vera · talla M · verde ×1</p>
 	<p class="text-muted-foreground text-sm">Envío Medellín · $12.000</p>
-	<p class="text-primary mt-1 text-sm font-medium">Pagado en línea · Nequi</p>
+	<p class="text-primary mt-1 text-sm font-medium">Pagado en línea · Tarjeta</p>
 
 	<div class="border-border mt-4 flex items-baseline justify-between border-t pt-4">
 		<span class="text-sm">Total</span>

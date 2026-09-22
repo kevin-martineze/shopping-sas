@@ -258,7 +258,7 @@ export function planFeatures(plan: Plan): string[] {
 		plan.custom_domain ? 'Tu propio dominio' : 'Dirección propia en globerce.store',
 		// El pago en línea no depende del plan —el Plan no tiene bandera para
 		// eso—, así que va en los tres. WhatsApp sigue existiendo como opción.
-		'Pagos en línea con tarjeta, PSE o Nequi',
+		'Pagos en línea con tarjeta, transferencia o billetera',
 		'Pedidos por WhatsApp, si el cliente prefiere',
 		'Sin comisión por venta',
 		// El asistente suma una línea, no reemplaza ninguna: lo que trae el plan
