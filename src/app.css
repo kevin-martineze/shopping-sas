@@ -271,6 +271,79 @@
 	scroll-margin-top: 4.5rem;
 }
 
+/*
+ * El panel, del brandkit: «panel oscuro, tienda clara».
+ *
+ * Aislado en `.admin-shell` por la misma razón que `.marketing`: los átomos
+ * —botón, campo, tarjeta— son los mismos que usan las tiendas de los clientes,
+ * y una tienda no puede amanecer oscura porque el panel lo sea. Los valores
+ * sobre fondo oscuro son los que el kit usa en sus propias tarjetas y mockups
+ * del panel; los del tema `.dark` de fábrica de shadcn no se reutilizan porque
+ * son grises cálidos de otra paleta.
+ *
+ * `color-scheme: dark` es lo que hace que el navegador pinte oscuros los
+ * controles que no pasan por nuestros átomos: la barra de desplazamiento, el
+ * calendario de un `<input type="date">`, el selector nativo del cambio de
+ * tienda.
+ */
+.admin-shell {
+	--background: #0e1a1c; /* Pizarra */
+	--foreground: #f6f4ef; /* Lino, como texto */
+	--card: #1a2628; /* Panel */
+	--card-foreground: #f6f4ef;
+	--popover: #1a2628;
+	--popover-foreground: #f6f4ef;
+	/* La acción sigue siendo teal, pero sobre oscuro el Teal Globin se hunde:
+	   el kit sube al Teal Claro para lo que hay que ver y pulsar. */
+	--primary: #48a79c;
+	--primary-foreground: #0e1a1c;
+	--secondary: #1a2628;
+	--secondary-foreground: #f6f4ef;
+	--muted: #1a2628;
+	/* Un escalón más claro que el #7A8280 del kit: sobre pizarra daba 3.9:1
+	   y el mínimo legible es 4.5:1. Medido, no estimado. */
+	--muted-foreground: #96a09e;
+	--accent: #243133;
+	--accent-foreground: #f6f4ef;
+	--destructive: #e06c5a;
+	--destructive-foreground: #0e1a1c;
+	--border: rgb(255 255 255 / 9%);
+	--input: rgb(255 255 255 / 12%);
+	--ring: #7fbdb4;
+	--caution: #c0662f; /* Terracota: queda poco, alguien espera */
+
+	/* Las señales de tienda, subidas de luz para que lean sobre pizarra. */
+	--sale: #e39a6a;
+	--sale-foreground: #0e1a1c;
+	--success: #48a79c;
+	--success-foreground: #0e1a1c;
+	--whatsapp: #7fbdb4;
+	--whatsapp-foreground: #0e1a1c;
+
+	/* La barra lateral, un paso más oscura que las tarjetas. */
+	--sidebar: #0e1a1c;
+	--sidebar-foreground: #f6f4ef;
+	--sidebar-primary: #48a79c;
+	--sidebar-primary-foreground: #0e1a1c;
+	--sidebar-accent: #1a2628;
+	--sidebar-accent-foreground: #f6f4ef;
+	--sidebar-border: rgb(255 255 255 / 9%);
+	--sidebar-ring: #7fbdb4;
+
+	/* Interfaz tranquila: sin serif en el panel. La mono, para datos. */
+	--font-body: 'Hanken Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+	--font-title: var(--font-body);
+	--font-data: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, monospace;
+
+	--radius: 0.875rem;
+
+	background-color: var(--background);
+	color: var(--foreground);
+	color-scheme: dark;
+	font-family: var(--font-body);
+	font-feature-settings: normal;
+}
+
 [data-storefront-template='boutique'] {
 	--background: oklch(0.985 0.012 85);
 	--foreground: oklch(0.27 0.022 55);
