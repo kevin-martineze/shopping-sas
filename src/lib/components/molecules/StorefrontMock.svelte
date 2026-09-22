@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { HOST_MAQUETA, TIENDA_MAQUETA } from '$lib/config/maqueta';
+
 	/**
 	 * Una tienda de Globerce, dibujada con HTML.
 	 *
@@ -28,13 +30,13 @@
 			<span
 				class="bg-background text-muted-foreground ml-2 flex-1 truncate px-2 py-0.5 text-[10px]"
 			>
-				mariposa.globerce.store
+				{HOST_MAQUETA}
 			</span>
 		</div>
 
 		<div class="px-4 py-4">
 			<div class="mb-3 flex items-baseline justify-between">
-				<span class="font-display text-base">Tienda Mariposa</span>
+				<span class="font-display text-base">{TIENDA_MAQUETA.nombre}</span>
 				<span class="text-muted-foreground text-[10px] tracking-[0.18em] uppercase">Nuevo</span>
 			</div>
 

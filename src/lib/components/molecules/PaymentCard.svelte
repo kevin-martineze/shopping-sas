@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { TIENDA_MAQUETA } from '$lib/config/maqueta';
 	import { cn } from '$lib/utils';
 
 	/**
@@ -33,7 +34,7 @@
 >
 	<div class="flex items-center gap-2 text-sm font-semibold">
 		<span class="bg-primary size-2 rounded-full"></span>
-		Mariposa · Pago seguro
+		{TIENDA_MAQUETA.nombre} · Pago seguro
 	</div>
 
 	<dl class="mt-4 space-y-2 text-sm">

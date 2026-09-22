@@ -11,7 +11,7 @@ import { expect, type Page } from '@playwright/test';
  * cliente. Se escribe y se borra: el formulario queda como estaba.
  */
 export async function esperarRegistroHidratado(page: Page): Promise<void> {
-	await page.fill('input[name="storeName"]', 'Boutique Mariposa');
-	await expect(page.locator('input[name="storeSlug"]')).toHaveValue('boutique-mariposa');
+	await page.fill('input[name="storeName"]', 'Casa Oliva');
+	await expect(page.locator('input[name="storeSlug"]')).toHaveValue('casa-oliva');
 	await page.fill('input[name="storeName"]', '');
 }

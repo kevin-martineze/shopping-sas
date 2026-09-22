@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { registerSchema, resetPasswordSchema } from '$lib/schemas/account';
 
 const valid = {
-	storeName: 'Boutique Mariposa',
-	storeSlug: 'Boutique-Mariposa',
+	storeName: 'Casa Oliva',
+	storeSlug: 'Casa-Oliva',
 	fullName: 'María',
 	email: ' Maria@Tienda.COM ',
 	whatsappPhone: '+57 300 123 4567',
@@ -16,7 +16,7 @@ describe('registerSchema', () => {
 	it('normaliza la dirección, el correo y el WhatsApp', () => {
 		const parsed = registerSchema.parse(valid);
 
-		expect(parsed.storeSlug).toBe('boutique-mariposa');
+		expect(parsed.storeSlug).toBe('casa-oliva');
 		expect(parsed.email).toBe('maria@tienda.com');
 		expect(parsed.whatsappPhone).toBe('573001234567');
 	});

@@ -8,15 +8,15 @@ describe('rerouteForHost', () => {
 	});
 
 	it('en el host de una tienda, la portada sigue siendo la tienda', () => {
-		expect(rerouteForHost({ pathname: '/', storeSlug: 'mariposa' })).toBeUndefined();
+		expect(rerouteForHost({ pathname: '/', storeSlug: 'casaoliva' })).toBeUndefined();
 	});
 
 	it('el sitio comercial no se abre desde una tienda', () => {
-		expect(rerouteForHost({ pathname: MARKETING_HOME, storeSlug: 'mariposa' })).toBe('/no-existe');
+		expect(rerouteForHost({ pathname: MARKETING_HOME, storeSlug: 'casaoliva' })).toBe('/no-existe');
 	});
 
 	it('las demás rutas quedan como están', () => {
-		for (const slug of [null, 'mariposa']) {
+		for (const slug of [null, 'casaoliva']) {
 			expect(rerouteForHost({ pathname: '/registro', storeSlug: slug })).toBeUndefined();
 			expect(rerouteForHost({ pathname: '/admin/productos', storeSlug: slug })).toBeUndefined();
 		}

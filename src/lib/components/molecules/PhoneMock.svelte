@@ -4,6 +4,7 @@
 	import Receipt from '@lucide/svelte/icons/receipt';
 
 	import GloberceMark from '$lib/components/molecules/GloberceMark.svelte';
+	import { TIENDA_MAQUETA } from '$lib/config/maqueta';
 	import { cn } from '$lib/utils';
 
 	/**
@@ -54,7 +55,7 @@
 		<div class="px-5 pt-6 pb-4">
 			<div class="flex items-center gap-2">
 				<GloberceMark size={24} label="" />
-				<span class="text-muted-foreground text-xs">Mariposa</span>
+				<span class="text-muted-foreground text-xs">{TIENDA_MAQUETA.nombre}</span>
 			</div>
 			<p class="mt-4 text-xl font-semibold">Pedidos</p>
 			<p class="text-muted-foreground text-xs">Hoy · 4 nuevos</p>
