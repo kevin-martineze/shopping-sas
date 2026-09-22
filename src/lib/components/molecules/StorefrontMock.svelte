@@ -17,8 +17,9 @@
 	];
 </script>
 
-<div aria-hidden="true" class="select-none">
-	<div class="border-border bg-background overflow-hidden border shadow-xl">
+<!-- Es una tienda: lleva los tokens claros aunque se pinte en el panel oscuro. -->
+<div aria-hidden="true" class="select-none" data-storefront-template="editorial">
+	<div class="border-border bg-background overflow-hidden rounded-lg border shadow-xl">
 		<!-- Barra del navegador: sitúa la maqueta sin decir "esto es un navegador". -->
 		<div class="border-border bg-muted/60 flex items-center gap-2 border-b px-3 py-2">
 			<span class="bg-muted-foreground/30 size-2 rounded-full"></span>
@@ -52,10 +53,12 @@
 	<!-- El pedido que llega por WhatsApp: es el momento que vende el producto.
 	     Va debajo y no flotando encima: ahí taparía justo los nombres de las
 	     productos, que es lo que la maqueta tiene que mostrar. -->
-	<div class="border-border bg-background ml-auto -mt-3 w-56 border p-3 shadow-lg sm:-mr-6">
+	<div
+		class="border-border bg-background ml-auto -mt-3 w-56 rounded-lg border p-3 shadow-lg sm:-mr-6"
+	>
 		<p class="text-muted-foreground text-[10px] tracking-[0.18em] uppercase">Pedido nuevo</p>
 		<p class="mt-1 text-sm">Café Huila · Molienda fina · 500 g</p>
 		<p class="text-muted-foreground text-xs">Envío Medellín · $12.000</p>
-		<p class="mt-2 font-mono text-lg font-medium tabular-nums">$151.900</p>
+		<p class="mt-2 font-mono text-lg font-medium tabular-nums">$50.000</p>
 	</div>
 </div>
