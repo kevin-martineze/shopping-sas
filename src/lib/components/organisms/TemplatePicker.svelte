@@ -1,32 +1,38 @@
 <script lang="ts">
 	import Check from '@lucide/svelte/icons/check';
+	import ExternalLink from '@lucide/svelte/icons/external-link';
 
 	import { enhance } from '$app/forms';
 
 	import type { StorefrontTemplate } from '$lib/domain/templates';
 	import { Button } from '$lib/components/atoms/button';
-	import TemplatePreview from '$lib/components/molecules/TemplatePreview.svelte';
+	import StorefrontFrame from '$lib/components/molecules/StorefrontFrame.svelte';
 	import { TEMPLATES } from '$lib/domain/templates';
+	import { previewUrl } from '$lib/template-preview';
 	import { cn } from '$lib/utils';
 
 	/**
 	 * Elegir con qué plantilla se viste la tienda.
 	 *
-	 * Cada opción es un `<form>` propio: se elige apretando la que se quiere y,
-	 * sin JavaScript, funciona igual. La que ya está puesta no se vuelve a
-	 * enviar —no haría nada— y se marca como la actual.
+	 * Cada opción enseña la tienda de verdad —sus productos, sus textos— ya
+	 * vestida con esa plantilla, en miniatura, y «Ver en mi tienda» la abre a
+	 * tamaño real en una pestaña aparte para recorrerla. Nada de eso la
+	 * cambia: la cambia el botón de abajo, que es un `<form>` propio por
+	 * opción y funciona igual sin JavaScript. La que ya está puesta no se
+	 * vuelve a enviar y se marca como la actual.
 	 */
 	interface Props {
 		/** La plantilla que tiene la tienda hoy. */
 		current: StorefrontTemplate;
-		storeName: string;
+		/** La dirección pública de la tienda, para las miniaturas y la vista previa. */
+		storeUrl: string;
 		/** Action del form, p. ej. `?/plantilla`. */
 		action: string;
 		/** Texto del botón de cada opción. */
 		cta?: string;
 	}
 
-	let { current, storeName, action, cta = 'Usar esta plantilla' }: Props = $props();
+	let { current, storeUrl, action, cta = 'Usar esta plantilla' }: Props = $props();
 
 	let submitting = $state('');
 </script>
@@ -37,7 +43,7 @@
 
 		<div
 			class={cn(
-				'border-border bg-background flex flex-col border p-5 transition-colors',
+				'border-border bg-card flex flex-col rounded-lg border p-5 transition-colors',
 				elegida && 'border-foreground'
 			)}
 		>
@@ -51,7 +57,20 @@
 				{/if}
 			</div>
 
-			<TemplatePreview template={template.code} {storeName} />
+			<StorefrontFrame
+				src={previewUrl(storeUrl, template.code, true)}
+				title="Tu tienda con la plantilla {template.name}"
+			/>
+
+			<a
+				href={previewUrl(storeUrl, template.code)}
+				target="_blank"
+				rel="noopener"
+				class="text-muted-foreground hover:text-foreground mt-3 inline-flex items-center gap-1.5 self-start text-sm underline-offset-4 hover:underline"
+			>
+				Ver en mi tienda
+				<ExternalLink class="size-3.5" />
+			</a>
 
 			<p class="text-muted-foreground mt-4 text-sm">{template.tagline}</p>
 

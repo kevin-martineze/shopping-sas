@@ -28,7 +28,7 @@
 
 <TemplatePicker
 	current={data.settings.template}
-	storeName={data.settings.store_name}
+	storeUrl={data.storeUrl}
 	action="?/plantilla&tienda={data.storeSlug}"
 	cta="Empezar con esta"
 />

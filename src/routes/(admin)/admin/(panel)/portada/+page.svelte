@@ -69,7 +69,7 @@
 
 	<TemplatePicker
 		current={data.settings.template}
-		storeName={data.settings.store_name}
+		storeUrl={data.storeUrl}
 		action="?/plantilla"
 		cta="Cambiar a esta"
 	/>
