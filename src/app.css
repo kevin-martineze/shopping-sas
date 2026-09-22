@@ -466,6 +466,213 @@
 	letter-spacing: -0.025em;
 }
 
+/*
+ * El velo de la portada a sangre: cuánto se oscurece la foto para que el
+ * texto blanco se lea. Editorial lo deja leve; Noche lo hunde más, que es
+ * parte de su carácter.
+ */
+[data-storefront-template] .hero-veil {
+	background: linear-gradient(to top, rgb(0 0 0 / 55%), rgb(0 0 0 / 15%) 50%, transparent);
+}
+
+/*
+ * Galería: blanco total, esquinas rectas y letras pequeñas. La misma grotesca
+ * cerrada del sitio comercial, pero fina; los nombres de producto en
+ * mayúsculas pequeñas, como el cartelito de una vitrina.
+ */
+[data-storefront-template='galeria'] {
+	--background: #ffffff;
+	--foreground: #111111;
+	--card: #ffffff;
+	--card-foreground: #111111;
+	--popover: #ffffff;
+	--popover-foreground: #111111;
+	--primary: #111111;
+	--primary-foreground: #ffffff;
+	--secondary: #f5f5f5;
+	--secondary-foreground: #111111;
+	--muted: #f5f5f5;
+	--muted-foreground: #737373;
+	--accent: #efefef;
+	--accent-foreground: #111111;
+	--border: #e5e5e5;
+	--input: #e5e5e5;
+	--ring: #111111;
+	--radius: 0rem;
+	--font-body: 'Inter Tight Variable', ui-sans-serif, system-ui, sans-serif;
+	--font-title: var(--font-body);
+}
+
+[data-storefront-template='galeria'] :is(h1, h2, h3) {
+	font-weight: 500;
+	letter-spacing: -0.03em;
+}
+
+[data-storefront-template='galeria'] .product-card h3 {
+	font-size: 0.6875rem;
+	font-weight: 500;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+[data-storefront-template='galeria'] .eyebrow {
+	font-size: 0.6875rem;
+	letter-spacing: 0.24em;
+}
+
+/*
+ * Noche: casi negro, marfil y un ámbar para lo que se pulsa y para el precio.
+ * `color-scheme: dark` pinta oscuros los controles nativos. La portada a
+ * sangre hunde más la foto: el texto flota en penumbra.
+ */
+[data-storefront-template='noche'] {
+	--background: #0f0f10;
+	--foreground: #f3efe6;
+	--card: #17171a;
+	--card-foreground: #f3efe6;
+	--popover: #17171a;
+	--popover-foreground: #f3efe6;
+	--primary: #e0a458;
+	--primary-foreground: #14110a;
+	--secondary: #1d1d21;
+	--secondary-foreground: #f3efe6;
+	--muted: #1d1d21;
+	--muted-foreground: #a09a8f;
+	--accent: #26262b;
+	--accent-foreground: #f3efe6;
+	--border: rgb(255 255 255 / 12%);
+	--input: rgb(255 255 255 / 16%);
+	--ring: #e0a458;
+	--sale: #e8785a;
+	--sale-foreground: #14110a;
+	--success: #7fbf9a;
+	--success-foreground: #14110a;
+	--radius: 0.375rem;
+	color-scheme: dark;
+}
+
+[data-storefront-template='noche'] :is(h1, h2, h3) {
+	font-weight: 500;
+}
+
+[data-storefront-template='noche'] .hero-veil {
+	background: linear-gradient(
+		to top,
+		rgb(15 15 16 / 92%),
+		rgb(15 15 16 / 45%) 55%,
+		rgb(15 15 16 / 10%)
+	);
+}
+
+[data-storefront-template='noche'] .product-card {
+	border: 1px solid var(--border);
+	padding: 0.75rem;
+}
+
+[data-storefront-template='noche'] .product-card .price-tag {
+	color: var(--primary);
+}
+
+/*
+ * Vibrante: un cobalto de fondo en la portada, amarillo para los botones
+ * secundarios y los stickers, esquinas muy redondas y titulares muy negros.
+ */
+[data-storefront-template='vibrante'] {
+	--background: #fffdf7;
+	--foreground: #14120f;
+	--card: #ffffff;
+	--card-foreground: #14120f;
+	--popover: #ffffff;
+	--popover-foreground: #14120f;
+	--primary: #2d4bff;
+	--primary-foreground: #ffffff;
+	--secondary: #ffe66d;
+	--secondary-foreground: #14120f;
+	--muted: #f3efe4;
+	--muted-foreground: #6b665c;
+	--accent: #ffe66d;
+	--accent-foreground: #14120f;
+	--border: #e8e2d2;
+	--input: #e8e2d2;
+	--ring: #2d4bff;
+	--radius: 1.5rem;
+	--font-body: 'Inter Tight Variable', ui-sans-serif, system-ui, sans-serif;
+	--font-title: var(--font-body);
+}
+
+[data-storefront-template='vibrante'] :is(h1, h2, h3) {
+	font-weight: 800;
+	letter-spacing: -0.04em;
+}
+
+[data-storefront-template='vibrante'] .product-card > a > div:first-child {
+	border-radius: var(--radius);
+}
+
+/* El precio, como un sticker pegado un poco torcido. */
+[data-storefront-template='vibrante'] .product-card .price-tag {
+	display: inline-flex;
+	transform: rotate(-2deg);
+	border-radius: 999px;
+	background-color: var(--secondary);
+	color: var(--secondary-foreground);
+	padding: 0.2rem 0.7rem;
+	font-weight: 700;
+}
+
+/*
+ * Atelier: crema, negro y un dorado apagado que solo toca los detalles.
+ * Fraunces fina en los titulares, versalitas muy espaciadas en las
+ * etiquetas y el nombre de la tienda; el precio también en serif.
+ */
+[data-storefront-template='atelier'] {
+	--background: #f7f3ea;
+	--foreground: #1a1714;
+	--card: #fbf9f4;
+	--card-foreground: #1a1714;
+	--popover: #fbf9f4;
+	--popover-foreground: #1a1714;
+	--primary: #1a1714;
+	--primary-foreground: #f7f3ea;
+	--secondary: #efe9dc;
+	--secondary-foreground: #1a1714;
+	--muted: #efe9dc;
+	--muted-foreground: #6f675c;
+	--accent: #b89b5e;
+	--accent-foreground: #1a1714;
+	--border: #dcd3c2;
+	--input: #dcd3c2;
+	--ring: #b89b5e;
+	--radius: 0rem;
+}
+
+[data-storefront-template='atelier'] :is(h1, h2, h3) {
+	font-weight: 300;
+	letter-spacing: -0.01em;
+}
+
+[data-storefront-template='atelier'] .eyebrow {
+	color: var(--accent);
+	letter-spacing: 0.3em;
+}
+
+[data-storefront-template='atelier'] .store-name-centered {
+	font-family: var(--font-body);
+	font-weight: 500;
+	letter-spacing: 0.32em;
+	text-transform: uppercase;
+}
+
+[data-storefront-template='atelier'] .product-card {
+	border: 1px solid var(--border);
+	padding: 0.75rem;
+}
+
+[data-storefront-template='atelier'] .product-card .price-tag {
+	font-family: var(--font-title);
+	font-size: 1rem;
+}
+
 @layer base {
 	* {
 		@apply border-border outline-ring/50;

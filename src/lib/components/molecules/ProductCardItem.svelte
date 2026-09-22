@@ -22,7 +22,10 @@
 	const percent = $derived(discountPercent(product.price, product.compareAtPrice));
 </script>
 
-<article class="group relative">
+<!-- `product-card` es el gancho con que cada plantilla viste la tarjeta desde
+     `app.css` (marco, sticker de precio): la tarjeta no sabe en qué plantilla
+     está y no tiene por qué saberlo. -->
+<article class="product-card group relative">
 	<a href="/tienda/{product.slug}" class="block focus-visible:outline-none">
 		<div
 			class="relative overflow-hidden"
@@ -77,7 +80,7 @@
 			</div>
 		</div>
 
-		<div class="mt-3 space-y-1">
+		<div class="product-card-body mt-3 space-y-1">
 			<h3 class="font-sans text-sm font-medium tracking-tight">{product.name}</h3>
 			<PriceTag price={product.price} compareAtPrice={product.compareAtPrice} size="sm" />
 		</div>

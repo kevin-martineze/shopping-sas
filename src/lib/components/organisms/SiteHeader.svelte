@@ -13,6 +13,7 @@
 	import { Button } from '$lib/components/atoms/button';
 	import { Input } from '$lib/components/atoms/input';
 	import * as Sheet from '$lib/components/atoms/sheet';
+	import { templateOf } from '$lib/domain/templates';
 	import { cart } from '$lib/stores/cart.svelte';
 	import { favorites } from '$lib/stores/favorites.svelte';
 	import { cn } from '$lib/utils';
@@ -30,6 +31,14 @@
 	let query = $state('');
 
 	const currentPath = $derived(page.url.pathname);
+
+	/**
+	 * `bar`: nombre a la izquierda, menú al lado, iconos a la derecha.
+	 * `centered`: el nombre solo, centrado y en versalitas, con el menú
+	 * debajo también centrado; los iconos quedan en las esquinas. Lo decide
+	 * la plantilla.
+	 */
+	const centered = $derived(templateOf(settings.template).header === 'centered');
 
 	let hidden = $state(false);
 
@@ -72,7 +81,12 @@
 		hidden && '-translate-y-full'
 	)}
 >
-	<div class="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 sm:px-6">
+	<div
+		class={cn(
+			'mx-auto flex max-w-7xl items-center gap-4 px-4 sm:px-6',
+			centered ? 'h-20 lg:grid lg:grid-cols-[1fr_auto_1fr]' : 'h-16'
+		)}
+	>
 		<Button
 			type="button"
 			variant="ghost"
@@ -84,11 +98,24 @@
 			<Menu class="size-5" />
 		</Button>
 
-		<a href="/" class="font-display text-2xl tracking-tight sm:text-3xl">
+		<a
+			href="/"
+			class={cn(
+				'font-display tracking-tight',
+				centered
+					? 'store-name-centered mx-auto text-center text-lg sm:text-xl lg:col-start-2'
+					: 'text-2xl sm:text-3xl'
+			)}
+		>
 			{settings.store_name}
 		</a>
 
-		<nav class="ml-8 hidden items-center gap-6 lg:flex">
+		<nav
+			class={cn(
+				'hidden items-center gap-6 lg:flex',
+				centered ? 'col-span-3 row-start-2 justify-center pb-4' : 'ml-8'
+			)}
+		>
 			<a
 				href="/tienda"
 				class={cn(
@@ -118,7 +145,7 @@
 			{/if}
 		</nav>
 
-		<div class="ml-auto flex items-center gap-1">
+		<div class={cn('ml-auto flex items-center gap-1', centered && 'lg:col-start-3 lg:row-start-1')}>
 			<Button
 				type="button"
 				variant="ghost"
