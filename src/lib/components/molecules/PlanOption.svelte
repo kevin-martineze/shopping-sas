@@ -3,30 +3,34 @@
 	import Sparkles from '@lucide/svelte/icons/sparkles';
 
 	import type { Plan } from '$lib/domain/account';
+	import { Badge } from '$lib/components/atoms/badge';
 	import { planFeatures } from '$lib/domain/account';
 	import { cn } from '$lib/utils';
 	import { formatMoney } from '$lib/utils/money';
 
 	/**
-	 * Un plan para elegir, no para leer.
+	 * Un plan para elegir, dentro del formulario.
 	 *
-	 * A diferencia de PlanCard —la de la página de precios, que vende— esta se
-	 * usa dentro del formulario: enumera lo justo para decidir entre tres, y el
-	 * radio de verdad queda oculto pero presente, así el formulario sigue
-	 * funcionando sin JavaScript y el teclado lo recorre como cualquier grupo.
+	 * Dice exactamente lo mismo que PlanCard —la de la página de precios—:
+	 * la lista completa de `planFeatures`, el «Con asistente» y el
+	 * «Recomendado». Antes recortaba a cuatro ventajas para que cupiera, y
+	 * quien venía de leer los precios encontraba aquí un plan que parecía
+	 * traer menos. Lo que cambia es la forma: el radio de verdad queda oculto
+	 * pero presente, así el formulario sigue funcionando sin JavaScript y el
+	 * teclado lo recorre como cualquier grupo.
 	 */
 	interface Props {
 		plan: Plan;
 		seleccionado: boolean;
-		/** Cuántas ventajas se enumeran: aquí no caben todas. */
-		ventajas?: number;
+		/** El plan que se recomienda: el mismo que destaca la página de precios. */
+		recomendado?: boolean;
 		onseleccionar: () => void;
 	}
 
-	let { plan, seleccionado, ventajas = 4, onseleccionar }: Props = $props();
+	let { plan, seleccionado, recomendado = false, onseleccionar }: Props = $props();
 
 	const conAsistente = $derived(plan.ai_replies_per_month > 0);
-	const caracteristicas = $derived(planFeatures(plan).slice(0, ventajas));
+	const caracteristicas = $derived(planFeatures(plan));
 </script>
 
 <label class={cn('block h-full rounded-lg', conAsistente && 'ai-aurora ai-aurora-sutil')}>
@@ -49,10 +53,10 @@
 		)}
 	>
 		<span class="flex items-start justify-between gap-2">
-			<span class="flex items-center gap-1.5 font-medium">
+			<span class="flex flex-wrap items-center gap-2 font-medium">
 				{plan.name}
-				{#if conAsistente}
-					<Sparkles class="size-3.5" />
+				{#if recomendado}
+					<Badge variant="secondary">Recomendado</Badge>
 				{/if}
 			</span>
 
@@ -74,7 +78,14 @@
 			>
 		</span>
 
-		<ul class="text-muted-foreground mt-5 space-y-2 text-xs">
+		{#if conAsistente}
+			<span class="mt-3 flex items-center gap-1.5 text-xs font-medium">
+				<Sparkles class="size-3.5 flex-none" />
+				Con asistente
+			</span>
+		{/if}
+
+		<ul class={cn('text-muted-foreground space-y-2 text-xs', conAsistente ? 'mt-3' : 'mt-5')}>
 			{#each caracteristicas as caracteristica (caracteristica)}
 				<li class="flex gap-1.5">
 					<Check class="mt-0.5 size-3 shrink-0" />
