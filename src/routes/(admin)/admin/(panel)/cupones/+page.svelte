@@ -39,7 +39,7 @@
 
 <FormFeedback error={form?.error ?? null} />
 
-<section class="border-border bg-background mb-8 border p-6">
+<section class="border-border bg-card rounded-lg mb-8 border p-6">
 	<h2 class="mb-4 text-lg">Nuevo cupón</h2>
 
 	<form method="POST" action="?/crear" class="grid gap-4 sm:grid-cols-3" use:enhance>
@@ -105,7 +105,7 @@
 		Todavía no hay cupones.
 	</p>
 {:else}
-	<div class="border-border bg-background border">
+	<div class="border-border bg-card overflow-hidden rounded-lg border">
 		<Table.Root class="table-stack">
 			<Table.Header>
 				<Table.Row>

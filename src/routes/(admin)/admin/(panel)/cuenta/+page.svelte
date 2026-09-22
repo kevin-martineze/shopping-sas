@@ -40,7 +40,7 @@
 />
 
 <div class="grid gap-6 lg:grid-cols-2">
-	<section class="border-border bg-background border p-6">
+	<section class="border-border bg-card rounded-lg border p-6">
 		<h2 class="mb-4 text-lg">Cambiar contraseña</h2>
 
 		<form
@@ -93,7 +93,7 @@
 		</form>
 	</section>
 
-	<section class="border-border bg-background border p-6">
+	<section class="border-border bg-card rounded-lg border p-6">
 		<h2 class="mb-4 text-lg">Tus tiendas</h2>
 
 		<ul class="divide-border divide-y">

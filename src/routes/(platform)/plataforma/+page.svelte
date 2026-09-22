@@ -117,7 +117,7 @@
 </div>
 
 <div class="mt-8 grid gap-6 lg:grid-cols-2">
-	<section class="border-border bg-background border">
+	<section class="border-border bg-card overflow-hidden rounded-lg border">
 		<header class="border-border flex items-center justify-between border-b px-4 py-3">
 			<h2 class="text-lg">Por cobrar</h2>
 			<a href="/plataforma/tiendas?vencidas=1" class="text-muted-foreground text-xs underline">
@@ -170,7 +170,7 @@
 		{/if}
 	</section>
 
-	<section class="border-border bg-background border">
+	<section class="border-border bg-card overflow-hidden rounded-lg border">
 		<header class="border-border flex items-center justify-between border-b px-4 py-3">
 			<h2 class="text-lg">Últimos pagos</h2>
 			<a href="/plataforma/pagos" class="text-muted-foreground text-xs underline">Ver por mes</a>

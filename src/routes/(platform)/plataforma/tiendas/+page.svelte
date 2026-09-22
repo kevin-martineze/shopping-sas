@@ -58,7 +58,7 @@
 </header>
 
 <section
-	class="border-border bg-background mb-6 grid gap-3 border p-4 sm:grid-cols-[1fr_14rem_auto]"
+	class="border-border bg-card rounded-lg mb-6 grid gap-3 border p-4 sm:grid-cols-[1fr_14rem_auto]"
 >
 	<form
 		class="relative"
@@ -103,7 +103,7 @@
 		Ninguna tienda coincide.
 	</p>
 {:else}
-	<div class="border-border bg-background border">
+	<div class="border-border bg-card overflow-hidden rounded-lg border">
 		<Table.Root class="table-stack">
 			<Table.Header>
 				<Table.Row>
@@ -146,7 +146,7 @@
 	<h2 class="mb-3 text-lg">Planes</h2>
 	<div class="grid gap-4 sm:grid-cols-2">
 		{#each data.plans as plan (plan.code)}
-			<div class="border-border bg-background border p-4 text-sm">
+			<div class="border-border bg-card rounded-lg border p-4 text-sm">
 				<p class="font-medium">{plan.name} · {formatMoney(plan.price_cop)}/mes</p>
 				<p class="text-muted-foreground">
 					{plan.max_products ?? 'Sin límite de'} productos ·

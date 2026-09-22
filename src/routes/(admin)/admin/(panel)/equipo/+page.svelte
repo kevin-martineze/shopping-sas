@@ -56,7 +56,7 @@
 />
 
 {#if data.canManage}
-	<section class="border-border bg-background mb-8 border p-6">
+	<section class="border-border bg-card rounded-lg mb-8 border p-6">
 		<h2 class="mb-4 text-lg">Invitar a alguien</h2>
 
 		<form
@@ -94,7 +94,7 @@
 	</section>
 {/if}
 
-<section class="border-border bg-background mb-8 border">
+<section class="border-border bg-card mb-8 overflow-hidden rounded-lg border">
 	<Table.Root class="table-stack">
 		<Table.Header>
 			<Table.Row>
@@ -170,7 +170,7 @@
 </section>
 
 {#if data.canManage && data.invitations.length > 0}
-	<section class="border-border bg-background border">
+	<section class="border-border bg-card overflow-hidden rounded-lg border">
 		<h2 class="border-border border-b px-4 py-3 text-lg">Invitaciones pendientes</h2>
 
 		<Table.Root class="table-stack">

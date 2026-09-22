@@ -254,7 +254,6 @@
  * oscuro, o una banda oscura en medio de la página blanca. No pintan ni
  * ponen fuente —eso lo hace cada elemento con `bg-background` y demás—,
  * porque una regla sin capa le ganaría a `bg-background/80` en la cabecera.
- * Los valores oscuros son los del panel y se comparten en su bloque, abajo.
  */
 .marketing {
 	/* Una sola familia en todo el sitio comercial: el peso hace de titular. */
@@ -293,35 +292,18 @@
 }
 
 /*
- * El panel, del brandkit: «panel oscuro, tienda clara».
- *
- * Aislado en `.admin-shell` por la misma razón que `.marketing`: los átomos
- * —botón, campo, tarjeta— son los mismos que usan las tiendas de los clientes,
- * y una tienda no puede amanecer oscura porque el panel lo sea. Los valores
- * sobre fondo oscuro son los que el kit usa en sus propias tarjetas y mockups
- * del panel; los del tema `.dark` de fábrica de shadcn no se reutilizan porque
- * son grises cálidos de otra paleta.
- *
- * `color-scheme: dark` es lo que hace que el navegador pinte oscuros los
- * controles que no pasan por nuestros átomos: la barra de desplazamiento, el
- * calendario de un `<input type="date">`, el selector nativo del cambio de
- * tienda.
- *
- * Los colores los comparte `.marketing-dark`: las bandas oscuras del sitio
- * comercial son la misma pizarra, con el mismo teal claro para lo que se
- * pulsa. Lo que es solo del panel —radio, esquema, fuente— va aparte.
+ * Las bandas oscuras del sitio comercial —hero, celular, cierre, pie—: la
+ * pizarra del brandkit, con el teal claro para lo que se pulsa, porque sobre
+ * oscuro el Teal Globin se hunde. Solo tokens; quien pinta es cada banda.
  */
-.admin-shell,
 .marketing-dark {
 	--background: #0e1a1c; /* Pizarra */
 	--foreground: #f6f4ef; /* Lino, como texto */
-	--card: #1a2628; /* Panel */
+	--card: #1a2628;
 	--card-foreground: #f6f4ef;
 	--popover: #1a2628;
 	--popover-foreground: #f6f4ef;
-	/* La acción sigue siendo teal, pero sobre oscuro el Teal Globin se hunde:
-	   el kit sube al Teal Claro para lo que hay que ver y pulsar. */
-	--primary: #48a79c;
+	--primary: #48a79c; /* Teal Claro */
 	--primary-foreground: #0e1a1c;
 	--secondary: #1a2628;
 	--secondary-foreground: #f6f4ef;
@@ -345,28 +327,79 @@
 	--success-foreground: #0e1a1c;
 	--whatsapp: #7fbdb4;
 	--whatsapp-foreground: #0e1a1c;
-
-	/* La barra lateral, un paso más oscura que las tarjetas. */
-	--sidebar: #0e1a1c;
-	--sidebar-foreground: #f6f4ef;
-	--sidebar-primary: #48a79c;
-	--sidebar-primary-foreground: #0e1a1c;
-	--sidebar-accent: #1a2628;
-	--sidebar-accent-foreground: #f6f4ef;
-	--sidebar-border: rgb(255 255 255 / 9%);
-	--sidebar-ring: #7fbdb4;
 }
 
+/*
+ * El panel: neutro y claro, a la manera de un tablero de shadcn.
+ *
+ * Cascarón gris —ahí viven la barra lateral y el borde de la ventana— y el
+ * contenido en un panel blanco con esquinas suaves (`.admin-inset`). Sobre
+ * ese blanco, las cajas y tablas van en blanco con borde: la jerarquía la
+ * dan los bordes y el aire, no los fondos. Se probó lino y se probó oscuro;
+ * lo que cansa menos durante horas es esto.
+ *
+ * Lo único de marca que se conserva es lo que se pulsa: Teal Globin para la
+ * acción y Teal Claro para el foco. Todo lo demás es gris neutro, para que
+ * las fotos y los colores de cada tienda no compitan con la interfaz.
+ *
+ * Aislado en `.admin-shell` por la misma razón que `.marketing`: los átomos
+ * son los mismos que usan las tiendas de los clientes, y una tienda no puede
+ * cambiar de color porque el panel lo haga.
+ */
 .admin-shell {
-	/* Interfaz tranquila: sin serif en el panel, aunque `.admin-shell` no
-	   necesite decirlo — hereda la Hanken de `:root` y el título de página ya
-	   la fuerza a sans en `@layer base`, más abajo. */
-	--radius: 0.875rem;
+	--background: #ffffff;
+	--foreground: #0e1a1c; /* Pizarra */
+	--card: #ffffff;
+	--card-foreground: #0e1a1c;
+	--popover: #ffffff;
+	--popover-foreground: #0e1a1c;
+	--primary: #1e6f6b; /* Teal Globin: la acción */
+	--primary-foreground: #ffffff;
+	--secondary: #f4f4f5;
+	--secondary-foreground: #0e1a1c;
+	--muted: #f4f4f5;
+	--muted-foreground: #64696b;
+	--accent: #f4f4f5;
+	--accent-foreground: #0e1a1c;
+	--border: #e4e4e7;
+	--input: #e4e4e7;
+	--ring: #48a79c; /* Teal Claro */
+	--caution: #c0662f; /* Terracota: queda poco, alguien espera */
 
-	background-color: var(--background);
+	/* El cascarón: la barra lateral es del mismo gris que el fondo de la
+	   ventana, sin borde; lo que se destaca es el panel blanco de contenido. */
+	--sidebar: #f4f4f5;
+	--sidebar-foreground: #0e1a1c;
+	--sidebar-primary: #1e6f6b;
+	--sidebar-primary-foreground: #ffffff;
+	--sidebar-accent: #e7e7e9;
+	--sidebar-accent-foreground: #0e1a1c;
+	--sidebar-border: #e4e4e7;
+	--sidebar-ring: #48a79c;
+
+	/* El radio de fábrica de shadcn: cajas en `rounded-lg`, tarjetas en
+	   `rounded-xl`. Interfaz tranquila: sin serif, hereda la Hanken de
+	   `:root` y el título de página ya la fuerza a sans en `@layer base`. */
+	--radius: 0.625rem;
+
+	background-color: var(--sidebar);
 	color: var(--foreground);
-	color-scheme: dark;
+	color-scheme: light;
 	font-family: var(--font-body);
+}
+
+/* El panel blanco donde va el contenido, como el `SidebarInset` de shadcn. */
+.admin-inset {
+	background-color: var(--background);
+}
+
+/*
+ * La cabecera de toda tabla del panel en gris, como en los tableros de
+ * shadcn: se lee como cabecera sin necesitar una línea más gruesa. Va fuera
+ * de capa para ganarle a cualquier utilidad de la primitiva.
+ */
+.admin-shell [data-slot='table-header'] {
+	background-color: var(--muted);
 }
 
 /*

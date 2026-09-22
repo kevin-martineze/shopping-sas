@@ -109,7 +109,7 @@
 />
 
 <div class="grid gap-6 lg:grid-cols-3">
-	<section class="border-border bg-background space-y-3 border p-6 text-sm">
+	<section class="border-border bg-card rounded-lg space-y-3 border p-6 text-sm">
 		<h2 class="text-lg">Suscripción</h2>
 		<dl class="space-y-2">
 			<div class="flex justify-between gap-4">
@@ -149,7 +149,7 @@
 		</ul>
 	</section>
 
-	<section class="border-border bg-background border p-6">
+	<section class="border-border bg-card rounded-lg border p-6">
 		<h2 class="mb-4 text-lg">Registrar pago</h2>
 
 		{#key store.current_period_end}
@@ -196,7 +196,7 @@
 		{/key}
 	</section>
 
-	<section class="border-border bg-background border p-6">
+	<section class="border-border bg-card rounded-lg border p-6">
 		<h2 class="mb-4 text-lg">Cambiar plan</h2>
 
 		<form method="POST" action="?/plan" class="space-y-3" use:enhance>
@@ -231,7 +231,7 @@
 	</section>
 </div>
 
-<section class="border-border bg-background mt-6 border">
+<section class="border-border bg-card mt-6 overflow-hidden rounded-lg border">
 	<h2 class="border-border border-b px-4 py-3 text-lg">Pagos</h2>
 
 	{#if store.payments.length === 0}

@@ -89,7 +89,7 @@
 	</Tabs.List>
 
 	<Tabs.Content value="datos" class="pt-6">
-		<div class="border-border bg-background max-w-3xl border p-6">
+		<div class="border-border bg-card rounded-lg max-w-3xl border p-6">
 			<ProductForm
 				categories={data.categories}
 				action="?/actualizar"
@@ -108,7 +108,7 @@
 			/>
 		</div>
 
-		<div class="border-destructive/40 mt-8 max-w-3xl border p-6">
+		<div class="border-destructive/40 mt-8 max-w-3xl rounded-lg border p-6">
 			<h2 class="text-lg">Eliminar producto</h2>
 			<p class="text-muted-foreground mt-1 text-sm">
 				Si el producto ya salió en pedidos no se borra: se archiva para conservar el historial.
@@ -124,7 +124,7 @@
 	</Tabs.Content>
 
 	<Tabs.Content value="fotos" class="pt-6">
-		<div class="border-border bg-background space-y-6 border p-6">
+		<div class="border-border bg-card rounded-lg space-y-6 border p-6">
 			<form
 				method="POST"
 				action="?/subirImagen"

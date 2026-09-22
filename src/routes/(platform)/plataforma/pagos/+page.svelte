@@ -81,7 +81,7 @@
 	</div>
 </header>
 
-<div class="border-border bg-background mb-6 border p-6">
+<div class="border-border bg-card rounded-lg mb-6 border p-6">
 	<p class="text-muted-foreground text-sm">Total cobrado</p>
 	<p class="text-3xl font-semibold tabular-nums">{formatMoney(report.total)}</p>
 </div>
@@ -93,7 +93,7 @@
 		No hay pagos registrados en este mes.
 	</p>
 {:else}
-	<div class="border-border bg-background border">
+	<div class="border-border bg-card overflow-hidden rounded-lg border">
 		<Table.Root class="table-stack">
 			<Table.Header>
 				<Table.Row>

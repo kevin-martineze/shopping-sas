@@ -30,7 +30,7 @@
 	</p>
 </header>
 
-<div class="border-border bg-background max-w-3xl border p-6">
+<div class="border-border bg-card rounded-lg max-w-3xl border p-6">
 	<ProductForm
 		categories={data.categories}
 		error={form?.error ?? null}
