@@ -26,6 +26,13 @@
 
 <FormFeedback error={form?.error ?? null} message={null} />
 
+{#if data.cobrosPendientes}
+	<p class="border-caution/40 bg-caution/10 text-foreground mb-6 rounded-lg border p-4 text-sm">
+		Tu tienda quedó creada, pero no pudimos conectar tus llaves de Wompi. Inténtalo otra vez desde
+		<a href="/admin/pagos" class="underline underline-offset-2">Pagos</a>.
+	</p>
+{/if}
+
 <TemplatePicker
 	current={data.settings.template}
 	storeUrl={data.storeUrl}

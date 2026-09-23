@@ -13,6 +13,7 @@
 	import PlanOption from '$lib/components/molecules/PlanOption.svelte';
 	import Stepper from '$lib/components/molecules/Stepper.svelte';
 	import TextField from '$lib/components/molecules/TextField.svelte';
+	import WompiKeysPaste from '$lib/components/molecules/WompiKeysPaste.svelte';
 	import { TIENDA_MAQUETA } from '$lib/config/maqueta';
 	import { TRIAL_DAYS } from '$lib/domain/account';
 	import { joinPhone, splitPhone } from '$lib/domain/phone';
@@ -139,7 +140,10 @@
 						id: 'cuenta',
 						titulo: 'Tu cuenta',
 						campos: ['fullName', 'email', 'password', 'confirm'] as Campo[]
-					}
+					},
+			// Sin campos del esquema: las llaves se validan enteras, las cuatro
+			// juntas, y no una por una como el resto del formulario.
+			{ id: 'cobros', titulo: 'Cobros', campos: [] as Campo[] }
 		].filter((paso) => paso !== null)
 	);
 
@@ -202,13 +206,25 @@
 	async function irAlPrimerError(fallos: FieldErrors) {
 		const primero = campos.find((campo) => campo in fallos);
 
-		if (!primero) return;
+		if (primero) {
+			const indice = pasoDe(primero);
 
-		const indice = pasoDe(primero);
+			if (indice >= 0) pasoActual = indice;
+
+			await enfocar(primero);
+			return;
+		}
+
+		// `pasteText` no es un campo del esquema, así que la búsqueda de arriba
+		// no lo encuentra: su paso se ubica por el identificador.
+		if (!('pasteText' in fallos)) return;
+
+		const indice = pasos.findIndex((paso) => paso.id === 'cobros');
 
 		if (indice >= 0) pasoActual = indice;
 
-		await enfocar(primero);
+		await tick();
+		formulario?.querySelector<HTMLTextAreaElement>('#wompi-paste')?.focus();
 	}
 
 	/** Avanza solo si lo de este paso está bien: así el error se corrige donde se escribió. */
@@ -417,6 +433,28 @@
 			</div>
 		</fieldset>
 	{/if}
+
+	<!--
+		Las llaves son opcionales y van al final a propósito: quien todavía no
+		tiene cuenta de Wompi abre la tienda igual y las conecta después desde
+		Pagos. Pedirlas antes del nombre de la tienda sería un muro.
+	-->
+	<fieldset class="space-y-4" hidden={oculto('cobros')}>
+		<legend class="mb-3 text-sm font-medium">Cobros en línea</legend>
+
+		<p class="text-muted-foreground text-sm">
+			Si ya tienes cuenta de comercio en Wompi, pega sus cuatro llaves y tu tienda nace cobrando con
+			tarjeta, PSE o Nequi. La plata llega a tu cuenta: Globerce no la toca ni cobra comisión por
+			venta.
+		</p>
+
+		<WompiKeysPaste error={errors.pasteText} manualHref={null} />
+
+		<p class="text-muted-foreground text-xs">
+			Puedes dejarlo en blanco: tu tienda se crea igual y esto se conecta cuando quieras desde
+			Pagos, en tu panel.
+		</p>
+	</fieldset>
 
 	{#if result?.error}
 		<p class="text-destructive text-sm">{result.error}</p>
