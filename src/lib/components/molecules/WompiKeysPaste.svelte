@@ -26,9 +26,15 @@
 	 */
 	interface Props {
 		error?: string | null;
+		/**
+		 * A dónde mandar a quien no tiene JavaScript para pegarlas una por una.
+		 * Sin él no se ofrece esa salida: en el registro no hay formulario
+		 * manual, y las llaves son opcionales.
+		 */
+		manualHref?: string | null;
 	}
 
-	let { error = null }: Props = $props();
+	let { error = null, manualHref = '#wompi-manual' }: Props = $props();
 
 	let texto = $state('');
 	const keys = $derived(parseWompiKeys(texto));
@@ -103,10 +109,12 @@
 
 	<p class="text-muted-foreground text-xs">
 		{#if completas}
-			Reconocimos las cuatro. Revisa que sean las correctas y conecta.
-		{:else}
+			Reconocimos las cuatro. Revisa que sean las correctas.
+		{:else if manualHref}
 			¿No tienes JavaScript o prefieres pegarlas una por una? Usa
-			<a href="#wompi-manual" class="underline underline-offset-2">el formulario de abajo</a>.
+			<a href={manualHref} class="underline underline-offset-2">el formulario de abajo</a>.
+		{:else}
+			Pégalas juntas: las reconocemos por su prefijo, en el orden que sea.
 		{/if}
 	</p>
 </div>
