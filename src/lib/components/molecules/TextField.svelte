@@ -21,6 +21,8 @@
 		error?: string | null;
 		required?: boolean;
 		autocomplete?: HTMLInputAttributes['autocomplete'];
+		/** Qué teclado abre el celular. `numeric` para lo que solo son dígitos. */
+		inputmode?: HTMLInputAttributes['inputmode'];
 		placeholder?: string;
 		minlength?: number;
 		maxlength?: number;
@@ -40,6 +42,7 @@
 		error = null,
 		required = false,
 		autocomplete,
+		inputmode,
 		placeholder,
 		minlength,
 		maxlength,
@@ -62,6 +65,7 @@
 			{type}
 			{required}
 			{autocomplete}
+			{inputmode}
 			{placeholder}
 			{minlength}
 			{maxlength}
