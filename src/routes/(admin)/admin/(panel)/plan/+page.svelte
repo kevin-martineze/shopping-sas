@@ -10,6 +10,7 @@
 	import * as Table from '$lib/components/atoms/table';
 	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 	import UsageMeter from '$lib/components/molecules/UsageMeter.svelte';
+	import PaymentCard from '$lib/components/organisms/PaymentCard.svelte';
 	import { planFeatures, STORE_STATUS_LABEL } from '$lib/domain/account';
 	import { cn } from '$lib/utils';
 	import { formatMoney } from '$lib/utils/money';
@@ -55,9 +56,23 @@
 	</p>
 </header>
 
-<!-- Solo errores: cuando el cobro sale bien, esta página ya no está —se fue a
+<!-- El error de cualquier acción, y el mensaje de la tarjeta. Del cobro a mano
+     no hay mensaje que dar: cuando sale bien esta página ya no está —se fue a
      la pasarela— y quien confirma es su evento. -->
-<FormFeedback error={form?.error ?? null} message={null} />
+<FormFeedback
+	error={form && 'error' in form ? (form.error ?? null) : null}
+	message={form && 'message' in form ? (form.message ?? null) : null}
+/>
+
+<div class="mb-6">
+	<PaymentCard
+		method={subscription.payment_method}
+		billing={data.billing}
+		canPay={data.canPay}
+		{periodEnd}
+		enPrueba={subscription.store_status === 'trial'}
+	/>
+</div>
 
 <div class="grid gap-6 lg:grid-cols-3">
 	<section

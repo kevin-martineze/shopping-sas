@@ -190,7 +190,7 @@
 					<ul class="text-muted-foreground flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
 						<li class="flex items-center gap-2">
 							<BadgeCheck class="text-primary size-4" aria-hidden="true" />
-							{TRIAL_DAYS} días gratis, sin tarjeta
+							{TRIAL_DAYS} días gratis, sin cobro
 						</li>
 						<li class="flex items-center gap-2">
 							<BadgeCheck class="text-primary size-4" aria-hidden="true" />
@@ -499,7 +499,7 @@
 						data-reveal
 					>
 						<p class="text-center text-lg font-medium md:text-left">
-							{TRIAL_DAYS} días gratis, sin tarjeta. Tu tienda queda lista hoy mismo.
+							{TRIAL_DAYS} días gratis y cancelas cuando quieras. Tu tienda queda lista hoy mismo.
 						</p>
 						<Button
 							href="/registro"

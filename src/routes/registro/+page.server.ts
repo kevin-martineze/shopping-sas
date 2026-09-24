@@ -1,15 +1,14 @@
 import { fail, redirect } from '@sveltejs/kit';
 
 import type { Actions, PageServerLoad } from './$types';
-import type { WompiKeys } from '$lib/domain/wompi';
 import type { ApiFailure } from '$lib/server/api/client';
 import type { AdminSession } from '$lib/server/session-crypto';
 import type { FieldErrors } from '$lib/utils/form';
 import { joinPhone } from '$lib/domain/phone';
-import { completeWompiKeys, parseWompiKeys } from '$lib/domain/wompi';
 import { planCodeSchema, registerSchema, storeFieldsSchema } from '$lib/schemas/account';
 import { createStore, register } from '$lib/server/api/auth';
-import { connectPaymentAccount } from '$lib/server/api/panel-payments';
+import { getBillingSetup } from '$lib/server/api/billing';
+import { savePaymentMethod } from '$lib/server/api/panel-team';
 import { listPublicPlans } from '$lib/server/api/plans';
 import { accountContext, clientAddress, displayStatus } from '$lib/server/context';
 import { serverEnv } from '$lib/server/env';
@@ -18,7 +17,8 @@ import { fieldErrors } from '$lib/utils/form';
 
 export const load: PageServerLoad = async (event) => {
 	const rootDomain = serverEnv().PUBLIC_STORE_ROOT_DOMAIN;
-	const plans = await listPublicPlans(clientAddress(event));
+	const ip = clientAddress(event);
+	const [plans, billing] = await Promise.all([listPublicPlans(ip), getBillingSetup(ip)]);
 	// Sin planes se registra igual y la API pone el básico: no poder mostrar los
 	// precios no puede ser motivo para no dejar abrir la tienda.
 	const disponibles = plans.ok ? plans.data : [];
@@ -27,6 +27,11 @@ export const load: PageServerLoad = async (event) => {
 	return {
 		// Con sesión se crea una tienda más para esa cuenta: no se piden sus datos.
 		signedIn: event.locals.session !== null,
+		// Sin pasarela no se pide tarjeta, igual que sin planes no se elige plan:
+		// no poder cobrar después no puede impedir abrir la tienda hoy.
+		billing: billing.ok
+			? billing.data
+			: { available: false, public_key: '', api_url: '', acceptance_token: '', terms_url: '' },
 		addressSuffix: rootDomain ? `.${rootDomain}` : null,
 		plans: disponibles,
 		// El que venía de la página de precios; si no, el primero de la lista.
@@ -46,28 +51,28 @@ function apiError(result: ApiFailure): { error?: string; errors?: FieldErrors } 
 }
 
 /**
- * Conecta la cuenta de cobro de una tienda recién creada, y dice a dónde ir.
+ * Guarda la tarjeta de la tienda recién creada, y dice a dónde ir.
  *
- * Corre DESPUÉS de crear la tienda porque hace falta su sesión, y eso obliga a
- * una regla: un fallo acá no puede deshacer la tienda ni devolver el
- * formulario. La tienda ya existe; reenviarlo crearía otra. Así que se entra
- * igual, avisando de lo que quedó pendiente.
+ * Va DESPUÉS de crear la tienda porque hace falta su sesión, y eso obliga a
+ * una regla: un fallo acá no puede devolver el formulario. La tienda ya
+ * existe; reenviarlo crearía otra. Así que se entra igual, avisando.
  *
- * Las llaves ya vinieron reconocidas: lo único que puede fallar acá es la API.
+ * Guardar la tarjeta no cobra nada: el primer cobro es el día que termina la
+ * prueba, y lo hace la tarea diaria de la API.
  */
-async function conectarCobros(
+async function guardarTarjeta(
 	session: AdminSession,
-	keys: WompiKeys | null,
+	card: { cardToken: string; acceptanceToken: string } | null,
 	clientIp: string | null
 ): Promise<string> {
-	if (!keys || !session.storeId) return '/admin/bienvenida';
+	if (!card || !session.storeId) return '/admin/bienvenida';
 
-	const result = await connectPaymentAccount(
+	const result = await savePaymentMethod(
 		{ storeId: session.storeId, accessToken: session.accessToken, clientIp },
-		keys
+		card
 	);
 
-	return result.ok ? '/admin/bienvenida' : '/admin/bienvenida?cobros=pendiente';
+	return result.ok ? '/admin/bienvenida' : '/admin/bienvenida?tarjeta=pendiente';
 }
 
 export const actions: Actions = {
@@ -94,11 +99,11 @@ export const actions: Actions = {
 		const plan = planCodeSchema.safeParse(formData.get('planCode'));
 		const planCode = plan.success ? plan.data : undefined;
 
-		// Las llaves de Wompi son opcionales. Se reconocen ANTES de crear nada:
-		// si el pegado no trae las cuatro, se puede devolver el formulario sin
-		// que exista todavía una tienda a medio conectar.
-		const pasteText = text('pasteText').trim();
-		const keys = pasteText ? completeWompiKeys(parseWompiKeys(pasteText)) : null;
+		// La tarjeta ya viene tokenizada por el navegador: acá nunca llega un
+		// número. Es opcional, y sin ella la tienda se crea igual.
+		const cardToken = text('cardToken');
+		const acceptanceToken = text('acceptanceToken');
+		const card = cardToken && acceptanceToken ? { cardToken, acceptanceToken } : null;
 
 		// Lo tecleado vuelve a la página para no perderlo si algo falla. Las
 		// contraseñas no: no viajan de vuelta ni para eso.
@@ -110,18 +115,6 @@ export const actions: Actions = {
 			email: fields.email,
 			planCode
 		};
-
-		// Lo pegado no vuelve a la página ni cuando falla: son secretos de cobro,
-		// igual que las contraseñas.
-		if (pasteText && !keys) {
-			return fail(400, {
-				errors: {
-					pasteText:
-						'No reconocimos las cuatro llaves en lo que pegaste. Revísalas, o deja el cuadro vacío y conéctalas luego desde Pagos.'
-				},
-				values
-			});
-		}
 
 		if (locals.session) {
 			const parsed = storeFieldsSchema.safeParse(fields);
@@ -143,7 +136,7 @@ export const actions: Actions = {
 			writeSession(cookies, session);
 
 			// La tienda ya existe; lo primero que se elige es con qué se viste.
-			redirect(303, await conectarCobros(session, keys, ip));
+			redirect(303, await guardarTarjeta(session, card, ip));
 		}
 
 		const parsed = registerSchema.safeParse(fields);
@@ -170,6 +163,6 @@ export const actions: Actions = {
 		const session = toAdminSession(result.data);
 
 		writeSession(cookies, session);
-		redirect(303, await conectarCobros(session, keys, ip));
+		redirect(303, await guardarTarjeta(session, card, ip));
 	}
 };

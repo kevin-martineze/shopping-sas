@@ -26,10 +26,10 @@
 
 <FormFeedback error={form?.error ?? null} message={null} />
 
-{#if data.cobrosPendientes}
+{#if data.tarjetaPendiente}
 	<p class="border-caution/40 bg-caution/10 text-foreground mb-6 rounded-lg border p-4 text-sm">
-		Tu tienda quedó creada, pero no pudimos conectar tus llaves de Wompi. Inténtalo otra vez desde
-		<a href="/admin/pagos" class="underline underline-offset-2">Pagos</a>.
+		Tu tienda quedó creada, pero no pudimos guardar tu tarjeta. No se te cobró nada. Ponla cuando
+		quieras desde <a href="/admin/plan" class="underline underline-offset-2">Plan</a>.
 	</p>
 {/if}
 

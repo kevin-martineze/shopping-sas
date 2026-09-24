@@ -15,9 +15,9 @@ export const load: PageServerLoad = async (event) => {
 		settings: orFail(settings),
 		storeSlug,
 		storeUrl,
-		// El registro llega con esto cuando pegó llaves de Wompi y la API no las
-		// aceptó: la tienda se creó igual, así que el aviso va acá y no allá.
-		cobrosPendientes: event.url.searchParams.get('cobros') === 'pendiente'
+		// El registro llega con esto cuando la tarjeta no se pudo guardar: la
+		// tienda se creó igual, así que el aviso va acá y no allá.
+		tarjetaPendiente: event.url.searchParams.get('tarjeta') === 'pendiente'
 	};
 };
 

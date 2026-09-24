@@ -62,6 +62,14 @@ export interface StorePayment {
 	created_at: string;
 }
 
+/** Con qué se le cobra el plan a la tienda. Nunca más que esto. */
+export interface PaymentMethod {
+	connected: boolean;
+	brand: string | null;
+	/** Los cuatro últimos, para reconocerla. */
+	last4: string | null;
+}
+
 export interface SubscriptionSummary {
 	plan: Plan;
 	status: SubscriptionStatus;
@@ -74,6 +82,8 @@ export interface SubscriptionSummary {
 	usage: { products: number; orders_this_month: number };
 	/** Si la tienda puede activar su plan sola, sin escribirle a nadie. */
 	self_service_billing: boolean;
+	/** La tarjeta con que se cobra sola, si la hay. */
+	payment_method: PaymentMethod;
 	/** Sus pagos, el más nuevo primero. */
 	payments: StorePayment[];
 }

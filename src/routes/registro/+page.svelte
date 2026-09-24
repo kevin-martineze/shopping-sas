@@ -26,6 +26,7 @@
 		addressSuffix={data.addressSuffix}
 		plans={data.plans}
 		selectedPlan={data.selectedPlan}
+		billing={data.billing}
 		result={form ?? null}
 	/>
 

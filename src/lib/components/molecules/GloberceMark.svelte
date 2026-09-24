@@ -1,22 +1,24 @@
 <script lang="ts">
+	import logo from '$lib/assets/logo.png';
+
 	/**
-	 * El isotipo de Globerce: la esfera de Globin con la cinta de flechas
-	 * cerrándose en una G.
+	 * El isotipo de Globerce: el hexágono con la G en negativo.
 	 *
-	 * Viene del brandkit tal cual. Dos reglas suyas viven aquí porque son del
-	 * isotipo y no de quien lo usa:
+	 * Es un dibujo de mapa de bits y no un SVG porque así vino la marca. Eso
+	 * tiene dos consecuencias que conviene conocer:
 	 *
-	 * - El gradiente de la esfera solo existe en este dibujo. El resto de la
-	 *   interfaz usa teal plano.
-	 * - Por debajo de 32 px la esfera y los meridianos se ensucian: para eso
-	 *   está el favicon de solo-G (`static/favicon.svg`), no este componente.
+	 * - Se guarda a 512 px y se muestra siempre más chico, para que en pantallas
+	 *   densas siga viéndose nítido. Pedirlo más grande que eso lo despinta.
+	 * - Aguanta hasta 16 px, que es donde se mide un isotipo: el hexágono y la
+	 *   G siguen leyéndose porque son formas macizas de un solo grosor.
 	 *
-	 * Los ids de los gradientes llevan un sufijo propio: con dos isotipos en la
-	 * misma página —cabecera y pie— compartirían `id` y el segundo pintaría con
-	 * el gradiente del primero, o con ninguno si el primero se desmonta.
+	 * El archivo lo importa Vite y no vive en `static/`: así viaja con su huella
+	 * en el nombre y el navegador puede guardarlo para siempre. Lo que sí está
+	 * en `static/` es lo que necesita una dirección fija —favicon, icono de iOS
+	 * y la imagen para compartir—, y todo sale de este mismo dibujo.
 	 */
 	interface Props {
-		/** Lado en px. El kit pide 32 como mínimo. */
+		/** Lado en px. El dibujo es cuadrado y lleva su propio aire. */
 		size?: number;
 		/** Texto para lectores de pantalla. Vacío si va junto al nombre escrito. */
 		label?: string;
@@ -24,64 +26,14 @@
 	}
 
 	let { size = 32, label = 'Globerce', class: className }: Props = $props();
-
-	const uid = $props.id();
-	const esfera = `gb-esfera-${uid}`;
-	const flecha = `gb-flecha-${uid}`;
-	const recorte = `gb-recorte-${uid}`;
 </script>
 
-<svg
-	viewBox="0 0 120 120"
+<img
+	src={logo}
 	width={size}
 	height={size}
+	alt={label}
 	class={className}
-	role={label ? 'img' : undefined}
-	aria-label={label || undefined}
-	aria-hidden={label ? undefined : 'true'}
->
-	<defs>
-		<linearGradient id={esfera} x1="0.1" y1="0.05" x2="0.9" y2="1">
-			<stop offset="0" stop-color="#48A79C" />
-			<stop offset="0.52" stop-color="#2B807C" />
-			<stop offset="1" stop-color="#1C5C67" />
-		</linearGradient>
-		<linearGradient id={flecha} x1="0.1" y1="1" x2="0.95" y2="0.05">
-			<stop offset="0" stop-color="#CBD8D7" />
-			<stop offset="0.42" stop-color="#FFFFFF" />
-			<stop offset="1" stop-color="#E2ECEB" />
-		</linearGradient>
-		<clipPath id={recorte}><circle cx="56" cy="62" r="37" /></clipPath>
-	</defs>
-
-	<g transform="translate(-5.5,1)">
-		<circle cx="56" cy="62" r="37" fill="url(#{esfera})" />
-		<g clip-path="url(#{recorte})" fill="none" stroke="#0E1A1C" stroke-width="2.4" opacity="0.42">
-			<ellipse cx="56" cy="62" rx="15.5" ry="37" />
-			<ellipse cx="56" cy="62" rx="37" ry="14.5" transform="rotate(-16 56 62)" />
-		</g>
-
-		<g fill="#0E1A1C">
-			<polygon points="0,-14 19,0 0,14" transform="translate(98,22) rotate(-45)" />
-			<polygon points="0,-14 19,0 0,14" transform="translate(92,76) rotate(-75)" />
-		</g>
-		<path
-			d="M 98,22 C 80,41 62,52 50,66 C 36,83 45,100 63,99 C 80,98 90,88 92,76"
-			fill="none"
-			stroke="#0E1A1C"
-			stroke-width="19"
-			stroke-linecap="round"
-		/>
-		<path
-			d="M 98,22 C 80,41 62,52 50,66 C 36,83 45,100 63,99 C 80,98 90,88 92,76"
-			fill="none"
-			stroke="url(#{flecha})"
-			stroke-width="11"
-			stroke-linecap="round"
-		/>
-		<g fill="url(#{flecha})">
-			<polygon points="0,-9.5 13.5,0 0,9.5" transform="translate(97,23) rotate(-45)" />
-			<polygon points="0,-9.5 13.5,0 0,9.5" transform="translate(91.5,76) rotate(-75)" />
-		</g>
-	</g>
-</svg>
+	decoding="async"
+	draggable="false"
+/>
