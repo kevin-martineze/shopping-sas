@@ -1,15 +1,11 @@
 import { fail, redirect } from '@sveltejs/kit';
 
 import type { Actions, PageServerLoad } from './$types';
-import type { WompiKeys } from '$lib/domain/wompi';
 import type { ApiFailure } from '$lib/server/api/client';
-import type { AdminSession } from '$lib/server/session-crypto';
 import type { FieldErrors } from '$lib/utils/form';
 import { joinPhone } from '$lib/domain/phone';
-import { completeWompiKeys, parseWompiKeys } from '$lib/domain/wompi';
 import { planCodeSchema, registerSchema, storeFieldsSchema } from '$lib/schemas/account';
 import { createStore, register } from '$lib/server/api/auth';
-import { connectPaymentAccount } from '$lib/server/api/panel-payments';
 import { listPublicPlans } from '$lib/server/api/plans';
 import { accountContext, clientAddress, displayStatus } from '$lib/server/context';
 import { serverEnv } from '$lib/server/env';
@@ -45,31 +41,6 @@ function apiError(result: ApiFailure): { error?: string; errors?: FieldErrors } 
 	return { error: result.message };
 }
 
-/**
- * Conecta la cuenta de cobro de una tienda recién creada, y dice a dónde ir.
- *
- * Corre DESPUÉS de crear la tienda porque hace falta su sesión, y eso obliga a
- * una regla: un fallo acá no puede deshacer la tienda ni devolver el
- * formulario. La tienda ya existe; reenviarlo crearía otra. Así que se entra
- * igual, avisando de lo que quedó pendiente.
- *
- * Las llaves ya vinieron reconocidas: lo único que puede fallar acá es la API.
- */
-async function conectarCobros(
-	session: AdminSession,
-	keys: WompiKeys | null,
-	clientIp: string | null
-): Promise<string> {
-	if (!keys || !session.storeId) return '/admin/bienvenida';
-
-	const result = await connectPaymentAccount(
-		{ storeId: session.storeId, accessToken: session.accessToken, clientIp },
-		keys
-	);
-
-	return result.ok ? '/admin/bienvenida' : '/admin/bienvenida?cobros=pendiente';
-}
-
 export const actions: Actions = {
 	default: async (event) => {
 		const { request, cookies, locals } = event;
@@ -94,12 +65,6 @@ export const actions: Actions = {
 		const plan = planCodeSchema.safeParse(formData.get('planCode'));
 		const planCode = plan.success ? plan.data : undefined;
 
-		// Las llaves de Wompi son opcionales. Se reconocen ANTES de crear nada:
-		// si el pegado no trae las cuatro, se puede devolver el formulario sin
-		// que exista todavía una tienda a medio conectar.
-		const pasteText = text('pasteText').trim();
-		const keys = pasteText ? completeWompiKeys(parseWompiKeys(pasteText)) : null;
-
 		// Lo tecleado vuelve a la página para no perderlo si algo falla. Las
 		// contraseñas no: no viajan de vuelta ni para eso.
 		const values = {
@@ -110,18 +75,6 @@ export const actions: Actions = {
 			email: fields.email,
 			planCode
 		};
-
-		// Lo pegado no vuelve a la página ni cuando falla: son secretos de cobro,
-		// igual que las contraseñas.
-		if (pasteText && !keys) {
-			return fail(400, {
-				errors: {
-					pasteText:
-						'No reconocimos las cuatro llaves en lo que pegaste. Revísalas, o deja el cuadro vacío y conéctalas luego desde Pagos.'
-				},
-				values
-			});
-		}
 
 		if (locals.session) {
 			const parsed = storeFieldsSchema.safeParse(fields);
@@ -138,12 +91,9 @@ export const actions: Actions = {
 
 			if (!result.ok) return fail(displayStatus(result), { ...apiError(result), values });
 
-			const session = toAdminSession(result.data);
-
-			writeSession(cookies, session);
-
+			writeSession(cookies, toAdminSession(result.data));
 			// La tienda ya existe; lo primero que se elige es con qué se viste.
-			redirect(303, await conectarCobros(session, keys, ip));
+			redirect(303, '/admin/bienvenida');
 		}
 
 		const parsed = registerSchema.safeParse(fields);
@@ -167,9 +117,7 @@ export const actions: Actions = {
 
 		if (!result.ok) return fail(displayStatus(result), { ...apiError(result), values });
 
-		const session = toAdminSession(result.data);
-
-		writeSession(cookies, session);
-		redirect(303, await conectarCobros(session, keys, ip));
+		writeSession(cookies, toAdminSession(result.data));
+		redirect(303, '/admin/bienvenida');
 	}
 };

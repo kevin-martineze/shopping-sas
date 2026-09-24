@@ -11,14 +11,7 @@ export const load: PageServerLoad = async (event) => {
 		event.parent()
 	]);
 
-	return {
-		settings: orFail(settings),
-		storeSlug,
-		storeUrl,
-		// El registro llega con esto cuando pegó llaves de Wompi y la API no las
-		// aceptó: la tienda se creó igual, así que el aviso va acá y no allá.
-		cobrosPendientes: event.url.searchParams.get('cobros') === 'pendiente'
-	};
+	return { settings: orFail(settings), storeSlug, storeUrl };
 };
 
 export const actions: Actions = {
