@@ -70,6 +70,23 @@ export const planCodeSchema = z
 	.toLowerCase()
 	.regex(/^[a-z0-9-]{2,40}$/, 'Elige un plan.');
 
+/**
+ * Los dos tokens con que se guarda una tarjeta.
+ *
+ * Lo que llega del navegador es siempre un token de la pasarela, nunca un
+ * número: el patrón lo exige. Si algún día llegara algo que parece una
+ * tarjeta, esto lo corta antes de que salga de este servidor.
+ */
+export const paymentTokensSchema = z.object({
+	cardToken: z
+		.string()
+		.trim()
+		.min(8)
+		.max(200)
+		.regex(/^[A-Za-z0-9_-]+$/, 'No pudimos validar tu tarjeta.'),
+	acceptanceToken: z.string().trim().min(4).max(5000)
+});
+
 export const STORE_SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/;
 
 export const registerSchema = withConfirmation({

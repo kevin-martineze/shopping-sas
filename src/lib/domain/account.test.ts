@@ -24,6 +24,7 @@ function summary(overrides: Partial<SubscriptionSummary>): SubscriptionSummary {
 		days_left: 30,
 		usage: { products: 10, orders_this_month: 3 },
 		self_service_billing: false,
+		payment_method: { connected: false, brand: null, last4: null },
 		payments: [],
 		...overrides
 	};

@@ -1,5 +1,6 @@
 import type {
 	MemberRole,
+	PaymentMethod,
 	Plan,
 	StorePayment,
 	SubscriptionSummary,
@@ -139,6 +140,12 @@ const storePaymentSchema = z
 		created_at: payment.createdAt
 	}));
 
+const paymentMethodSchema = z.object({
+	connected: z.boolean(),
+	brand: z.string().nullable(),
+	last4: z.string().nullable()
+});
+
 const subscriptionSchema = z
 	.object({
 		plan: planSchema,
@@ -149,6 +156,7 @@ const subscriptionSchema = z
 		daysLeft: z.number(),
 		usage: z.object({ products: z.number(), ordersThisMonth: z.number() }),
 		selfServiceBilling: z.boolean(),
+		paymentMethod: paymentMethodSchema,
 		payments: z.array(storePaymentSchema)
 	})
 	.transform((summary): SubscriptionSummary => ({
@@ -163,11 +171,36 @@ const subscriptionSchema = z
 			orders_this_month: summary.usage.ordersThisMonth
 		},
 		self_service_billing: summary.selfServiceBilling,
+		payment_method: summary.paymentMethod,
 		payments: summary.payments
 	}));
 
 export function getSubscription(ctx: PanelContext): Promise<ApiResult<SubscriptionSummary>> {
 	return panelRequest(ctx, '/subscription', subscriptionSchema);
+}
+
+/**
+ * Guarda la tarjeta con que se cobrará el plan.
+ *
+ * Lo que viaja es un token hecho en el navegador, nunca la tarjeta: el número
+ * no pasa ni por este servidor ni por la API. Guardarla no cobra nada; el
+ * primer cobro es el día que termina la prueba.
+ */
+export function savePaymentMethod(
+	ctx: PanelContext,
+	keys: { cardToken: string; acceptanceToken: string }
+): Promise<ApiResult<PaymentMethod>> {
+	return panelRequest(ctx, '/subscription/payment-method', paymentMethodSchema, {
+		method: 'PUT',
+		body: keys
+	});
+}
+
+/** Deja de cobrar solo. Lo ya pagado se respeta. */
+export function removePaymentMethod(ctx: PanelContext): Promise<ApiResult<PaymentMethod>> {
+	return panelRequest(ctx, '/subscription/payment-method', paymentMethodSchema, {
+		method: 'DELETE'
+	});
 }
 
 export interface SubscriptionCheckout {
