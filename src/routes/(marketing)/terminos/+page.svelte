@@ -53,7 +53,11 @@
 	<section>
 		<h2>4. Planes, prueba y pago</h2>
 		<ul>
-			<li>Toda tienda empieza con {TRIAL_DAYS} días de prueba, sin tarjeta.</li>
+			<li>
+				Toda tienda empieza con {TRIAL_DAYS} días de prueba. Durante la prueba no se cobra nada. Si dejas
+				una tarjeta guardada, el primer cobro es el día siguiente a que termine; si la quitas o cancelas
+				antes, no se cobra.
+			</li>
 			<li>
 				Después, el plan se paga por mes adelantado. Los precios están en la página de inicio.
 			</li>

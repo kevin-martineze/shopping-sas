@@ -6,8 +6,11 @@
 	import { enhance } from '$app/forms';
 
 	import type { Plan } from '$lib/domain/account';
+	import type { CardErrors, CardInput } from '$lib/domain/card';
+	import type { BillingSetup } from '$lib/server/api/billing';
 	import type { FieldErrors } from '$lib/utils/form';
 	import { Button } from '$lib/components/atoms/button';
+	import CardFields from '$lib/components/molecules/CardFields.svelte';
 	import PasswordField from '$lib/components/molecules/PasswordField.svelte';
 	import PhoneField from '$lib/components/molecules/PhoneField.svelte';
 	import PlanOption from '$lib/components/molecules/PlanOption.svelte';
@@ -15,6 +18,7 @@
 	import TextField from '$lib/components/molecules/TextField.svelte';
 	import { TIENDA_MAQUETA } from '$lib/config/maqueta';
 	import { TRIAL_DAYS } from '$lib/domain/account';
+	import { cardIsEmpty, tokenizeCard, validateCard } from '$lib/domain/card';
 	import { joinPhone, splitPhone } from '$lib/domain/phone';
 	import { PASSWORD_MIN, registerSchema, storeFieldsSchema } from '$lib/schemas/account';
 	import { fieldErrors } from '$lib/utils/form';
@@ -44,6 +48,8 @@
 		addressSuffix: string | null;
 		plans: Plan[];
 		selectedPlan: string | undefined;
+		/** Con qué tokenizar la tarjeta. Sin pasarela no se pide ninguna. */
+		billing: BillingSetup;
 		/** Lo que devolvió la action: mensaje general, errores por campo y lo tecleado. */
 		result: {
 			error?: string;
@@ -52,7 +58,7 @@
 		} | null;
 	}
 
-	let { signedIn, addressSuffix, plans, selectedPlan, result }: Props = $props();
+	let { signedIn, addressSuffix, plans, selectedPlan, billing, result }: Props = $props();
 
 	/** Lo tecleado vuelve del servidor para no perderlo cuando algo falla. */
 	const enviado = untrack(() => result?.values ?? {});
@@ -76,6 +82,14 @@
 
 	const storeSlug = $derived(slugEdited ? customSlug : slugify(storeName).slice(0, 40));
 	const planCode = $derived(planElegido ?? selectedPlan ?? '');
+
+	/**
+	 * La tarjeta vive solo acá y no sale de este navegador: al enviar se cambia
+	 * por un token contra la pasarela y los campos se borran del formulario.
+	 */
+	let card = $state<CardInput>({ number: '', expiry: '', cvc: '', holder: '' });
+	let cardErrors = $state<CardErrors>({});
+	let cardError = $state<string | null>(null);
 
 	let submitting = $state(false);
 	let clientErrors = $state<FieldErrors>({});
@@ -139,7 +153,11 @@
 						id: 'cuenta',
 						titulo: 'Tu cuenta',
 						campos: ['fullName', 'email', 'password', 'confirm'] as Campo[]
-					}
+					},
+			// Sin JavaScript no hay con qué tokenizar, y sin pasarela no hay a
+			// quién pedírselo: en los dos casos el paso no existe y la tarjeta se
+			// pone después desde el panel.
+			hidratado && billing.available ? { id: 'pago', titulo: 'Pago', campos: [] as Campo[] } : null
 		].filter((paso) => paso !== null)
 	);
 
@@ -211,6 +229,16 @@
 		await enfocar(primero);
 	}
 
+	/** Lleva al paso de la tarjeta, que no tiene campos del esquema que buscar. */
+	async function irAlPago() {
+		const indice = pasos.findIndex((paso) => paso.id === 'pago');
+
+		if (indice >= 0) pasoActual = indice;
+
+		await tick();
+		formulario?.querySelector<HTMLInputElement>('[name="cardNumber"]')?.focus();
+	}
+
 	/** Avanza solo si lo de este paso está bien: así el error se corrige donde se escribió. */
 	function siguiente() {
 		const actual = pasos[pasoActual];
@@ -241,7 +269,7 @@
 	novalidate
 	bind:this={formulario}
 	class="space-y-8"
-	use:enhance={({ cancel }) => {
+	use:enhance={async ({ cancel, formData }) => {
 		// Enter dentro de un campo envía el formulario. Si aún faltan pasos, eso
 		// no es "quiero registrarme": es "quiero seguir".
 		if (hidratado && !enElUltimo) {
@@ -261,6 +289,46 @@
 			void irAlPrimerError(fallos);
 
 			return;
+		}
+
+		// La tarjeta NO viaja, pase lo que pase debajo: sus campos se borran del
+		// envío antes que nada. Lo único que puede ir es el token que devuelve la
+		// pasarela, que no sirve para cobrar dos veces ni dice qué tarjeta es.
+		for (const campo of ['cardNumber', 'cardExpiry', 'cardCvc', 'cardHolder']) {
+			formData.delete(campo);
+		}
+
+		// Dejarla en blanco es válido: la tienda se crea igual y la tarjeta se
+		// pone después, desde el panel.
+		if (billing.available && !cardIsEmpty(card)) {
+			const fallos = validateCard(card);
+
+			cardErrors = fallos;
+
+			if (Object.keys(fallos).length > 0) {
+				cancel();
+				await irAlPago();
+
+				return;
+			}
+
+			submitting = true;
+
+			try {
+				formData.set('cardToken', await tokenizeCard(billing, card));
+				formData.set('acceptanceToken', billing.acceptance_token);
+				cardError = null;
+			} catch (error: unknown) {
+				submitting = false;
+				cardError =
+					error instanceof Error
+						? error.message
+						: 'No pudimos validar tu tarjeta. Inténtalo otra vez.';
+				cancel();
+				await irAlPago();
+
+				return;
+			}
 		}
 
 		submitting = true;
@@ -304,8 +372,8 @@
 				{#if signedIn}
 					Cada tienda tiene su propio plan. Los primeros {TRIAL_DAYS} días son gratis.
 				{:else}
-					Los primeros {TRIAL_DAYS} días son gratis y no pedimos tarjeta. Puedes cambiar de plan cuando
-					quieras desde tu panel.
+					Los primeros {TRIAL_DAYS} días son gratis y no se te cobra nada hoy. Puedes cambiar de plan
+					cuando quieras desde tu panel.
 				{/if}
 			</p>
 		</fieldset>
@@ -415,6 +483,33 @@
 					onblur={() => check('confirm')}
 				/>
 			</div>
+		</fieldset>
+	{/if}
+
+	{#if hidratado && billing.available}
+		<!--
+			Va al final y la tarjeta no se cobra: los {TRIAL_DAYS} días siguen
+			siendo gratis. Lo que se guarda es el permiso para cobrar cuando se
+			acaben, que es lo que evita que la tienda se caiga por un olvido.
+		-->
+		<fieldset class="space-y-4" hidden={oculto('pago')}>
+			<legend class="mb-3 text-sm font-medium">Cómo pagas después</legend>
+
+			<p class="text-muted-foreground text-sm">
+				Hoy no se te cobra nada. Tus primeros {TRIAL_DAYS} días son gratis y el primer cobro es el día
+				{TRIAL_DAYS + 1}, con esta tarjeta. Puedes cancelar antes desde tu panel y no se cobra.
+			</p>
+
+			<CardFields bind:card errors={cardErrors} />
+
+			{#if cardError}
+				<p class="text-destructive text-sm">{cardError}</p>
+			{/if}
+
+			<p class="text-muted-foreground text-xs">
+				¿Prefieres dejarlo para después? Sigue sin llenarla: tu tienda se crea igual y la pones
+				cuando quieras desde Plan, en tu panel.
+			</p>
 		</fieldset>
 	{/if}
 

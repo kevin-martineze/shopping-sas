@@ -26,6 +26,13 @@
 
 <FormFeedback error={form?.error ?? null} message={null} />
 
+{#if data.tarjetaPendiente}
+	<p class="border-caution/40 bg-caution/10 text-foreground mb-6 rounded-lg border p-4 text-sm">
+		Tu tienda quedó creada, pero no pudimos guardar tu tarjeta. No se te cobró nada. Ponla cuando
+		quieras desde <a href="/admin/plan" class="underline underline-offset-2">Plan</a>.
+	</p>
+{/if}
+
 <TemplatePicker
 	current={data.settings.template}
 	storeUrl={data.storeUrl}

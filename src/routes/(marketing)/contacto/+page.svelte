@@ -64,7 +64,8 @@
 		<h2>¿Todavía no?</h2>
 		<p>
 			<a href="/#precios">Mira los planes</a> o
-			<a href="/registro">crea tu tienda</a>: los primeros días son gratis y no pedimos tarjeta.
+			<a href="/registro">crea tu tienda</a>: los primeros días son gratis y no se cobra nada hasta
+			que terminen.
 		</p>
 	</section>
 </LegalPage>

@@ -11,7 +11,14 @@ export const load: PageServerLoad = async (event) => {
 		event.parent()
 	]);
 
-	return { settings: orFail(settings), storeSlug, storeUrl };
+	return {
+		settings: orFail(settings),
+		storeSlug,
+		storeUrl,
+		// El registro llega con esto cuando la tarjeta no se pudo guardar: la
+		// tienda se creó igual, así que el aviso va acá y no allá.
+		tarjetaPendiente: event.url.searchParams.get('tarjeta') === 'pendiente'
+	};
 };
 
 export const actions: Actions = {
