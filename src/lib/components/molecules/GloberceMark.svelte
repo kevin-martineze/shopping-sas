@@ -2,15 +2,15 @@
 	import logo from '$lib/assets/logo.png';
 
 	/**
-	 * El isotipo de Globerce: la esfera con la flecha y el carrito.
+	 * El isotipo de Globerce: el hexágono con la G en negativo.
 	 *
 	 * Es un dibujo de mapa de bits y no un SVG porque así vino la marca. Eso
 	 * tiene dos consecuencias que conviene conocer:
 	 *
 	 * - Se guarda a 512 px y se muestra siempre más chico, para que en pantallas
 	 *   densas siga viéndose nítido. Pedirlo más grande que eso lo despinta.
-	 * - Por debajo de 24 px los meridianos y el carrito se ensucian. Para eso
-	 *   está el favicon, que el navegador escala con sus propias reglas.
+	 * - Aguanta hasta 16 px, que es donde se mide un isotipo: el hexágono y la
+	 *   G siguen leyéndose porque son formas macizas de un solo grosor.
 	 *
 	 * El archivo lo importa Vite y no vive en `static/`: así viaja con su huella
 	 * en el nombre y el navegador puede guardarlo para siempre. Lo que sí está
