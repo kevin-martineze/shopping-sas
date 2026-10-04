@@ -10,8 +10,9 @@
 	/**
 	 * El panel de Globerce en un celular, dibujado con HTML.
 	 *
-	 * Es una maqueta y no una captura por lo mismo que `StorefrontMock`: no
-	 * envejece, no pesa y se ve nítida en cualquier pantalla. Lleva los tokens
+	 * Es una maqueta y no una captura: no envejece, no pesa y se ve nítida en
+	 * cualquier pantalla. La tienda sí se enseña con fotos (`StoreShowcase`),
+	 * porque ahí lo que convence es ver una de verdad. Lleva los tokens
 	 * oscuros del panel —«panel oscuro, tienda clara»—, así que se pone dentro
 	 * de una banda `.marketing-dark` y hereda la pizarra sin pedir nada.
 	 *
