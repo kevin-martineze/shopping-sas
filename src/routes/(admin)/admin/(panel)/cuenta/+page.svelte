@@ -6,9 +6,8 @@
 	import type { ActionData, PageData } from './$types';
 	import { Badge } from '$lib/components/atoms/badge';
 	import { Button } from '$lib/components/atoms/button';
-	import { Input } from '$lib/components/atoms/input';
-	import { Label } from '$lib/components/atoms/label';
 	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
+	import PasswordField from '$lib/components/molecules/PasswordField.svelte';
 	import { MEMBER_ROLE_LABEL } from '$lib/domain/account';
 	import { PASSWORD_MIN } from '$lib/schemas/account';
 
@@ -58,34 +57,22 @@
 				};
 			}}
 		>
-			<div class="space-y-2">
-				<Label for="currentPassword">Contraseña actual</Label>
-				<Input
-					id="currentPassword"
-					name="currentPassword"
-					type="password"
-					required
-					autocomplete="current-password"
-				/>
-			</div>
+			<PasswordField
+				name="currentPassword"
+				label="Contraseña actual"
+				required
+				autocomplete="current-password"
+			/>
 
-			<div class="space-y-2">
-				<Label for="password">Contraseña nueva</Label>
-				<Input
-					id="password"
-					name="password"
-					type="password"
-					required
-					minlength={PASSWORD_MIN}
-					autocomplete="new-password"
-				/>
-				<p class="text-muted-foreground text-xs">Mínimo {PASSWORD_MIN} caracteres.</p>
-			</div>
+			<PasswordField
+				name="password"
+				label="Contraseña nueva"
+				hint={`Mínimo ${PASSWORD_MIN} caracteres.`}
+				required
+				minlength={PASSWORD_MIN}
+			/>
 
-			<div class="space-y-2">
-				<Label for="confirm">Repítela</Label>
-				<Input id="confirm" name="confirm" type="password" required autocomplete="new-password" />
-			</div>
+			<PasswordField name="confirm" label="Repítela" required />
 
 			<Button type="submit" disabled={submitting}>
 				{submitting ? 'Guardando…' : 'Cambiar contraseña'}

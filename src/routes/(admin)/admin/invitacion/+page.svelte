@@ -6,6 +6,7 @@
 	import { Input } from '$lib/components/atoms/input';
 	import { Label } from '$lib/components/atoms/label';
 	import AuthCard from '$lib/components/molecules/AuthCard.svelte';
+	import PasswordField from '$lib/components/molecules/PasswordField.svelte';
 	import { MEMBER_ROLE_LABEL } from '$lib/domain/account';
 	import { PASSWORD_MIN } from '$lib/schemas/account';
 
@@ -55,39 +56,27 @@
 			<input type="hidden" name="existing" value={String(invitation.account_exists)} />
 
 			{#if invitation.account_exists}
-				<div class="space-y-2">
-					<Label for="password">Tu contraseña</Label>
-					<Input
-						id="password"
-						name="password"
-						type="password"
-						required
-						autocomplete="current-password"
-					/>
-				</div>
+				<PasswordField
+					name="password"
+					label="Tu contraseña"
+					required
+					autocomplete="current-password"
+				/>
 			{:else}
 				<div class="space-y-2">
 					<Label for="fullName">Tu nombre</Label>
 					<Input id="fullName" name="fullName" required autocomplete="name" />
 				</div>
 
-				<div class="space-y-2">
-					<Label for="password">Contraseña</Label>
-					<Input
-						id="password"
-						name="password"
-						type="password"
-						required
-						minlength={PASSWORD_MIN}
-						autocomplete="new-password"
-					/>
-					<p class="text-muted-foreground text-xs">Mínimo {PASSWORD_MIN} caracteres.</p>
-				</div>
+				<PasswordField
+					name="password"
+					label="Contraseña"
+					hint={`Mínimo ${PASSWORD_MIN} caracteres.`}
+					required
+					minlength={PASSWORD_MIN}
+				/>
 
-				<div class="space-y-2">
-					<Label for="confirm">Repítela</Label>
-					<Input id="confirm" name="confirm" type="password" required autocomplete="new-password" />
-				</div>
+				<PasswordField name="confirm" label="Repítela" required />
 			{/if}
 
 			{#if form?.error}
