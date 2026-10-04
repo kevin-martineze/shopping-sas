@@ -17,6 +17,7 @@
 		"test:watch": "vitest",
 		"prepare": "husky",
 		"migrate": "node scripts/migrate.mjs",
+		"capturas": "node scripts/capturas-marketing.mjs",
 		"test:browser": "playwright test"
 	},
 	"devDependencies": {

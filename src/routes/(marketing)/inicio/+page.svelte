@@ -17,11 +17,17 @@
 	import PlanCard from '$lib/components/molecules/PlanCard.svelte';
 	import SectionTag from '$lib/components/molecules/SectionTag.svelte';
 	import StockCard from '$lib/components/molecules/StockCard.svelte';
-	import StorefrontMock from '$lib/components/molecules/StorefrontMock.svelte';
+	import StoreShowcase from '$lib/components/molecules/StoreShowcase.svelte';
 	import VariantDemo from '$lib/components/molecules/VariantDemo.svelte';
 	import MarketingFooter from '$lib/components/organisms/MarketingFooter.svelte';
 	import MarketingHeader from '$lib/components/organisms/MarketingHeader.svelte';
 	import SmoothScroll from '$lib/components/organisms/SmoothScroll.svelte';
+	import {
+		CAPTURA_CATALOGO_CELULAR,
+		CAPTURA_DESTACADOS,
+		CAPTURA_PORTADA,
+		CAPTURA_PRODUCTO_CELULAR
+	} from '$lib/config/capturas';
 	import { TRIAL_DAYS } from '$lib/domain/account';
 	import { cn } from '$lib/utils';
 
@@ -179,10 +185,11 @@
 
 	<SmoothScroll>
 		<main>
-			<!-- Portada en pizarra: titular al centro, y debajo el producto
-			     flotando —un pedido que acaba de llegar y la ficha de inventario
-			     que lo descontó—. Las dos son HTML, no imágenes. Las insignias
-			     dicen lo que se promete, no de dónde es la empresa. -->
+			<!-- Portada en pizarra: titular al centro, y debajo una tienda de
+			     verdad —lo que ve la clienta— con el pedido que acaba de llegar
+			     flotando encima —lo que ve la dueña—. La tienda es una foto
+			     (`StoreShowcase`); el pedido es HTML. Las insignias dicen lo que se
+			     promete, no de dónde es la empresa. -->
 			<section
 				class="marketing-dark bg-background text-foreground overflow-hidden pt-32 pb-16 md:pt-40 md:pb-24 lg:pt-44"
 			>
@@ -228,14 +235,12 @@
 					</div>
 				</div>
 
-				<div
-					class="mx-auto mt-16 flex max-w-4xl flex-wrap items-start justify-center gap-6 px-4 sm:px-6 lg:mt-24 lg:justify-between"
-				>
-					<div class="float w-full max-w-sm">
+				<div class="relative mx-auto mt-16 max-w-5xl px-4 sm:px-6 lg:mt-24">
+					<StoreShowcase desktop={CAPTURA_PORTADA} mobile={CAPTURA_CATALOGO_CELULAR} eager />
+
+					<!-- Solo en pantallas grandes: en el celular taparía la tienda. -->
+					<div class="float absolute -bottom-4 -left-10 hidden w-80 lg:block xl:-left-24">
 						<OrderCard />
-					</div>
-					<div class="float-slow marketing-light w-full max-w-xs">
-						<StockCard />
 					</div>
 				</div>
 			</section>
@@ -314,7 +319,7 @@
 							{/if}
 						</div>
 						<div class="lg:pl-4">
-							<StorefrontMock />
+							<StoreShowcase desktop={CAPTURA_DESTACADOS} mobile={CAPTURA_PRODUCTO_CELULAR} />
 						</div>
 					</div>
 
