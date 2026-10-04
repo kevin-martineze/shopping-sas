@@ -6,6 +6,7 @@
 	import { Input } from '$lib/components/atoms/input';
 	import { Label } from '$lib/components/atoms/label';
 	import GloberceMark from '$lib/components/molecules/GloberceMark.svelte';
+	import PasswordField from '$lib/components/molecules/PasswordField.svelte';
 
 	interface Props {
 		data: PageData;
@@ -50,24 +51,16 @@
 				<Input id="email" name="email" type="email" required autocomplete="username" />
 			</div>
 
-			<div class="space-y-2">
-				<div class="flex items-center justify-between">
-					<Label for="password">Contraseña</Label>
+			<PasswordField name="password" label="Contraseña" required autocomplete="current-password">
+				{#snippet labelAction()}
 					<a
 						href="/admin/recuperar"
 						class="text-muted-foreground hover:text-foreground text-xs underline"
 					>
 						¿La olvidaste?
 					</a>
-				</div>
-				<Input
-					id="password"
-					name="password"
-					type="password"
-					required
-					autocomplete="current-password"
-				/>
-			</div>
+				{/snippet}
+			</PasswordField>
 
 			{#if form?.error}
 				<p class="text-destructive text-sm">{form.error}</p>

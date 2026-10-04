@@ -3,9 +3,8 @@
 
 	import type { ActionData, PageData } from './$types';
 	import { Button } from '$lib/components/atoms/button';
-	import { Input } from '$lib/components/atoms/input';
-	import { Label } from '$lib/components/atoms/label';
 	import AuthCard from '$lib/components/molecules/AuthCard.svelte';
+	import PasswordField from '$lib/components/molecules/PasswordField.svelte';
 	import { PASSWORD_MIN } from '$lib/schemas/account';
 
 	interface Props {
@@ -44,25 +43,15 @@
 		>
 			<input type="hidden" name="token" value={data.token} />
 
-			<div class="space-y-2">
-				<Label for="password">Contraseña nueva</Label>
-				<Input
-					id="password"
-					name="password"
-					type="password"
-					required
-					minlength={PASSWORD_MIN}
-					autocomplete="new-password"
-				/>
-				<p class="text-muted-foreground text-xs">
-					Mínimo {PASSWORD_MIN} caracteres. Una frase es más fácil de recordar.
-				</p>
-			</div>
+			<PasswordField
+				name="password"
+				label="Contraseña nueva"
+				hint={`Mínimo ${PASSWORD_MIN} caracteres. Una frase es más fácil de recordar.`}
+				required
+				minlength={PASSWORD_MIN}
+			/>
 
-			<div class="space-y-2">
-				<Label for="confirm">Repítela</Label>
-				<Input id="confirm" name="confirm" type="password" required autocomplete="new-password" />
-			</div>
+			<PasswordField name="confirm" label="Repítela" required />
 
 			{#if form?.error}
 				<p class="text-destructive text-sm">

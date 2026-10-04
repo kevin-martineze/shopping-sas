@@ -2,6 +2,7 @@
 	import Eye from '@lucide/svelte/icons/eye';
 	import EyeOff from '@lucide/svelte/icons/eye-off';
 
+	import type { Snippet } from 'svelte';
 	import type { HTMLInputAttributes } from 'svelte/elements';
 	import { Input } from '$lib/components/atoms/input';
 	import { Label } from '$lib/components/atoms/label';
@@ -24,6 +25,8 @@
 		minlength?: number;
 		oninput?: HTMLInputAttributes['oninput'];
 		onblur?: HTMLInputAttributes['onblur'];
+		/** Algo al lado del rótulo, como el enlace de «¿La olvidaste?». */
+		labelAction?: Snippet;
 	}
 
 	let {
@@ -36,7 +39,8 @@
 		autocomplete = 'new-password',
 		minlength,
 		oninput,
-		onblur
+		onblur,
+		labelAction
 	}: Props = $props();
 
 	let visible = $state(false);
@@ -45,7 +49,14 @@
 </script>
 
 <div class="space-y-2">
-	<Label for={name}>{label}</Label>
+	{#if labelAction}
+		<div class="flex items-center justify-between">
+			<Label for={name}>{label}</Label>
+			{@render labelAction()}
+		</div>
+	{:else}
+		<Label for={name}>{label}</Label>
+	{/if}
 
 	<div class="relative">
 		<Input
