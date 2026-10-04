@@ -35,16 +35,25 @@
 	const selectedLabel = $derived(options.find((option) => option.value === value)?.label ?? '');
 </script>
 
-<Select.Root type="single" {name} bind:value {disabled} {onValueChange}>
-	<Select.Trigger {id} class={cn('w-full', className)} aria-label={ariaLabel}>
-		{selectedLabel || placeholder}
-	</Select.Trigger>
+<!--
+	`contents`: el Select de bits-ui deja un <input type="hidden"> después del
+	botón para que el valor viaje en el form. Sin este envoltorio ese input es
+	hermano del botón, y un `space-y-*` de afuera le pone margen abajo al botón
+	(en Tailwind 4 se lo pone a todo hijo que no sea el último): el selector
+	quedaba 8 px más arriba que los campos de al lado.
+-->
+<div class="contents">
+	<Select.Root type="single" {name} bind:value {disabled} {onValueChange}>
+		<Select.Trigger {id} class={cn('w-full', className)} aria-label={ariaLabel}>
+			{selectedLabel || placeholder}
+		</Select.Trigger>
 
-	<Select.Content>
-		{#each options as option (option.value)}
-			<Select.Item value={option.value} label={option.label}>
-				{option.label}
-			</Select.Item>
-		{/each}
-	</Select.Content>
-</Select.Root>
+		<Select.Content>
+			{#each options as option (option.value)}
+				<Select.Item value={option.value} label={option.label}>
+					{option.label}
+				</Select.Item>
+			{/each}
+		</Select.Content>
+	</Select.Root>
+</div>
