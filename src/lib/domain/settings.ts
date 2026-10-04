@@ -1,4 +1,5 @@
 import type { StorefrontTemplate } from '$lib/domain/templates';
+import type { StoreTheme } from '$lib/domain/theme';
 
 export interface StoreSettings {
 	store_name: string;
@@ -12,6 +13,8 @@ export interface StoreSettings {
 	hero_subtitle: string | null;
 	/** Con qué plantilla se pinta la vitrina. */
 	template: StorefrontTemplate;
+	/** Lo que la dueña le ajusta a la plantilla: color, letras, esquinas, portada. */
+	theme: StoreTheme;
 	/** Si esta tienda ofrece asistente: lo deciden su plan y la plataforma. */
 	assistant: boolean;
 	/** Si cobra en línea, además del pedido por WhatsApp. */

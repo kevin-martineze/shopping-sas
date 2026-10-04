@@ -16,13 +16,17 @@ export const load: LayoutServerLoad = async (event) => {
 	// Una plantilla en prueba viste esta visita y nada más: la de verdad sigue
 	// en la API hasta que la dueña la elija en el panel.
 	const preview = resolveTemplatePreview(event.url, event.cookies);
-	const settings = preview.template
-		? { ...result.data.settings, template: preview.template }
-		: result.data.settings;
+	const settings = {
+		...result.data.settings,
+		template: preview.template ?? result.data.settings.template,
+		theme: preview.theme ?? result.data.settings.theme
+	};
 
 	return {
 		...result.data,
 		settings,
-		previewTemplate: preview.announce ? preview.template : null
+		previewTemplate: preview.announce ? preview.template : null,
+		// Abierta por el editor de diseño: escucha el borrador que le mande.
+		draftPreview: preview.theme !== null
 	};
 };

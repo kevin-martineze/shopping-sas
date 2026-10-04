@@ -14,7 +14,7 @@ import { z } from 'zod';
 
 import { isProductSort } from '$lib/domain/catalog';
 import { publicRequest, segment } from '$lib/server/api/request';
-import { templateSchema } from '$lib/server/api/statuses';
+import { templateSchema, themeSchema } from '$lib/server/api/statuses';
 
 /**
  * Tienda pública (`/public/:storeSlug/*` de la API).
@@ -114,6 +114,7 @@ const storefrontSchema = z
 			heroTitle: z.string().nullable(),
 			heroSubtitle: z.string().nullable(),
 			template: templateSchema,
+			theme: themeSchema,
 			assistant: z.boolean(),
 			onlinePayments: z.boolean()
 		}),
@@ -131,6 +132,7 @@ const storefrontSchema = z
 			hero_title: storefront.settings.heroTitle,
 			hero_subtitle: storefront.settings.heroSubtitle,
 			template: storefront.settings.template,
+			theme: storefront.settings.theme,
 			assistant: storefront.settings.assistant,
 			online_payments: storefront.settings.onlinePayments
 		};

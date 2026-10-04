@@ -37,7 +37,9 @@ export const DEFAULT_TEMPLATE: StorefrontTemplate = 'editorial';
  * - `centered`: todo centrado y la foto enmarcada, como una invitación.
  * - `block`: un bloque de color con el texto y la foto recortada al lado.
  */
-export type HeroLayout = 'cover' | 'split' | 'typographic' | 'centered' | 'block';
+export const HERO_LAYOUTS = ['cover', 'split', 'typographic', 'centered', 'block'] as const;
+
+export type HeroLayout = (typeof HERO_LAYOUTS)[number];
 
 /** La cabecera: la barra de siempre, o el nombre centrado en versalitas. */
 export type HeaderLayout = 'bar' | 'centered';
@@ -55,6 +57,11 @@ export interface TemplateInfo {
 	hero: HeroLayout;
 	header: HeaderLayout;
 	card: CardStyle;
+	/**
+	 * El `--background` de `app.css` en hex. Contra él se mide si el color de
+	 * marca que elija la dueña se lee (`accentFits`); si cambia allá, cambia acá.
+	 */
+	background: string;
 }
 
 export const TEMPLATES: TemplateInfo[] = [
@@ -69,7 +76,8 @@ export const TEMPLATES: TemplateInfo[] = [
 		],
 		hero: 'cover',
 		header: 'bar',
-		card: 'plain'
+		card: 'plain',
+		background: '#FFFFFF'
 	},
 	{
 		code: 'boutique',
@@ -84,7 +92,8 @@ export const TEMPLATES: TemplateInfo[] = [
 		],
 		hero: 'split',
 		header: 'bar',
-		card: 'plain'
+		card: 'plain',
+		background: '#FEFAF1'
 	},
 	{
 		code: 'galeria',
@@ -97,7 +106,8 @@ export const TEMPLATES: TemplateInfo[] = [
 		],
 		hero: 'typographic',
 		header: 'bar',
-		card: 'plain'
+		card: 'plain',
+		background: '#FFFFFF'
 	},
 	{
 		code: 'noche',
@@ -110,7 +120,8 @@ export const TEMPLATES: TemplateInfo[] = [
 		],
 		hero: 'cover',
 		header: 'bar',
-		card: 'framed'
+		card: 'framed',
+		background: '#0F0F10'
 	},
 	{
 		code: 'vibrante',
@@ -123,7 +134,8 @@ export const TEMPLATES: TemplateInfo[] = [
 		],
 		hero: 'block',
 		header: 'bar',
-		card: 'sticker'
+		card: 'sticker',
+		background: '#FFFDF7'
 	},
 	{
 		code: 'atelier',
@@ -136,7 +148,8 @@ export const TEMPLATES: TemplateInfo[] = [
 		],
 		hero: 'centered',
 		header: 'centered',
-		card: 'framed'
+		card: 'framed',
+		background: '#F7F3EA'
 	}
 ];
 

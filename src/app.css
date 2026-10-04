@@ -1001,6 +1001,71 @@
 	}
 
 	/*
+	 * El selector de color de la marca (`BrandColorPicker`): el área de
+	 * saturación —de izquierda a derecha— y brillo —de abajo arriba— sobre el
+	 * tono elegido, y la barra con todos los tonos. Blanco, negro y el arcoíris
+	 * son los colores del propio selector, no de la marca: no cambian con el
+	 * tema.
+	 */
+	.color-area {
+		background:
+			linear-gradient(to top, #000000, transparent),
+			linear-gradient(to right, #ffffff, hsl(var(--hue) 100% 50%));
+	}
+
+	.color-area-thumb {
+		border: 2px solid #ffffff;
+		box-shadow:
+			0 0 0 1px rgb(0 0 0 / 25%),
+			0 2px 6px rgb(0 0 0 / 30%);
+	}
+
+	.hue-slider {
+		appearance: none;
+		height: 0.75rem;
+		border-radius: 999px;
+		background: linear-gradient(
+			to right,
+			#ff0000,
+			#ffff00,
+			#00ff00,
+			#00ffff,
+			#0000ff,
+			#ff00ff,
+			#ff0000
+		);
+		cursor: pointer;
+	}
+
+	.hue-slider::-webkit-slider-thumb {
+		appearance: none;
+		width: 1.1rem;
+		height: 1.1rem;
+		border: 2px solid #ffffff;
+		border-radius: 999px;
+		background: transparent;
+		box-shadow:
+			0 0 0 1px rgb(0 0 0 / 25%),
+			0 2px 6px rgb(0 0 0 / 30%);
+	}
+
+	.hue-slider::-moz-range-thumb {
+		width: 1.1rem;
+		height: 1.1rem;
+		border: 2px solid #ffffff;
+		border-radius: 999px;
+		background: transparent;
+		box-shadow:
+			0 0 0 1px rgb(0 0 0 / 25%),
+			0 2px 6px rgb(0 0 0 / 30%);
+	}
+
+	.hue-slider:focus-visible {
+		outline: 2px solid var(--ring);
+		outline-offset: 2px;
+	}
+
+	/*
 	 * Entrada suave para lo que cambia sin recargar —la ficha de cada rubro
 	 * al pulsar su pestaña—: sube un poco y aparece. Corta, para que cambiar
 	 * de pestaña no se sienta como esperar.
