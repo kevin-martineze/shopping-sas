@@ -898,6 +898,19 @@
 	}
 
 	/*
+	 * Las fichas que flotan en el hero: suben y bajan despacio, cada una a su
+	 * ritmo, como si estuvieran posadas sobre la página. Sin movimiento
+	 * cuando quien mira lo pidió.
+	 */
+	.float {
+		animation: float 6s ease-in-out infinite;
+	}
+
+	.float-slow {
+		animation: float 8s ease-in-out 1s infinite;
+	}
+
+	/*
 	 * El selector de color de la marca (`BrandColorPicker`): el área de
 	 * saturación —de izquierda a derecha— y brillo —de abajo arriba— sobre el
 	 * tono elegido, y la barra con todos los tonos. Blanco, negro y el arcoíris
@@ -960,19 +973,6 @@
 	.hue-slider:focus-visible {
 		outline: 2px solid var(--ring);
 		outline-offset: 2px;
-	}
-
-	/*
-	 * Las fichas que flotan en el hero: suben y bajan despacio, cada una a su
-	 * ritmo, como si estuvieran posadas sobre la página. Sin movimiento
-	 * cuando quien mira lo pidió.
-	 */
-	.float {
-		animation: float 6s ease-in-out infinite;
-	}
-
-	.float-slow {
-		animation: float 8s ease-in-out 1s infinite;
 	}
 
 	/*
