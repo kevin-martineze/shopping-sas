@@ -1,16 +1,16 @@
 <script lang="ts">
-	import type { StorefrontTemplate } from '$lib/domain/templates';
+	import type { HeroLayout } from '$lib/domain/templates';
 	import { parallax } from '$lib/actions/parallax';
 	import { Button } from '$lib/components/atoms/button';
-	import { templateOf } from '$lib/domain/templates';
 	import { cn } from '$lib/utils';
 
 	/**
 	 * La portada de la tienda, en la plantilla que eligió la dueña.
 	 *
 	 * Todas las variantes muestran lo mismo —etiqueta, título, subtítulo y los
-	 * dos botones—: lo que cambia es cómo se arma, y eso lo decide `hero` en la
-	 * ficha de la plantilla (`$lib/domain/templates`):
+	 * dos botones—: lo que cambia es cómo se arma. Lo decide `hero` en la
+	 * ficha de la plantilla (`$lib/domain/templates`), salvo que la dueña haya
+	 * elegido otra en sus ajustes (`heroOf` en `$lib/domain/theme`):
 	 *
 	 * - `cover`: la foto a sangre con el texto encima. Editorial y Noche.
 	 * - `split`: la pantalla en dos; el texto sobre el fondo de la tienda, que
@@ -22,7 +22,7 @@
 	 *   Vibrante.
 	 */
 	interface Props {
-		template: StorefrontTemplate;
+		layout: HeroLayout;
 		eyebrow: string;
 		title: string;
 		subtitle: string;
@@ -31,9 +31,7 @@
 		collectionSlug: string | null;
 	}
 
-	let { template, eyebrow, title, subtitle, image, collectionSlug }: Props = $props();
-
-	const layout = $derived(templateOf(template).hero);
+	let { layout, eyebrow, title, subtitle, image, collectionSlug }: Props = $props();
 
 	/**
 	 * En la portada a sangre el texto va en blanco sobre la foto oscurecida.

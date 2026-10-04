@@ -7,8 +7,10 @@
 	import SiteHeader from '$lib/components/organisms/SiteHeader.svelte';
 	import StoreAssistant from '$lib/components/organisms/StoreAssistant.svelte';
 	import TemplatePreviewBar from '$lib/components/organisms/TemplatePreviewBar.svelte';
+	import { themeStyle } from '$lib/domain/theme';
 	import { cart } from '$lib/stores/cart.svelte';
 	import { favorites } from '$lib/stores/favorites.svelte';
+	import { storefrontDraft } from '$lib/stores/storefront-draft.svelte';
 
 	interface Props {
 		data: LayoutData;
@@ -22,6 +24,14 @@
 		cart.hydrate();
 		favorites.hydrate();
 	});
+
+	// Dentro del editor de diseño la tienda se viste con el borrador que llega
+	// por `postMessage`; fuera de él, `apply` devuelve los ajustes tal cual.
+	$effect(() => {
+		if (data.draftPreview) storefrontDraft.listen();
+	});
+
+	const settings = $derived(storefrontDraft.apply(data.settings));
 </script>
 
 <svelte:head>
@@ -36,22 +46,21 @@
 	este atributo, así que basta ponerlo una vez acá para que hereden cabecera,
 	páginas y pie. El panel, que vive en otro layout, no se entera. Si hay una
 	plantilla en prueba, `settings.template` ya viene con ella desde el load.
+	Los ajustes de la dueña (color, letras, esquinas) pisan esos tokens con un
+	`style` en el mismo elemento.
 -->
 <div
-	data-storefront-template={data.settings.template}
+	data-storefront-template={settings.template}
+	style={themeStyle(settings.template, settings.theme) || undefined}
 	class="bg-background text-foreground flex min-h-screen flex-col"
 >
-	<SiteHeader
-		settings={data.settings}
-		categories={data.categories}
-		collections={data.collections}
-	/>
+	<SiteHeader {settings} categories={data.categories} collections={data.collections} />
 
 	<main class="flex-1">
 		{@render children()}
 	</main>
 
-	<SiteFooter settings={data.settings} categories={data.categories} />
+	<SiteFooter {settings} categories={data.categories} />
 </div>
 
 <CartDrawer />

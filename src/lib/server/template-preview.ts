@@ -1,10 +1,18 @@
 import type { Cookies } from '@sveltejs/kit';
 import type { StorefrontTemplate } from '$lib/domain/templates';
+import type { StoreTheme } from '$lib/domain/theme';
 
 import { dev } from '$app/environment';
 
 import { STOREFRONT_TEMPLATES } from '$lib/domain/templates';
-import { PREVIEW_EXIT, PREVIEW_ONCE_PARAM, PREVIEW_PARAM } from '$lib/template-preview';
+import { readTheme } from '$lib/domain/theme';
+import {
+	PREVIEW_EXIT,
+	PREVIEW_ONCE_PARAM,
+	PREVIEW_PARAM,
+	THEME_PREVIEW_KEYS,
+	THEME_PREVIEW_PARAM
+} from '$lib/template-preview';
 
 /**
  * Probar una plantilla en la tienda de verdad, sin guardarla.
@@ -29,6 +37,8 @@ export interface TemplatePreview {
 	template: StorefrontTemplate | null;
 	/** Si hay que decirle a quien mira que esto es una prueba. */
 	announce: boolean;
+	/** Ajustes en borrador que reemplazan a los guardados, o null. */
+	theme: StoreTheme | null;
 }
 
 function isTemplate(value: string | null): value is StorefrontTemplate {
@@ -40,6 +50,20 @@ function cookieOptions() {
 	return { path: '/', httpOnly: true, sameSite: 'lax', secure: !dev } as const;
 }
 
+/** Los ajustes del borrador, si la URL los trae; lo que no se reconozca se descarta. */
+function themeFromUrl(url: URL): StoreTheme | null {
+	if (url.searchParams.get(THEME_PREVIEW_PARAM) !== '1') return null;
+
+	const read = (param: string) => url.searchParams.get(param);
+
+	return readTheme({
+		accent: read(THEME_PREVIEW_KEYS.accent),
+		fonts: read(THEME_PREVIEW_KEYS.fonts),
+		corners: read(THEME_PREVIEW_KEYS.corners),
+		hero: read(THEME_PREVIEW_KEYS.hero)
+	});
+}
+
 export function resolveTemplatePreview(
 	url: URL,
 	cookies: Pick<Cookies, 'get' | 'set' | 'delete'>
@@ -49,12 +73,12 @@ export function resolveTemplatePreview(
 	if (pedida === PREVIEW_EXIT) {
 		cookies.delete(PREVIEW_COOKIE, cookieOptions());
 
-		return { template: null, announce: false };
+		return { template: null, announce: false, theme: null };
 	}
 
 	if (isTemplate(pedida)) {
 		if (url.searchParams.get(PREVIEW_ONCE_PARAM) === '1') {
-			return { template: pedida, announce: false };
+			return { template: pedida, announce: false, theme: themeFromUrl(url) };
 		}
 
 		cookies.set(PREVIEW_COOKIE, pedida, {
@@ -62,12 +86,12 @@ export function resolveTemplatePreview(
 			maxAge: PREVIEW_MAX_AGE_SECONDS
 		});
 
-		return { template: pedida, announce: true };
+		return { template: pedida, announce: true, theme: null };
 	}
 
 	const guardada = cookies.get(PREVIEW_COOKIE) ?? null;
 
-	if (isTemplate(guardada)) return { template: guardada, announce: true };
+	if (isTemplate(guardada)) return { template: guardada, announce: true, theme: null };
 
-	return { template: null, announce: false };
+	return { template: null, announce: false, theme: null };
 }

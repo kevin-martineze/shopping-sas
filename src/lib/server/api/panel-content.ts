@@ -1,11 +1,12 @@
 import type { Collection, HomeHighlight, StoreSettings } from '$lib/domain/settings';
 import type { StorefrontTemplate } from '$lib/domain/templates';
+import type { StoreTheme } from '$lib/domain/theme';
 import type { ApiResult } from '$lib/server/api/client';
 import type { PanelContext } from '$lib/server/context';
 
 import { z } from 'zod';
 
-import { templateSchema } from '$lib/server/api/statuses';
+import { templateSchema, themeSchema } from '$lib/server/api/statuses';
 import { panelRequest, segment } from '$lib/server/api/request';
 
 /** Contenido del panel: ajustes, bloques de portada y colecciones. */
@@ -21,6 +22,7 @@ const settingsSchema = z
 		heroTitle: z.string().nullable(),
 		heroSubtitle: z.string().nullable(),
 		template: templateSchema,
+		theme: themeSchema,
 		assistant: z.boolean(),
 		// Los ajustes del panel no hablan de cobros: eso vive en su propia
 		// pantalla. Se completa para que el tipo del dominio sea uno solo.
@@ -36,6 +38,7 @@ const settingsSchema = z
 		hero_title: settings.heroTitle,
 		hero_subtitle: settings.heroSubtitle,
 		template: settings.template,
+		theme: settings.theme,
 		assistant: settings.assistant,
 		online_payments: settings.onlinePayments ?? false
 	}));
@@ -51,6 +54,8 @@ export interface SettingsPatch {
 	heroTitle?: string | null;
 	heroSubtitle?: string | null;
 	template?: StorefrontTemplate;
+	/** Reemplaza todos los ajustes de la plantilla; `null` la deja tal cual. */
+	theme?: StoreTheme | null;
 }
 
 export function getSettings(ctx: PanelContext): Promise<ApiResult<StoreSettings>> {

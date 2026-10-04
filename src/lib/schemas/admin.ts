@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-import { STOREFRONT_TEMPLATES } from '$lib/domain/templates';
+import { HERO_LAYOUTS, STOREFRONT_TEMPLATES } from '$lib/domain/templates';
+import { HEX_COLOR, THEME_CORNERS, THEME_FONTS } from '$lib/domain/theme';
 
 /** Precios en pesos enteros: la administradora los escribe con o sin puntos. */
 const price = z.coerce
@@ -181,6 +182,27 @@ export type HomeHighlightInput = z.infer<typeof homeHighlightSchema>;
 /** La plantilla de la vitrina: solo una de las que este frontend sabe pintar. */
 export const templateSchema = z.enum(STOREFRONT_TEMPLATES, {
 	errorMap: () => ({ message: 'Elige una de las plantillas.' })
+});
+
+/** Un ajuste de lista cerrada: vacío es «el de la plantilla». */
+function themeChoice<T extends string>(values: readonly [T, ...T[]], message: string) {
+	return z
+		.union([z.literal(''), z.enum(values, { errorMap: () => ({ message }) })])
+		.transform((value) => (value === '' ? null : value));
+}
+
+/**
+ * Los ajustes de la plantilla, tal como llegan del formulario. Que el color se
+ * lea sobre la plantilla no se puede decir aquí —depende de cuál tenga la
+ * tienda—: lo comprueba la action con `accentFits`.
+ */
+export const storeThemeSchema = z.object({
+	accent: z
+		.union([z.literal(''), z.string().regex(HEX_COLOR, 'El color va así: #1D4ED8.')])
+		.transform((value) => (value === '' ? null : value.toUpperCase())),
+	fonts: themeChoice(THEME_FONTS, 'Elige una de las letras.'),
+	corners: themeChoice(THEME_CORNERS, 'Elige una de las esquinas.'),
+	hero: themeChoice(HERO_LAYOUTS, 'Elige una de las portadas.')
 });
 
 /**

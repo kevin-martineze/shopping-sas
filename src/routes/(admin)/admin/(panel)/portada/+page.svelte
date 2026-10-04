@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 
+	import Paintbrush from '@lucide/svelte/icons/paintbrush';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
 
 	import { enhance } from '$app/forms';
@@ -17,7 +18,8 @@
 	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 	import NumberField from '$lib/components/molecules/NumberField.svelte';
 	import SelectField from '$lib/components/molecules/SelectField.svelte';
-	import TemplatePicker from '$lib/components/organisms/TemplatePicker.svelte';
+	import { templateOf } from '$lib/domain/templates';
+	import { isEmptyTheme } from '$lib/domain/theme';
 
 	interface Props {
 		data: PageData;
@@ -61,19 +63,25 @@
 
 <FormFeedback {error} {message} />
 
-<section class="mb-8">
-	<h2 class="text-xl">Plantilla</h2>
-	<p class="text-muted-foreground mb-4 text-sm">
-		Con qué diseño se viste tu tienda. Cambiarla no toca tus productos, tus textos ni tus pedidos.
-	</p>
-
-	<TemplatePicker
-		current={data.settings.template}
-		storeUrl={data.storeUrl}
-		action="?/plantilla"
-		cta="Cambiar a esta"
-	/>
-</section>
+<Card.Root class="mb-8">
+	<Card.Header>
+		<Card.Title>Diseño</Card.Title>
+		<Card.Description>
+			Tu tienda usa la plantilla {templateOf(data.settings.template).name}{isEmptyTheme(
+				data.settings.theme
+			)
+				? ''
+				: ', con tus ajustes'}. Cambia la plantilla, tu color, tus letras y la portada viendo cómo
+			queda.
+		</Card.Description>
+		<Card.Action>
+			<Button href="/admin/personalizar">
+				<Paintbrush />
+				Personalizar diseño
+			</Button>
+		</Card.Action>
+	</Card.Header>
+</Card.Root>
 
 <Card.Root class="mb-8">
 	<Card.Header>

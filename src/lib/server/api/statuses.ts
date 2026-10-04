@@ -2,10 +2,12 @@ import type { MemberRole, StoreStatus, SubscriptionStatus } from '$lib/domain/ac
 import type { ProductStatus } from '$lib/domain/catalog';
 import type { OrderPaymentStatus, OrderStatus } from '$lib/domain/orders';
 import type { StorefrontTemplate } from '$lib/domain/templates';
+import type { StoreTheme } from '$lib/domain/theme';
 
 import { z } from 'zod';
 
 import { templateOf } from '$lib/domain/templates';
+import { EMPTY_THEME, readTheme } from '$lib/domain/theme';
 
 /**
  * La API nombra los estados en mayúsculas (`ACTIVE`); el dominio del frontend
@@ -106,6 +108,18 @@ export const subscriptionStatusSchema = z
 export const templateSchema = z
 	.string()
 	.transform((code): StorefrontTemplate => templateOf(code).code);
+
+/**
+ * Los ajustes de la plantilla. Igual que con la plantilla, nada de lo que
+ * llegue puede tumbar la tienda: un ajuste que este frontend no conoce vuelve
+ * a ser el de la plantilla, y una API que todavía no los manda es la
+ * plantilla tal cual.
+ */
+export const themeSchema = z
+	.object({ accent: z.unknown(), fonts: z.unknown(), corners: z.unknown(), hero: z.unknown() })
+	.nullish()
+	.catch(null)
+	.transform((theme): StoreTheme => (theme ? readTheme(theme) : EMPTY_THEME));
 
 const ORDER_PAYMENT_TO_DOMAIN: Record<
 	'UNPAID' | 'PENDING' | 'PAID' | 'FAILED',

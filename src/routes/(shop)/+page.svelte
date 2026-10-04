@@ -5,6 +5,8 @@
 	import CollectionBand from '$lib/components/organisms/CollectionBand.svelte';
 	import ProductGrid from '$lib/components/organisms/ProductGrid.svelte';
 	import StoreHero from '$lib/components/organisms/StoreHero.svelte';
+	import { heroOf } from '$lib/domain/theme';
+	import { storefrontDraft } from '$lib/stores/storefront-draft.svelte';
 
 	interface Props {
 		data: PageData;
@@ -13,6 +15,8 @@
 	let { data }: Props = $props();
 
 	const hero = $derived(data.heroCollection);
+	/** Con el borrador del editor de diseño, si la tienda se abrió dentro de él. */
+	const look = $derived(storefrontDraft.apply(data.settings));
 	const heroImage = $derived(
 		hero?.hero_image_url ?? data.newest.at(0)?.images.at(0)?.url_card ?? null
 	);
@@ -60,7 +64,7 @@
 </svelte:head>
 
 <StoreHero
-	template={data.settings.template}
+	layout={heroOf(look.template, look.theme)}
 	eyebrow={hero ? 'Colección en curso' : 'Nueva temporada'}
 	title={heroTitle}
 	subtitle={heroSubtitle}
