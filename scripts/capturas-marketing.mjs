@@ -2,8 +2,8 @@
  * Las capturas de una tienda real que usa el sitio comercial, y la tarjeta
  * social (`static/og.png`) dibujada con ellas.
  *
- * La landing enseña maquetas en HTML para el panel (`StorefrontMock`,
- * `PhoneMock`): no envejecen y no pesan. Pero «así se ve una tienda terminada»
+ * La landing enseña maquetas en HTML para el panel (`OrderCard`,
+ * `StockCard`): no envejecen y no pesan. Pero «así se ve una tienda terminada»
  * convence más con la tienda de verdad, y por eso estas sí son fotos. Para que
  * no envejezcan sin remedio se regeneran con este script cuando cambie la
  * vitrina:
@@ -180,8 +180,8 @@ p { position: absolute; left: 72px; top: 410px; width: 520px; font-size: 22px; l
 .phone img { display: block; width: 100%; border-radius: 27px; }
 </style></head><body>
 <div class="marca"><img src="${logo}" alt="">Globerce</div>
-<h1>Tu tienda responde <em>«¿queda?»</em> por ti</h1>
-<p>Catálogo, inventario y pagos en línea. Lista hoy, sin comisión por venta.</p>
+<h1>Que te compren <em>sin esperar tu respuesta</em></h1>
+<p>Crea tu tienda online en minutos, sin saber de tecnología y sin comisión por venta.</p>
 <div class="chips"><span>14 días gratis</span><span>Sin comisión por venta</span></div>
 <div class="browser"><div class="barra"><i></i><i></i><i></i></div><img src="${asData(portada)}" alt=""></div>
 <div class="phone"><img src="${asData(catalogo)}" alt=""></div>

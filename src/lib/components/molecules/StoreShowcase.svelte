@@ -6,7 +6,7 @@
 	/**
 	 * Una tienda de Globerce de verdad: en un navegador, y en un celular encima.
 	 *
-	 * A diferencia de `PhoneMock` y las tarjetas de la portada, estas son fotos.
+	 * A diferencia de las tarjetas de la portada (`OrderCard`, `StockCard`), estas son fotos.
 	 * Para el panel una maqueta basta, pero «así se ve tu tienda terminada»
 	 * convence más con una tienda real, con sus fotos y sus precios. Para que no envejezcan sin
 	 * remedio salen de `scripts/capturas-marketing.mjs`, que las vuelve a tomar.

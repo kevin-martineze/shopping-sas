@@ -1,10 +1,11 @@
 <script lang="ts">
 	import ArrowRight from '@lucide/svelte/icons/arrow-right';
-	import BadgeCheck from '@lucide/svelte/icons/badge-check';
 	import BookOpen from '@lucide/svelte/icons/book-open';
 	import Check from '@lucide/svelte/icons/check';
+	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import Coffee from '@lucide/svelte/icons/coffee';
 	import Shirt from '@lucide/svelte/icons/shirt';
+	import Zap from '@lucide/svelte/icons/zap';
 
 	import type { PageData } from './$types';
 	import type { Rubro } from '$lib/components/molecules/VariantDemo.svelte';
@@ -13,7 +14,6 @@
 	import ModuleIcon, { type ModuleName } from '$lib/components/molecules/ModuleIcon.svelte';
 	import OrderCard from '$lib/components/molecules/OrderCard.svelte';
 	import PaymentCard from '$lib/components/molecules/PaymentCard.svelte';
-	import PhoneMock from '$lib/components/molecules/PhoneMock.svelte';
 	import PlanCard from '$lib/components/molecules/PlanCard.svelte';
 	import SectionTag from '$lib/components/molecules/SectionTag.svelte';
 	import StockCard from '$lib/components/molecules/StockCard.svelte';
@@ -28,6 +28,7 @@
 		CAPTURA_PORTADA,
 		CAPTURA_PRODUCTO_CELULAR
 	} from '$lib/config/capturas';
+	import { FOTO_CLIENTA_NOCHE, FOTO_EMPRENDEDORA, FOTO_RUBRO } from '$lib/config/fotos';
 	import { TRIAL_DAYS } from '$lib/domain/account';
 	import { cn } from '$lib/utils';
 
@@ -106,6 +107,9 @@
 		}
 	];
 
+	/** Lo que de verdad pide el registro para tener la tienda andando. */
+	const pasos = ['Nombras tu tienda', 'Subes fotos y precios', 'Compartes el enlace'];
+
 	let rubroActivo = $state(0);
 	const rubro = $derived(rubros[rubroActivo]);
 
@@ -160,20 +164,20 @@
 </script>
 
 <svelte:head>
-	<title>Globerce — Tu tienda responde «¿queda?» por ti</title>
+	<title>Globerce — Que te compren sin esperar tu respuesta</title>
 	<meta
 		name="description"
-		content="Tu tienda en línea, se venda lo que se venda: catálogo que se divide como tu producto lo pida, inventario que se descuenta solo y pagos en línea directo a tu cuenta. {TRIAL_DAYS} días gratis, sin comisión por venta."
+		content="Crea tu tienda online en minutos: subes tus fotos, pones precios y compartes el enlace. Pagos en línea directo a tu cuenta, {TRIAL_DAYS} días gratis y sin comisión por venta."
 	/>
 
 	<!-- Lo que se ve cuando alguien comparte el enlace por WhatsApp, que es por
 	     donde va a llegar casi todo el mundo. -->
 	<meta property="og:type" content="website" />
 	<meta property="og:site_name" content="Globerce" />
-	<meta property="og:title" content="Tu tienda responde «¿queda?» por ti" />
+	<meta property="og:title" content="Que te compren sin esperar tu respuesta" />
 	<meta
 		property="og:description"
-		content="Catálogo, inventario y pagos en línea, vendas ropa, café o libros. {TRIAL_DAYS} días gratis, sin comisión por venta."
+		content="Crea tu tienda online en minutos, vendas ropa, café o libros. {TRIAL_DAYS} días gratis, sin comisión por venta."
 	/>
 	<meta property="og:image" content="{data.siteUrl}/og.png" />
 	<meta property="og:url" content={data.siteUrl} />
@@ -185,39 +189,37 @@
 
 	<SmoothScroll>
 		<main>
-			<!-- Portada en pizarra: titular al centro, y debajo una tienda de
+			<!-- Portada en pizarra. Arriba, lo que se promete: la tienda hecha en
+			     minutos. El titular dice para qué sirve, el subtítulo cómo se hace
+			     y los tres pasos lo confirman de un vistazo. Debajo, una tienda de
 			     verdad —lo que ve la clienta— con el pedido que acaba de llegar
 			     flotando encima —lo que ve la dueña—. La tienda es una foto
-			     (`StoreShowcase`); el pedido es HTML. Las insignias dicen lo que se
-			     promete, no de dónde es la empresa. -->
+			     (`StoreShowcase`); el pedido es HTML. -->
 			<section
-				class="marketing-dark bg-background text-foreground overflow-hidden pt-32 pb-16 md:pt-40 md:pb-24 lg:pt-44"
+				class="marketing-dark bg-background text-foreground overflow-hidden pt-28 pb-16 md:pt-36 md:pb-24"
 			>
 				<div class="mx-auto max-w-6xl px-4 text-center sm:px-6" data-reveal>
-					<ul class="text-muted-foreground flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
-						<li class="flex items-center gap-2">
-							<BadgeCheck class="text-primary size-4" aria-hidden="true" />
-							{TRIAL_DAYS} días gratis, sin cobro
-						</li>
-						<li class="flex items-center gap-2">
-							<BadgeCheck class="text-primary size-4" aria-hidden="true" />
-							Sin comisión por venta
-						</li>
-					</ul>
+					<p
+						class="border-primary/30 bg-primary/10 text-primary inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-medium"
+					>
+						<Zap class="size-4" aria-hidden="true" />
+						Tu tienda online en minutos · {TRIAL_DAYS} días gratis
+					</p>
 
 					<h1
 						class="mx-auto mt-6 max-w-4xl text-4xl text-balance sm:text-5xl md:text-6xl lg:text-7xl"
 					>
-						Tu tienda responde <em class="text-primary">«¿queda?»</em> por ti
+						Que te compren <em class="text-primary">sin esperar tu respuesta</em>
 					</h1>
 
 					<p class="text-muted-foreground mx-auto mt-6 max-w-xl text-lg text-pretty md:text-xl">
-						Catálogo, inventario y pagos en línea. Lista hoy, sin comisión por venta.
+						Subes tus fotos, pones precios y compartes el enlace: Globerce arma tu tienda y te pagan
+						en línea. Sin saber de tecnología y sin comisión por venta.
 					</p>
 
 					<div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
 						<Button href="/registro" size="lg" class="h-12 px-7 text-base">
-							Empieza gratis
+							Crea tu tienda gratis
 							<ArrowRight class="size-4" />
 						</Button>
 						{#if data.demoUrl}
@@ -229,13 +231,28 @@
 								Ver precios
 							</Button>
 						{/if}
-						<Button href="#como-funciona" variant="link" size="lg" class="text-foreground/80">
-							Cómo funciona
-						</Button>
 					</div>
+
+					<ol
+						class="text-muted-foreground mt-10 flex flex-col items-center justify-center gap-3 text-sm sm:flex-row sm:gap-4"
+					>
+						{#each pasos as paso, indice (paso)}
+							<li class="flex items-center gap-2.5">
+								<span
+									class="bg-secondary text-foreground flex size-7 flex-none items-center justify-center rounded-full text-xs font-semibold tabular-nums"
+								>
+									{indice + 1}
+								</span>
+								{paso}
+								{#if indice < pasos.length - 1}
+									<ChevronRight class="hidden size-4 opacity-50 sm:block" aria-hidden="true" />
+								{/if}
+							</li>
+						{/each}
+					</ol>
 				</div>
 
-				<div class="relative mx-auto mt-16 max-w-5xl px-4 sm:px-6 lg:mt-24">
+				<div class="relative mx-auto mt-12 max-w-5xl px-4 sm:px-6 lg:mt-16">
 					<StoreShowcase desktop={CAPTURA_PORTADA} mobile={CAPTURA_CATALOGO_CELULAR} eager />
 
 					<!-- Solo en pantallas grandes: en el celular taparía la tienda. -->
@@ -355,7 +372,9 @@
 				</div>
 			</section>
 
-			<!-- Banda oscura: el panel cabe en el celular. -->
+			<!-- Banda oscura: el panel cabe en el celular. A la derecha, la dueña
+			     empacando un pedido con el celular en la mano, y encima, en claro
+			     para que se lea sobre la pizarra, el pedido que le acaba de llegar. -->
 			<section
 				id="celular"
 				class="marketing-dark bg-background text-foreground overflow-hidden py-16 md:py-24"
@@ -383,8 +402,23 @@
 						</Button>
 					</div>
 
-					<div class="flex justify-center md:justify-end" data-reveal>
-						<PhoneMock />
+					<div class="relative sm:pb-10" data-reveal>
+						<img
+							src={FOTO_EMPRENDEDORA.src}
+							srcset={FOTO_EMPRENDEDORA.srcset}
+							sizes="(min-width: 768px) 28rem, 90vw"
+							width={FOTO_EMPRENDEDORA.width}
+							height={FOTO_EMPRENDEDORA.height}
+							alt={FOTO_EMPRENDEDORA.alt}
+							loading="lazy"
+							decoding="async"
+							class="aspect-[4/5] w-full rounded-lg object-cover sm:ml-auto sm:w-10/12"
+						/>
+						<div
+							class="marketing-light relative z-10 mx-4 -mt-16 sm:absolute sm:bottom-0 sm:left-0 sm:mx-0 sm:mt-0 sm:w-72"
+						>
+							<OrderCard />
+						</div>
 					</div>
 				</div>
 			</section>
@@ -434,9 +468,30 @@
 							</div>
 						{/key}
 
+						<!-- Detrás de la ficha, el lugar donde se vende eso: las tres fotos
+						     están montadas y se cruzan al cambiar de pestaña, así no hay
+						     un hueco mientras carga la siguiente. -->
 						<div
-							class="bg-secondary flex items-center justify-center rounded-lg p-6 md:min-h-[460px] md:p-10"
+							class="bg-secondary relative isolate flex items-center justify-center overflow-hidden rounded-lg p-6 md:min-h-[460px] md:p-10"
 						>
+							{#each rubros as item, indice (item.id)}
+								<img
+									src={FOTO_RUBRO[item.id].src}
+									srcset={FOTO_RUBRO[item.id].srcset}
+									sizes="(min-width: 768px) 36rem, 100vw"
+									width={FOTO_RUBRO[item.id].width}
+									height={FOTO_RUBRO[item.id].height}
+									alt={FOTO_RUBRO[item.id].alt}
+									loading="lazy"
+									decoding="async"
+									class={cn(
+										'absolute inset-0 -z-10 size-full object-cover transition-opacity duration-500',
+										indice === rubroActivo ? 'opacity-100' : 'opacity-0'
+									)}
+								/>
+							{/each}
+							<div class="bg-foreground/20 absolute inset-0 -z-10" aria-hidden="true"></div>
+
 							{#key rubro.id}
 								<VariantDemo rubro={rubro.id} class="fade-up" />
 							{/key}
@@ -547,18 +602,44 @@
 				</div>
 			</section>
 
-			<!-- Cierre en pizarra: el mismo golpe de contraste con el que abre. -->
-			<section class="marketing-dark bg-background text-foreground py-20 md:py-28">
-				<div class="mx-auto max-w-3xl px-4 text-center sm:px-6" data-reveal>
-					<h2 class="text-4xl text-balance md:text-6xl">Abre tu tienda hoy</h2>
-					<p class="text-muted-foreground mx-auto mt-5 max-w-xl text-lg text-pretty md:text-xl">
-						Nadie compra a las once de la noche si tiene que esperar tu respuesta.
-					</p>
-					<div class="mt-8">
-						<Button href="/registro" size="lg" class="h-12 px-7 text-base">
-							Empieza gratis
-							<ArrowRight class="size-4" />
-						</Button>
+			<!-- Cierre en pizarra: el mismo golpe de contraste con el que abre, sobre
+			     la clienta que compra a las once de la noche. La foto se apaga
+			     hacia la izquierda, donde va el texto, y se funde abajo con el pie. -->
+			<section
+				class="marketing-dark bg-background text-foreground relative isolate overflow-hidden py-24 md:py-36"
+			>
+				<img
+					src={FOTO_CLIENTA_NOCHE.src}
+					srcset={FOTO_CLIENTA_NOCHE.srcset}
+					sizes="100vw"
+					width={FOTO_CLIENTA_NOCHE.width}
+					height={FOTO_CLIENTA_NOCHE.height}
+					alt={FOTO_CLIENTA_NOCHE.alt}
+					loading="lazy"
+					decoding="async"
+					class="absolute inset-0 -z-10 size-full object-cover object-[70%_center]"
+				/>
+				<div
+					class="bg-background/80 md:from-background md:via-background/85 absolute inset-0 -z-10 md:bg-transparent md:bg-linear-to-r md:to-transparent"
+					aria-hidden="true"
+				></div>
+				<div
+					class="from-background absolute inset-x-0 bottom-0 -z-10 h-24 bg-linear-to-t"
+					aria-hidden="true"
+				></div>
+
+				<div class="mx-auto max-w-6xl px-4 sm:px-6" data-reveal>
+					<div class="max-w-xl">
+						<h2 class="text-4xl text-balance md:text-6xl">Abre tu tienda hoy</h2>
+						<p class="text-muted-foreground mt-5 text-lg text-pretty md:text-xl">
+							Nadie compra a las once de la noche si tiene que esperar tu respuesta.
+						</p>
+						<div class="mt-8">
+							<Button href="/registro" size="lg" class="h-12 px-7 text-base">
+								Empieza gratis
+								<ArrowRight class="size-4" />
+							</Button>
+						</div>
 					</div>
 				</div>
 			</section>

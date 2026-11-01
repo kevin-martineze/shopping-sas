@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { FOTO_PRODUCTO } from '$lib/config/fotos';
 	import { cn } from '$lib/utils';
 
 	/**
@@ -7,8 +8,9 @@
 	 * Es la demostración de lo que distingue al catálogo: cada rubro declara
 	 * sus ejes y la ficha se acomoda. Ropa: talla y color, con una talla
 	 * agotada. Café: molienda y peso, con precio por presentación. Pieza única:
-	 * ningún eje y una sola existencia. Los tonos de la foto y las muestras de
-	 * color son contenido —el producto—, no interfaz, por eso van en línea.
+	 * ningún eje y una sola existencia. Las muestras de color, y el tono que
+	 * ocupa el lugar de la foto mientras carga, son contenido —el producto—,
+	 * no interfaz, por eso van en línea.
 	 *
 	 * Decorativa: el texto de al lado dice lo mismo con palabras.
 	 */
@@ -81,6 +83,7 @@
 	} as const;
 
 	const ficha = $derived(fichas[rubro]);
+	const foto = $derived(FOTO_PRODUCTO[rubro]);
 </script>
 
 <div
@@ -90,10 +93,18 @@
 		className
 	)}
 >
-	<div
-		class="aspect-[4/3] w-full rounded-[calc(var(--radius)-6px)]"
+	<img
+		src={foto.src}
+		srcset={foto.srcset}
+		sizes="18rem"
+		width={foto.width}
+		height={foto.height}
+		alt={foto.alt}
+		loading="lazy"
+		decoding="async"
+		class="aspect-[4/3] w-full rounded-[calc(var(--radius)-6px)] object-cover"
 		style="background-color: {ficha.tono}"
-	></div>
+	/>
 
 	<div class="mt-4 flex items-baseline justify-between gap-3">
 		<p class="font-semibold">{ficha.nombre}</p>
