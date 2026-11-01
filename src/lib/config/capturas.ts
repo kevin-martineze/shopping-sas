@@ -22,7 +22,13 @@ export interface Shot {
 	alt: string;
 }
 
-function shot(small: string, large: string, width: number, height: number, alt: string): Shot {
+export function shot(
+	small: string,
+	large: string,
+	width: number,
+	height: number,
+	alt: string
+): Shot {
 	return { src: small, srcset: `${small} ${width}w, ${large} ${width * 2}w`, width, height, alt };
 }
 
