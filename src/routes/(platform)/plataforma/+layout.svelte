@@ -20,7 +20,8 @@
 	const links = [
 		{ href: '/plataforma', label: 'Resumen' },
 		{ href: '/plataforma/tiendas', label: 'Tiendas' },
-		{ href: '/plataforma/pagos', label: 'Pagos' }
+		{ href: '/plataforma/pagos', label: 'Pagos' },
+		{ href: '/plataforma/soporte', label: 'Soporte' }
 	];
 
 	function isActive(href: string): boolean {

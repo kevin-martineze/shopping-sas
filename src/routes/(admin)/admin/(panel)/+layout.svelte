@@ -9,6 +9,7 @@
 	import LayoutTemplate from '@lucide/svelte/icons/layout-template';
 	import Paintbrush from '@lucide/svelte/icons/paintbrush';
 	import LayoutDashboard from '@lucide/svelte/icons/layout-dashboard';
+	import LifeBuoy from '@lucide/svelte/icons/life-buoy';
 	import Palette from '@lucide/svelte/icons/palette';
 	import LogOut from '@lucide/svelte/icons/log-out';
 	import Plus from '@lucide/svelte/icons/plus';
@@ -69,6 +70,7 @@
 		{
 			titulo: 'Cuenta',
 			links: [
+				{ href: '/admin/soporte', label: 'Soporte', icon: LifeBuoy },
 				{ href: '/admin/ajustes', label: 'Ajustes', icon: Settings },
 				{ href: '/admin/equipo', label: 'Equipo', icon: Users },
 				{ href: '/admin/pagos', label: 'Pagos', icon: Wallet },
@@ -157,6 +159,10 @@
 
 								{#if link.href === '/admin/pedidos' && data.pendingOrders > 0}
 									<Badge class="ml-auto">{data.pendingOrders}</Badge>
+								{/if}
+
+								{#if link.href === '/admin/soporte' && data.supportUnread > 0}
+									<Badge class="ml-auto">{data.supportUnread}</Badge>
 								{/if}
 							</a>
 						{/each}
