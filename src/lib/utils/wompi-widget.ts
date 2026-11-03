@@ -43,27 +43,30 @@ export function loadWompiWidget(): Promise<void> {
 }
 
 /**
- * Abre el widget y resuelve con la transacción que devuelve Wompi, o `null`
- * si el callback no trae ninguna.
+ * Abre el widget. La promesa resuelve cuando el widget ya está abierto, no
+ * cuando termina el pago: el resultado llega después, por `onResult`.
+ *
+ * `onResult` recibe la transacción, o `null` si Wompi no trae ninguna.
  */
-export async function openWompiWidget(widget: WompiWidget): Promise<WompiTransactionResult | null> {
+export async function openWompiWidget(
+	widget: WompiWidget,
+	onResult: (transaccion: WompiTransactionResult | null) => void
+): Promise<void> {
 	await loadWompiWidget();
 
 	const Checkout = window.WidgetCheckout;
 
 	if (!Checkout) throw new Error('El pago de Wompi no está disponible.');
 
-	return new Promise((resolve) => {
-		const checkout = new Checkout({
-			currency: widget.currency,
-			amountInCents: widget.amount_in_cents,
-			reference: widget.reference,
-			publicKey: widget.public_key,
-			signature: { integrity: widget.integrity_signature },
-			redirectUrl: widget.redirect_url,
-			...(widget.customer_email ? { customerData: { email: widget.customer_email } } : {})
-		});
-
-		checkout.open((result) => resolve(result.transaction ?? null));
+	const checkout = new Checkout({
+		currency: widget.currency,
+		amountInCents: widget.amount_in_cents,
+		reference: widget.reference,
+		publicKey: widget.public_key,
+		signature: { integrity: widget.integrity_signature },
+		redirectUrl: widget.redirect_url,
+		...(widget.customer_email ? { customerData: { email: widget.customer_email } } : {})
 	});
+
+	checkout.open((result) => onResult(result.transaction ?? null));
 }

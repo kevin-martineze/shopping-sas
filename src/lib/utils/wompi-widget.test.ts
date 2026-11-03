@@ -14,27 +14,34 @@ const widget: WompiWidget = {
 	customer_email: 'clienta@example.com'
 };
 
-interface Llamada {
-	config: Record<string, unknown>;
-}
+type ResultadoWidget = { transaction?: { id: string; status: string } };
 
-/** Un `WidgetCheckout` falso: anota la configuración y deja disparar el callback. */
-function widgetFalso(resultado: { transaction?: { id: string; status: string } }) {
-	const llamadas: Llamada[] = [];
+/**
+ * Un `WidgetCheckout` falso: anota la configuración y guarda el callback para
+ * dispararlo cuando la prueba quiera, como hace Wompi al cerrar el pago.
+ */
+function widgetFalso() {
+	const configs: Record<string, unknown>[] = [];
+	let callback: ((resultado: ResultadoWidget) => void) | null = null;
 
 	class WidgetCheckout {
 		constructor(config: Record<string, unknown>) {
-			llamadas.push({ config });
+			configs.push(config);
 		}
 
-		open(callback: (result: { transaction?: { id: string; status: string } }) => void) {
-			callback(resultado);
+		open(cb: (resultado: ResultadoWidget) => void) {
+			callback = cb;
 		}
 	}
 
 	vi.stubGlobal('window', { WidgetCheckout });
 
-	return llamadas;
+	return {
+		configs,
+		cerrarCon(resultado: ResultadoWidget) {
+			callback?.(resultado);
+		}
+	};
 }
 
 describe('openWompiWidget', () => {
@@ -43,11 +50,11 @@ describe('openWompiWidget', () => {
 	});
 
 	it('mapea los campos del dominio a la configuración del widget', async () => {
-		const llamadas = widgetFalso({ transaction: { id: 'tx-9', status: 'APPROVED' } });
+		const falso = widgetFalso();
 
-		await openWompiWidget(widget);
+		await openWompiWidget(widget, () => {});
 
-		expect(llamadas[0]?.config).toEqual({
+		expect(falso.configs[0]).toEqual({
 			currency: 'COP',
 			amountInCents: 4550000,
 			reference: 'ord-1',
@@ -59,22 +66,44 @@ describe('openWompiWidget', () => {
 	});
 
 	it('sin email no manda customerData', async () => {
-		const llamadas = widgetFalso({ transaction: { id: 'tx-9', status: 'APPROVED' } });
+		const falso = widgetFalso();
 
-		await openWompiWidget({ ...widget, customer_email: null });
+		await openWompiWidget({ ...widget, customer_email: null }, () => {});
 
-		expect(llamadas[0]?.config).not.toHaveProperty('customerData');
+		expect(falso.configs[0]).not.toHaveProperty('customerData');
 	});
 
-	it('resuelve con la transacción del callback', async () => {
-		widgetFalso({ transaction: { id: 'tx-9', status: 'DECLINED' } });
+	it('resuelve al abrir el widget, sin esperar el pago', async () => {
+		const falso = widgetFalso();
+		const onResult = vi.fn();
 
-		await expect(openWompiWidget(widget)).resolves.toEqual({ id: 'tx-9', status: 'DECLINED' });
+		await openWompiWidget(widget, onResult);
+
+		// El widget ya está abierto, pero la clienta todavía no pagó.
+		expect(onResult).not.toHaveBeenCalled();
+
+		falso.cerrarCon({ transaction: { id: 'tx-9', status: 'APPROVED' } });
+
+		expect(onResult).toHaveBeenCalledTimes(1);
 	});
 
-	it('resuelve con null si el callback no trae transacción', async () => {
-		widgetFalso({});
+	it('pasa la transacción del callback a onResult', async () => {
+		const falso = widgetFalso();
+		const onResult = vi.fn();
 
-		await expect(openWompiWidget(widget)).resolves.toBeNull();
+		await openWompiWidget(widget, onResult);
+		falso.cerrarCon({ transaction: { id: 'tx-9', status: 'DECLINED' } });
+
+		expect(onResult).toHaveBeenCalledWith({ id: 'tx-9', status: 'DECLINED' });
+	});
+
+	it('pasa null a onResult si el callback no trae transacción', async () => {
+		const falso = widgetFalso();
+		const onResult = vi.fn();
+
+		await openWompiWidget(widget, onResult);
+		falso.cerrarCon({});
+
+		expect(onResult).toHaveBeenCalledWith(null);
 	});
 });

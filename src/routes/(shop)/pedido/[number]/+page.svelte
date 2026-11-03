@@ -76,23 +76,8 @@
 		return { widget: datos.widget, url: datos.url };
 	}
 
-	/**
-	 * Abre el widget y, según la transacción, espera la confirmación o avisa.
-	 * Si el script de Wompi no carga, se redirige a la URL de respaldo.
-	 */
-	async function abrirPago(pago: PagoConWidget) {
-		let transaccion: WompiTransactionResult | null;
-
-		try {
-			transaccion = await openWompiWidget(pago.widget);
-		} catch {
-			window.location.href = pago.url;
-
-			return;
-		}
-
-		abriendoPago = false;
-
+	/** Según la transacción que devuelve Wompi, espera la confirmación o avisa del rechazo. */
+	function resultadoDelPago(transaccion: WompiTransactionResult | null) {
 		if (!transaccion) return;
 
 		if (transaccion.status === 'APPROVED' || transaccion.status === 'PENDING') {
@@ -104,6 +89,23 @@
 
 		// DECLINED, ERROR, VOIDED y cualquier otro estado que no sea de éxito.
 		pagoRechazado = true;
+	}
+
+	/**
+	 * Abre el widget. Apenas está abierto se reactiva el botón: el widget tapa
+	 * la página, y si la clienta lo cierra sin pagar, el botón ya está listo.
+	 * Si el script de Wompi no carga, se redirige a la URL de respaldo.
+	 */
+	async function abrirPago(pago: PagoConWidget) {
+		try {
+			await openWompiWidget(pago.widget, resultadoDelPago);
+		} catch {
+			window.location.href = pago.url;
+
+			return;
+		}
+
+		abriendoPago = false;
 	}
 
 	/** El botón se apaga mientras se pide el enlace o se abre el pago: son unos segundos y un cobro. */
@@ -202,8 +204,8 @@
 			</p>
 		{:else if expirado}
 			<p class="text-muted-foreground text-center text-sm">
-				Tu pago está en proceso. Te avisaremos cuando Wompi lo confirme; puedes recargar esta
-				página.
+				Tu pago está en proceso. Recarga esta página en unos minutos para ver si ya quedó
+				confirmado.
 			</p>
 		{/if}
 
