@@ -51,7 +51,13 @@
 	/** Mientras se confirma o expira el cobro, no se ofrece otro: evita cobrar dos veces. */
 	const mostrarCobro = $derived(!cobro.confirmando && !cobro.expirado);
 
-	const pagar: SubmitFunction = () => {
+	/** El plan que se está cobrando: solo su botón dice «Abriendo el pago…». */
+	let planCobrando = $state('');
+
+	const pagar: SubmitFunction = ({ formData }) => {
+		const codigo = formData.get('planCode');
+
+		planCobrando = typeof codigo === 'string' ? codigo : '';
 		periodoAntesDelCobro = subscription.current_period_end;
 		cobro.iniciar();
 
@@ -155,7 +161,9 @@
 				>
 					<input type="hidden" name="planCode" value={plan.code} />
 					<Button type="submit" class="w-full" disabled={cobro.abriendo}>
-						{cobro.abriendo ? 'Abriendo el pago…' : `Pagar un mes de ${plan.name}`}
+						{cobro.abriendo && planCobrando === plan.code
+							? 'Abriendo el pago…'
+							: `Pagar un mes de ${plan.name}`}
 					</Button>
 					<p class="text-muted-foreground text-xs">
 						El mes nuevo suma desde que termina el período actual, y el plan queda al día cuando el
@@ -258,7 +266,9 @@
 								class="w-full"
 								disabled={cobro.abriendo}
 							>
-								{cobro.abriendo ? 'Abriendo el pago…' : `Pasarme a ${otro.name}`}
+								{cobro.abriendo && planCobrando === otro.code
+									? 'Abriendo el pago…'
+									: `Pasarme a ${otro.name}`}
 							</Button>
 						</form>
 					{/if}
