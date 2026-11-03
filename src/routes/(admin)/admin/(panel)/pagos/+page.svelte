@@ -1,16 +1,14 @@
 <script lang="ts">
 	import Check from '@lucide/svelte/icons/check';
-	import Copy from '@lucide/svelte/icons/copy';
 	import CreditCard from '@lucide/svelte/icons/credit-card';
 
 	import { enhance } from '$app/forms';
 
 	import type { ActionData, PageData } from './$types';
-	import * as Accordion from '$lib/components/atoms/accordion';
 	import { Button } from '$lib/components/atoms/button';
 	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
-	import TextField from '$lib/components/molecules/TextField.svelte';
 	import WompiKeysPaste from '$lib/components/molecules/WompiKeysPaste.svelte';
+	import { cn } from '$lib/utils';
 
 	interface Props {
 		data: PageData;
@@ -20,13 +18,37 @@
 	let { data, form }: Props = $props();
 
 	let submitting = $state(false);
+	/** Abierto cuando la dueña quiere reemplazar las llaves de una cuenta ya conectada. */
+	let cambiando = $state(false);
 	let copiado = $state(false);
 
-	const errors = $derived(form && 'errors' in form ? (form.errors ?? {}) : {});
+	const cuenta = $derived(data.account);
+	const conectada = $derived(cuenta.connected);
+	const conAviso = $derived(conectada && cuenta.last_event_at !== null);
+	/** Con la cuenta conectada y avisando, la página es un resumen; si no, los tres pasos. */
+	const resumen = $derived(conAviso && !cambiando);
+
+	const fechaHora = new Intl.DateTimeFormat('es-CO', {
+		dateStyle: 'medium',
+		timeStyle: 'short',
+		timeZone: 'America/Bogota'
+	});
+
+	function formatear(iso: string | null): string {
+		return iso ? fechaHora.format(new Date(iso)) : 'Todavía no';
+	}
+
+	const modoLabel = $derived(
+		cuenta.mode === 'test' ? 'Pruebas' : cuenta.mode === 'prod' ? 'Producción' : 'Sin reconocer'
+	);
+
+	const error = $derived(form && 'error' in form ? (form.error ?? null) : null);
 	const message = $derived(form && 'message' in form ? (form.message ?? null) : null);
 
 	async function copiar() {
-		await navigator.clipboard.writeText(data.account.events_url);
+		if (!cuenta.events_url) return;
+
+		await navigator.clipboard.writeText(cuenta.events_url);
 		copiado = true;
 		setTimeout(() => (copiado = false), 2000);
 	}
@@ -45,151 +67,204 @@
 	</p>
 </header>
 
-<FormFeedback error={form && 'error' in form ? (form.error ?? null) : null} {message} />
+<FormFeedback {error} {message} />
 
 {#if !data.canManage}
 	<p class="text-muted-foreground text-sm">
-		Solo las dueñas de la tienda pueden conectar la cuenta de cobro.
+		Solo la persona dueña de la tienda puede conectar la cuenta de cobro.
 	</p>
 {:else}
-	<div class="grid gap-6 lg:grid-cols-3">
-		<section class="border-border bg-card rounded-lg space-y-4 border p-6 lg:col-span-2">
-			<div class="flex items-center gap-2">
-				<CreditCard class="size-5" />
-				<h2 class="text-lg">
-					{data.account.connected ? 'Tu cuenta está conectada' : 'Conecta tu cuenta'}
-				</h2>
+	<section class="border-border bg-card rounded-lg space-y-8 border p-6">
+		{#if resumen}
+			<div class="space-y-5">
+				<div class="flex items-center gap-2">
+					<CreditCard class="size-5" />
+					<h2 class="text-lg">Estás cobrando en línea</h2>
+				</div>
+
+				<dl class="grid gap-4 text-sm sm:grid-cols-2">
+					<div>
+						<dt class="text-muted-foreground">Comercio en Wompi</dt>
+						<dd>{cuenta.merchant_name ?? '—'}</dd>
+					</div>
+					<div>
+						<dt class="text-muted-foreground">Modo</dt>
+						<dd>{modoLabel}</dd>
+					</div>
+					<div>
+						<dt class="text-muted-foreground">Último pago avisado</dt>
+						<dd>{formatear(cuenta.last_event_at)}</dd>
+					</div>
+					<div>
+						<dt class="text-muted-foreground">Llave pública</dt>
+						<dd class="font-mono text-xs">
+							{cuenta.public_key ? `${cuenta.public_key.slice(0, 12)}…` : '—'}
+						</dd>
+					</div>
+					<div>
+						<dt class="text-muted-foreground">Conectada desde</dt>
+						<dd>{formatear(cuenta.updated_at)}</dd>
+					</div>
+				</dl>
+
+				<div>
+					<Button type="button" variant="outline" onclick={() => (cambiando = true)}>
+						Cambiar llaves
+					</Button>
+				</div>
+
+				<details class="text-sm">
+					<summary class="text-muted-foreground cursor-pointer">Ver la URL de eventos</summary>
+					<div class="border-border mt-3 flex items-center gap-2 border p-2">
+						<code class="text-muted-foreground flex-1 truncate text-xs">{cuenta.events_url}</code>
+						<Button type="button" variant="outline" size="sm" onclick={copiar}>
+							{copiado ? 'Copiado' : 'Copiar'}
+						</Button>
+					</div>
+				</details>
 			</div>
+		{:else}
+			<ol class="space-y-8">
+				<!-- Paso 1: tener la cuenta en Wompi. -->
+				<li class="flex gap-4">
+					<span
+						class="border-border grid size-8 flex-none place-items-center rounded-full border text-sm"
+					>
+						{#if conectada}<Check class="size-4" />{:else}1{/if}
+					</span>
+					<div class="min-w-0 flex-1 space-y-2">
+						<h2 class="text-lg">Ten tu cuenta en Wompi</h2>
+						<p class="text-muted-foreground text-sm">
+							Abre tu cuenta de comercio con el NIT o la cédula de tu negocio. Wompi te entrega las
+							llaves para cobrar.
+						</p>
+						<Button
+							href="https://comercios.wompi.co"
+							target="_blank"
+							rel="noopener"
+							variant="outline"
+							size="sm"
+						>
+							Abrir Wompi
+						</Button>
+					</div>
+				</li>
 
-			{#if data.account.connected}
-				<p class="text-muted-foreground text-sm">
-					Estás cobrando con la llave <span class="font-mono">{data.account.public_key}</span>. Si
-					pegas llaves nuevas, reemplazan a estas.
-				</p>
-			{/if}
+				<!-- Paso 2: pegar las llaves. Con la cuenta conectada se muestra como hecho. -->
+				<li class="flex gap-4">
+					<span
+						class="border-border grid size-8 flex-none place-items-center rounded-full border text-sm"
+					>
+						{#if conectada}<Check class="size-4" />{:else}2{/if}
+					</span>
+					<div class="min-w-0 flex-1 space-y-3">
+						<h2 class="text-lg">Copia tus llaves y pégalas aquí</h2>
 
+						{#if conectada && !cambiando}
+							<p class="text-muted-foreground text-sm">Tus llaves ya están conectadas.</p>
+							<Button type="button" variant="outline" size="sm" onclick={() => (cambiando = true)}>
+								Cambiar llaves
+							</Button>
+						{:else}
+							<p class="text-muted-foreground text-sm">
+								En Wompi, ve a <span class="text-foreground">Desarrollo › Desarrolladores</span> y copia
+								las cuatro llaves de tu modo de pruebas o de producción.
+							</p>
+
+							<form
+								method="POST"
+								action="?/conectar"
+								novalidate
+								class="space-y-4"
+								use:enhance={() => {
+									submitting = true;
+
+									return async ({ result, update }) => {
+										await update();
+										submitting = false;
+
+										if (result.type === 'success') cambiando = false;
+									};
+								}}
+							>
+								<WompiKeysPaste
+									{submitting}
+									submitLabel={conectada ? 'Reemplazar llaves' : 'Conectar'}
+								/>
+
+								{#if cambiando}
+									<Button type="button" variant="ghost" onclick={() => (cambiando = false)}>
+										Cancelar
+									</Button>
+								{/if}
+							</form>
+						{/if}
+					</div>
+				</li>
+
+				<!-- Paso 3: el aviso de cada pago. Se activa cuando la cuenta está conectada. -->
+				<li class={cn('flex gap-4', !conectada && 'opacity-60')}>
+					<span
+						class="border-border grid size-8 flex-none place-items-center rounded-full border text-sm"
+					>
+						3
+					</span>
+					<div class="min-w-0 flex-1 space-y-3">
+						<h2 class="text-lg">Pide a Wompi que te avise de cada pago</h2>
+
+						{#if !conectada}
+							<p class="text-muted-foreground text-sm">Se activa cuando conectes tu cuenta.</p>
+						{:else}
+							<p class="text-muted-foreground text-sm">
+								En Wompi, ve a
+								<span class="text-foreground">Desarrollo › Desarrolladores › Pagos a terceros</span>
+								y pega esta dirección como URL de eventos.
+							</p>
+
+							<div class="border-border flex items-center gap-2 border p-2">
+								<code class="text-muted-foreground flex-1 truncate text-xs">
+									{cuenta.events_url}
+								</code>
+								<Button type="button" variant="outline" size="sm" onclick={copiar}>
+									{copiado ? 'Copiado' : 'Copiar'}
+								</Button>
+							</div>
+
+							{#if cuenta.last_event_at === null}
+								<p class="text-caution text-sm">Esperando el primer aviso de Wompi.</p>
+							{/if}
+
+							<p class="text-muted-foreground text-xs">
+								Sin ese aviso, un pedido pagado te aparecería como sin pagar: es lo que confirma el
+								cobro.
+							</p>
+						{/if}
+					</div>
+				</li>
+			</ol>
+		{/if}
+
+		{#if conectada}
 			<form
 				method="POST"
-				action="?/conectar"
-				novalidate
-				class="space-y-4"
+				action="?/desconectar"
+				class="border-border border-t pt-6"
 				use:enhance={() => {
 					submitting = true;
 
 					return async ({ update }) => {
-						await update({ reset: true });
+						await update();
 						submitting = false;
 					};
 				}}
 			>
-				<WompiKeysPaste error={errors.publicKey ?? errors.privateKey ?? null} />
-
-				<Button type="submit" disabled={submitting}>
-					{submitting ? 'Guardando…' : data.account.connected ? 'Reemplazar llaves' : 'Conectar'}
+				<Button type="submit" variant="outline" disabled={submitting}>
+					Dejar de cobrar en línea
 				</Button>
-
-				<!-- Respaldo para quien prefiera pegarlas una por una, o llegó sin
-				     JavaScript: los mismos cuatro campos de siempre, en el mismo
-				     `<form>` —el servidor prioriza el texto pegado si lo reconoce
-				     entero; si no, usa lo que haya en estos—. -->
-				<Accordion.Root type="single" id="wompi-manual">
-					<Accordion.Item value="manual">
-						<Accordion.Trigger class="text-muted-foreground text-sm hover:no-underline">
-							Prefiero pegarlas una por una
-						</Accordion.Trigger>
-						<Accordion.Content class="space-y-4 pt-2">
-							<TextField
-								name="publicKey"
-								label="Llave pública"
-								error={errors.publicKey}
-								hint="Empieza por pub_. Es la que viaja en cada enlace de pago."
-							/>
-
-							<TextField
-								name="privateKey"
-								label="Llave privada"
-								error={errors.privateKey}
-								hint="Empieza por prv_. No vuelve a mostrarse."
-							/>
-
-							<div class="grid gap-4 sm:grid-cols-2">
-								<TextField
-									name="integritySecret"
-									label="Secreto de integridad"
-									error={errors.integritySecret}
-								/>
-
-								<TextField
-									name="eventsSecret"
-									label="Secreto de eventos"
-									error={errors.eventsSecret}
-								/>
-							</div>
-						</Accordion.Content>
-					</Accordion.Item>
-				</Accordion.Root>
+				<p class="text-muted-foreground mt-2 text-xs">
+					Tus pedidos seguirán llegando por WhatsApp, como siempre.
+				</p>
 			</form>
-
-			{#if data.account.connected}
-				<form
-					method="POST"
-					action="?/desconectar"
-					class="border-border border-t pt-4"
-					use:enhance={() => {
-						submitting = true;
-
-						return async ({ update }) => {
-							await update();
-							submitting = false;
-						};
-					}}
-				>
-					<Button type="submit" variant="outline" disabled={submitting}>
-						Dejar de cobrar en línea
-					</Button>
-					<p class="text-muted-foreground mt-2 text-xs">
-						Tus pedidos seguirán llegando por WhatsApp, como siempre.
-					</p>
-				</form>
-			{/if}
-		</section>
-
-		<section class="border-border bg-card rounded-lg space-y-4 border p-6">
-			<h2 class="text-lg">Cómo se hace</h2>
-
-			<ol class="text-muted-foreground space-y-3 text-sm">
-				<li>
-					<span class="text-foreground">1.</span> Abre tu cuenta en
-					<a href="https://comercios.wompi.co" target="_blank" rel="noopener" class="underline">
-						Wompi
-					</a>
-					con el NIT o la cédula de tu negocio.
-				</li>
-				<li>
-					<span class="text-foreground">2.</span> En su panel, copia las cuatro llaves y pégalas aquí.
-				</li>
-				<li>
-					<span class="text-foreground">3.</span> En «eventos» de su panel, pega esta dirección para que
-					nos avisen de cada pago:
-				</li>
-			</ol>
-
-			<div class="border-border flex items-center gap-2 border p-2">
-				<code class="text-muted-foreground flex-1 truncate text-xs">
-					{data.account.events_url}
-				</code>
-				<Button type="button" variant="ghost" size="icon" onclick={copiar} aria-label="Copiar">
-					{#if copiado}
-						<Check class="size-4" />
-					{:else}
-						<Copy class="size-4" />
-					{/if}
-				</Button>
-			</div>
-
-			<p class="text-muted-foreground text-xs">
-				Sin ese aviso, un pedido pagado te aparecería como sin pagar: es lo que confirma el cobro.
-			</p>
-		</section>
-	</div>
+		{/if}
+	</section>
 {/if}
