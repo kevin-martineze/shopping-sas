@@ -46,7 +46,10 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		// A la pasarela. Lo que confirma el pago es su evento, no este viaje.
+		// Con widget, el navegador abre el pago aquí mismo. La URL viaja como respaldo.
+		// Lo que confirma el pago es el evento de la pasarela, no este viaje.
+		if (result.data.widget) return { widget: result.data.widget, url: result.data.url };
+
 		redirect(303, result.data.url);
 	},
 

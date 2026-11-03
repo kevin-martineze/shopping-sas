@@ -3,17 +3,21 @@
 	import Sparkles from '@lucide/svelte/icons/sparkles';
 
 	import { enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
 
+	import type { SubmitFunction } from '@sveltejs/kit';
 	import type { ActionData, PageData } from './$types';
 	import { Badge } from '$lib/components/atoms/badge';
 	import { Button } from '$lib/components/atoms/button';
 	import * as Table from '$lib/components/atoms/table';
+	import CobroWompiEstado from '$lib/components/molecules/CobroWompiEstado.svelte';
 	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 	import UsageMeter from '$lib/components/molecules/UsageMeter.svelte';
 	import PaymentCard from '$lib/components/organisms/PaymentCard.svelte';
 	import { planFeatures, STORE_STATUS_LABEL } from '$lib/domain/account';
 	import { cn } from '$lib/utils';
 	import { formatMoney } from '$lib/utils/money';
+	import { cobroWompi } from '$lib/utils/wompi-checkout.svelte';
 
 	interface Props {
 		data: PageData;
@@ -22,10 +26,19 @@
 
 	let { data, form }: Props = $props();
 
-	let submitting = $state('');
-
 	const subscription = $derived(data.subscription);
 	const plan = $derived(subscription.plan);
+
+	/**
+	 * El período que había antes de cobrar. Cuando la pasarela confirma el pago,
+	 * el mes nuevo corre desde el fin del actual: si el fin cambia, ya está pago.
+	 */
+	let periodoAntesDelCobro = $state('');
+
+	const cobro = cobroWompi({
+		pagado: () => subscription.current_period_end !== periodoAntesDelCobro,
+		recargar: () => invalidateAll()
+	});
 
 	/** Cobrarse sola es de la dueña, y solo mientras la tienda no esté suspendida. */
 	const puedePagar = $derived(
@@ -34,6 +47,22 @@
 
 	/** Los demás planes: cambiar de plan es pagar el nuevo. */
 	const otros = $derived(data.plans.filter((otro) => otro.code !== plan.code));
+
+	/** Mientras se confirma o expira el cobro, no se ofrece otro: evita cobrar dos veces. */
+	const mostrarCobro = $derived(!cobro.confirmando && !cobro.expirado);
+
+	/** El plan que se está cobrando: solo su botón dice «Abriendo el pago…». */
+	let planCobrando = $state('');
+
+	const pagar: SubmitFunction = ({ formData }) => {
+		const codigo = formData.get('planCode');
+
+		planCobrando = typeof codigo === 'string' ? codigo : '';
+		periodoAntesDelCobro = subscription.current_period_end;
+		cobro.iniciar();
+
+		return ({ result, update }) => cobro.procesar(result, () => update());
+	};
 
 	const dateFormatter = new Intl.DateTimeFormat('es-CO', { dateStyle: 'long', timeZone: 'UTC' });
 	const shortDate = new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium', timeZone: 'UTC' });
@@ -123,28 +152,27 @@
 		</dl>
 
 		{#if puedePagar}
-			<form
-				method="POST"
-				action="?/pagar"
-				class="border-border space-y-2 border-t pt-4"
-				use:enhance={() => {
-					submitting = plan.code;
+			{#if mostrarCobro}
+				<form
+					method="POST"
+					action="?/pagar"
+					class="border-border space-y-2 border-t pt-4"
+					use:enhance={pagar}
+				>
+					<input type="hidden" name="planCode" value={plan.code} />
+					<Button type="submit" class="w-full" disabled={cobro.abriendo}>
+						{cobro.abriendo && planCobrando === plan.code
+							? 'Abriendo el pago…'
+							: `Pagar un mes de ${plan.name}`}
+					</Button>
+					<p class="text-muted-foreground text-xs">
+						El mes nuevo suma desde que termina el período actual, y el plan queda al día cuando el
+						pago se confirma.
+					</p>
+				</form>
+			{/if}
 
-					return async ({ update }) => {
-						await update();
-						submitting = '';
-					};
-				}}
-			>
-				<input type="hidden" name="planCode" value={plan.code} />
-				<Button type="submit" class="w-full" disabled={submitting !== ''}>
-					{submitting === plan.code ? 'Llevándote a pagar…' : `Pagar un mes de ${plan.name}`}
-				</Button>
-				<p class="text-muted-foreground text-xs">
-					Te llevamos a la pasarela. El mes nuevo suma desde que termina el período actual, y el
-					plan queda al día cuando el pago se confirma.
-				</p>
-			</form>
+			<CobroWompiEstado {cobro} />
 		{:else}
 			<p class="text-muted-foreground border-border border-t pt-4 text-xs">
 				{#if !data.canPay}
@@ -229,31 +257,27 @@
 						{/each}
 					</ul>
 
-					<form
-						method="POST"
-						action="?/pagar"
-						class="mt-6"
-						use:enhance={() => {
-							submitting = otro.code;
-
-							return async ({ update }) => {
-								await update();
-								submitting = '';
-							};
-						}}
-					>
-						<input type="hidden" name="planCode" value={otro.code} />
-						<Button
-							type="submit"
-							variant={otro.price_cop > plan.price_cop ? 'default' : 'outline'}
-							class="w-full"
-							disabled={submitting !== ''}
-						>
-							{submitting === otro.code ? 'Llevándote a pagar…' : `Pasarme a ${otro.name}`}
-						</Button>
-					</form>
+					{#if mostrarCobro}
+						<form method="POST" action="?/pagar" class="mt-6" use:enhance={pagar}>
+							<input type="hidden" name="planCode" value={otro.code} />
+							<Button
+								type="submit"
+								variant={otro.price_cop > plan.price_cop ? 'default' : 'outline'}
+								class="w-full"
+								disabled={cobro.abriendo}
+							>
+								{cobro.abriendo && planCobrando === otro.code
+									? 'Abriendo el pago…'
+									: `Pasarme a ${otro.name}`}
+							</Button>
+						</form>
+					{/if}
 				</div>
 			{/each}
+		</div>
+
+		<div class="mt-4">
+			<CobroWompiEstado {cobro} />
 		</div>
 	</section>
 {/if}

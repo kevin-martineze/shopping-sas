@@ -9,7 +9,6 @@ import {
 	getPaymentAccount
 } from '$lib/server/api/panel-payments';
 import { failWith, orFail, panelContext } from '$lib/server/context';
-import { fieldErrors } from '$lib/utils/form';
 
 export const load: PageServerLoad = async (event) => {
 	const [account, { role }] = await Promise.all([
@@ -21,29 +20,26 @@ export const load: PageServerLoad = async (event) => {
 };
 
 export const actions: Actions = {
+	/**
+	 * Lo único que viaja es el texto pegado: el servidor reconoce las cuatro
+	 * llaves de ahí, con o sin JavaScript. Así no hay campos sueltos que puedan
+	 * desfasarse del cuadro de pegado.
+	 */
 	conectar: async (event) => {
 		const formData = await event.request.formData();
-
-		// El cuadro de pegado ya manda las cuatro reconocidas en campos ocultos
-		// (`WompiKeysPaste`), pero sin JavaScript llegan vacíos y lo único que
-		// viaja es el texto: se reconoce aquí, igual que en el cliente.
 		const pasteText = String(formData.get('pasteText') ?? '');
-		const pasted = pasteText ? completeWompiKeys(parseWompiKeys(pasteText)) : null;
+		const keys = completeWompiKeys(parseWompiKeys(pasteText));
 
-		const parsed = paymentKeysSchema.safeParse({
-			publicKey: pasted?.publicKey ?? formData.get('publicKey'),
-			privateKey: pasted?.privateKey ?? formData.get('privateKey'),
-			integritySecret: pasted?.integritySecret ?? formData.get('integritySecret'),
-			eventsSecret: pasted?.eventsSecret ?? formData.get('eventsSecret')
-		});
+		if (!keys) {
+			return fail(400, {
+				error: 'No reconocimos las cuatro llaves en lo que pegaste. Revisa que vengan completas.'
+			});
+		}
+
+		const parsed = paymentKeysSchema.safeParse(keys);
 
 		if (!parsed.success) {
-			return fail(400, {
-				errors: fieldErrors(parsed.error),
-				error: pasteText
-					? 'No reconocimos las cuatro llaves en lo que pegaste. Revisa el formulario manual, abajo.'
-					: undefined
-			});
+			return fail(400, { error: parsed.error.issues[0]?.message ?? 'Revisa las llaves.' });
 		}
 
 		const result = await connectPaymentAccount(panelContext(event), parsed.data);

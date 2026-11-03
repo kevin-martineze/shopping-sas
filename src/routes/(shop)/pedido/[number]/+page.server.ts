@@ -81,6 +81,10 @@ export const actions: Actions = {
 
 		if (!result.ok) return fail(result.status || 400, { error: result.message });
 
+		// Con widget, el navegador abre el pago dentro de la tienda. La URL viaja
+		// como respaldo por si el script de Wompi no carga.
+		if (result.data.widget) return { widget: result.data.widget, url: result.data.url };
+
 		redirect(303, result.data.url);
 	},
 

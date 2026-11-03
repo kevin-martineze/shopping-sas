@@ -1,11 +1,13 @@
 import type { CartTotals, OrderItem, PricedLine, PublicOrderView } from '$lib/domain/orders';
 import type { AppliedCoupon, ShippingZone } from '$lib/domain/settings';
+import type { WompiWidget } from '$lib/domain/wompi';
 import type { ApiResult } from '$lib/server/api/client';
 import type { PricedCart, RawCartLine } from '$lib/server/cart';
 import type { PublicContext } from '$lib/server/context';
 
 import { z } from 'zod';
 
+import { widgetSchema } from '$lib/server/api/payment-widget';
 import { publicRequest } from '$lib/server/api/request';
 import { orderPaymentStatusSchema, orderStatusSchema } from '$lib/server/api/statuses';
 
@@ -246,14 +248,23 @@ export interface PaymentLink {
 	url: string;
 	reference: string;
 	amount_cop: number;
+	/** Con esto el pago se abre dentro de la tienda; sin esto, se redirige a `url`. */
+	widget: WompiWidget | null;
 }
 
-const paymentLinkSchema = z
-	.object({ url: z.string().url(), reference: z.string(), amountCop: z.number() })
+export const paymentLinkSchema = z
+	.object({
+		url: z.string().url(),
+		reference: z.string(),
+		amountCop: z.number(),
+		// Puede faltar (API anterior) o venir null (pasarela simulada): en los dos casos, redirección.
+		widget: widgetSchema.nullish()
+	})
 	.transform((link): PaymentLink => ({
 		url: link.url,
 		reference: link.reference,
-		amount_cop: link.amountCop
+		amount_cop: link.amountCop,
+		widget: link.widget ?? null
 	}));
 
 /**

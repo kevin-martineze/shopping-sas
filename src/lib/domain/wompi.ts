@@ -87,3 +87,20 @@ export function mixedModes(keys: PartialWompiKeys): boolean {
 
 	return modes.size > 1;
 }
+
+/**
+ * Lo que el navegador necesita para abrir el widget embebido de Wompi.
+ *
+ * Son los mismos datos que arman el enlace de pago, más la firma ya calculada
+ * por la API: el navegador no firma nada, solo la reenvía.
+ */
+export interface WompiWidget {
+	public_key: string;
+	currency: 'COP';
+	/** Centavos: el peso colombiano por 100. */
+	amount_in_cents: number;
+	reference: string;
+	integrity_signature: string;
+	redirect_url: string;
+	customer_email: string | null;
+}

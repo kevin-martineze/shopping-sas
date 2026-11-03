@@ -13,6 +13,9 @@ import { panelRequest } from '$lib/server/api/request';
  * ni las registra en ningún lado.
  */
 
+/** En qué mundo de Wompi cobra la tienda. `null` si la llave no se reconoce. */
+export type PaymentMode = 'test' | 'prod';
+
 export interface PaymentAccount {
 	connected: boolean;
 	provider: string;
@@ -20,22 +23,37 @@ export interface PaymentAccount {
 	/** La URL que la dueña pega en el panel de la pasarela. */
 	events_url: string;
 	updated_at: string | null;
+	/** Nombre comercial que devolvió Wompi al verificar la llave. */
+	merchant_name: string | null;
+	mode: PaymentMode | null;
+	/** Último aviso de la pasarela que pasó la firma. `null` si todavía no llega ninguno. */
+	last_event_at: string | null;
 }
 
-const accountSchema = z
+/**
+ * Los campos nuevos son opcionales: una API que todavía no los manda los deja
+ * en null, y la página sigue sirviendo.
+ */
+export const accountSchema = z
 	.object({
 		connected: z.boolean(),
 		provider: z.string(),
 		publicKey: z.string().nullable(),
 		eventsUrl: z.string(),
-		updatedAt: z.string().nullable()
+		updatedAt: z.string().nullable(),
+		merchantName: z.string().nullish(),
+		mode: z.enum(['test', 'prod']).nullish(),
+		lastEventAt: z.string().nullish()
 	})
 	.transform((account): PaymentAccount => ({
 		connected: account.connected,
 		provider: account.provider,
 		public_key: account.publicKey,
 		events_url: account.eventsUrl,
-		updated_at: account.updatedAt
+		updated_at: account.updatedAt,
+		merchant_name: account.merchantName ?? null,
+		mode: account.mode ?? null,
+		last_event_at: account.lastEventAt ?? null
 	}));
 
 export interface PaymentKeys {

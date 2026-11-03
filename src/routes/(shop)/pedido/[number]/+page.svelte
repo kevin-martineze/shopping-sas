@@ -4,13 +4,16 @@
 	import MessageCircle from '@lucide/svelte/icons/message-circle';
 
 	import { enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
 
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import type { ActionData, PageData } from './$types';
 	import { Button } from '$lib/components/atoms/button';
 	import { Separator } from '$lib/components/atoms/separator';
+	import CobroWompiEstado from '$lib/components/molecules/CobroWompiEstado.svelte';
 	import { cart } from '$lib/stores/cart.svelte';
 	import { formatMoney } from '$lib/utils/money';
+	import { cobroWompi } from '$lib/utils/wompi-checkout.svelte';
 
 	interface Props {
 		data: PageData;
@@ -20,18 +23,23 @@
 	let { data, form }: Props = $props();
 
 	let openForm = $state<HTMLFormElement | null>(null);
-	let enviandoPago = $state(false);
 
 	const pagado = $derived(data.order.payment_status === 'paid');
 
-	/** El botón se apaga mientras se pide el enlace: son unos segundos y un cobro. */
-	const pagando: SubmitFunction = () => {
-		enviandoPago = true;
+	const cobro = cobroWompi({
+		pagado: () => pagado,
+		recargar: () => invalidateAll()
+	});
 
-		return async ({ update }) => {
-			await update();
-			enviandoPago = false;
-		};
+	const mostrarPago = $derived(
+		data.canPayOnline && !pagado && !cobro.confirmando && !cobro.expirado
+	);
+
+	/** El botón se apaga mientras se pide el enlace o se abre el pago: son unos segundos y un cobro. */
+	const pagando: SubmitFunction = () => {
+		cobro.iniciar();
+
+		return ({ result, update }) => cobro.procesar(result, () => update());
 	};
 
 	// El pedido ya está guardado: el carrito local deja de tener sentido.
@@ -78,12 +86,14 @@
 	</form>
 
 	<div class="mt-8 space-y-3">
-		{#if data.canPayOnline && !pagado}
+		<CobroWompiEstado {cobro} />
+
+		{#if mostrarPago}
 			<form method="POST" action="?/pagar" use:enhance={pagando}>
 				<input type="hidden" name="t" value={data.order.public_token} />
-				<Button type="submit" size="lg" class="w-full" disabled={enviandoPago}>
+				<Button type="submit" size="lg" class="w-full" disabled={cobro.abriendo}>
 					<CreditCard class="mr-2 size-5" />
-					{enviandoPago ? 'Llevándote a pagar…' : `Pagar ${formatMoney(data.order.total)} en línea`}
+					{cobro.abriendo ? 'Abriendo el pago…' : `Pagar ${formatMoney(data.order.total)} en línea`}
 				</Button>
 			</form>
 
