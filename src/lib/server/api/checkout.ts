@@ -1,5 +1,6 @@
 import type { CartTotals, OrderItem, PricedLine, PublicOrderView } from '$lib/domain/orders';
 import type { AppliedCoupon, ShippingZone } from '$lib/domain/settings';
+import type { WompiWidget } from '$lib/domain/wompi';
 import type { ApiResult } from '$lib/server/api/client';
 import type { PricedCart, RawCartLine } from '$lib/server/cart';
 import type { PublicContext } from '$lib/server/context';
@@ -246,14 +247,43 @@ export interface PaymentLink {
 	url: string;
 	reference: string;
 	amount_cop: number;
+	/** Con esto el pago se abre dentro de la tienda; sin esto, se redirige a `url`. */
+	widget: WompiWidget | null;
 }
 
-const paymentLinkSchema = z
-	.object({ url: z.string().url(), reference: z.string(), amountCop: z.number() })
+const widgetSchema = z
+	.object({
+		publicKey: z.string(),
+		currency: z.literal('COP'),
+		amountInCents: z.number(),
+		reference: z.string(),
+		integritySignature: z.string(),
+		redirectUrl: z.string(),
+		customerEmail: z.string().nullish()
+	})
+	.transform((widget): WompiWidget => ({
+		public_key: widget.publicKey,
+		currency: widget.currency,
+		amount_in_cents: widget.amountInCents,
+		reference: widget.reference,
+		integrity_signature: widget.integritySignature,
+		redirect_url: widget.redirectUrl,
+		customer_email: widget.customerEmail ?? null
+	}));
+
+export const paymentLinkSchema = z
+	.object({
+		url: z.string().url(),
+		reference: z.string(),
+		amountCop: z.number(),
+		// Puede faltar (API anterior) o venir null (pasarela simulada): en los dos casos, redirección.
+		widget: widgetSchema.nullish()
+	})
 	.transform((link): PaymentLink => ({
 		url: link.url,
 		reference: link.reference,
-		amount_cop: link.amountCop
+		amount_cop: link.amountCop,
+		widget: link.widget ?? null
 	}));
 
 /**

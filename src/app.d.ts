@@ -1,6 +1,21 @@
 import type { AdminSession } from '$lib/server/session-crypto';
 
 declare global {
+	/** El script de Wompi (`widget.js`) agrega esta clase a `window` al cargar. */
+	interface Window {
+		WidgetCheckout?: new (config: {
+			currency: string;
+			amountInCents: number;
+			reference: string;
+			publicKey: string;
+			signature: { integrity: string };
+			redirectUrl?: string;
+			customerData?: { email?: string };
+		}) => {
+			open: (callback: (result: { transaction?: { id: string; status: string } }) => void) => void;
+		};
+	}
+
 	namespace App {
 		interface Locals {
 			/**
