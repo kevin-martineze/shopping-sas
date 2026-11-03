@@ -1,3 +1,4 @@
+import type { ActionResult } from '@sveltejs/kit';
 import type { WompiWidget } from '$lib/domain/wompi';
 
 /**
@@ -13,6 +14,12 @@ const WIDGET_SRC = 'https://checkout.wompi.co/widget.js';
 export interface WompiTransactionResult {
 	id: string;
 	status: string;
+}
+
+/** Lo que devuelve una action que cobra: el widget y la URL de respaldo. */
+export interface PagoConWidget {
+	widget: WompiWidget;
+	url: string;
 }
 
 /** La carga se comparte: sin esto, dos clics meten dos `<script>` de Wompi. */
@@ -69,4 +76,39 @@ export async function openWompiWidget(
 	});
 
 	checkout.open((result) => onResult(result.transaction ?? null));
+}
+
+function esRegistro(valor: unknown): valor is Record<string, unknown> {
+	return typeof valor === 'object' && valor !== null;
+}
+
+/** Lee el widget que devuelve la action, campo a campo, sin confiar en la forma. */
+export function esWidget(valor: unknown): valor is WompiWidget {
+	if (!esRegistro(valor)) return false;
+
+	return (
+		typeof valor.public_key === 'string' &&
+		valor.currency === 'COP' &&
+		typeof valor.amount_in_cents === 'number' &&
+		typeof valor.reference === 'string' &&
+		typeof valor.integrity_signature === 'string' &&
+		typeof valor.redirect_url === 'string' &&
+		(valor.customer_email === null || typeof valor.customer_email === 'string')
+	);
+}
+
+/**
+ * Solo hay pago con widget si la action trajo el widget y la URL de respaldo.
+ * Cualquier otra cosa (error, redirección, API vieja) devuelve null.
+ */
+export function pagoConWidget(result: ActionResult): PagoConWidget | null {
+	if (result.type !== 'success') return null;
+
+	const datos: unknown = result.data;
+
+	if (!esRegistro(datos) || typeof datos.url !== 'string' || !esWidget(datos.widget)) {
+		return null;
+	}
+
+	return { widget: datos.widget, url: datos.url };
 }

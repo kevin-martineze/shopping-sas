@@ -6,15 +6,14 @@
 	import { enhance } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 
-	import type { ActionResult, SubmitFunction } from '@sveltejs/kit';
+	import type { SubmitFunction } from '@sveltejs/kit';
 	import type { ActionData, PageData } from './$types';
-	import type { WompiWidget } from '$lib/domain/wompi';
-	import type { WompiTransactionResult } from '$lib/utils/wompi-widget';
 	import { Button } from '$lib/components/atoms/button';
 	import { Separator } from '$lib/components/atoms/separator';
+	import CobroWompiEstado from '$lib/components/molecules/CobroWompiEstado.svelte';
 	import { cart } from '$lib/stores/cart.svelte';
 	import { formatMoney } from '$lib/utils/money';
-	import { openWompiWidget } from '$lib/utils/wompi-widget';
+	import { cobroWompi } from '$lib/utils/wompi-checkout.svelte';
 
 	interface Props {
 		data: PageData;
@@ -23,136 +22,25 @@
 
 	let { data, form }: Props = $props();
 
-	/** Cada cuánto se vuelve a leer el pedido mientras Wompi confirma. */
-	const INTERVALO_CONFIRMACION_MS = 3_000;
-	/** Pasado este tiempo se deja de preguntar: el pago puede seguir en proceso. */
-	const TIEMPO_CONFIRMACION_MS = 60_000;
-
 	let openForm = $state<HTMLFormElement | null>(null);
-	/** Desde que se pide el enlace hasta que el widget se cierra o redirige. */
-	let abriendoPago = $state(false);
-	/** Wompi aprobó o dejó pendiente el pago; se espera el evento que lo confirma. */
-	let confirmando = $state(false);
-	let expirado = $state(false);
-	let pagoRechazado = $state(false);
 
 	const pagado = $derived(data.order.payment_status === 'paid');
-	const mostrarPago = $derived(data.canPayOnline && !pagado && !confirmando && !expirado);
 
-	interface PagoConWidget {
-		widget: WompiWidget;
-		url: string;
-	}
+	const cobro = cobroWompi({
+		pagado: () => pagado,
+		recargar: () => invalidateAll()
+	});
 
-	function esRegistro(valor: unknown): valor is Record<string, unknown> {
-		return typeof valor === 'object' && valor !== null;
-	}
-
-	/** Lee el widget que devuelve la action, campo a campo, sin confiar en la forma. */
-	function esWidget(valor: unknown): valor is WompiWidget {
-		if (!esRegistro(valor)) return false;
-
-		return (
-			typeof valor.public_key === 'string' &&
-			valor.currency === 'COP' &&
-			typeof valor.amount_in_cents === 'number' &&
-			typeof valor.reference === 'string' &&
-			typeof valor.integrity_signature === 'string' &&
-			typeof valor.redirect_url === 'string' &&
-			(valor.customer_email === null || typeof valor.customer_email === 'string')
-		);
-	}
-
-	/** Solo hay pago con widget si la action trajo el widget y la URL de respaldo. */
-	function pagoConWidget(result: ActionResult): PagoConWidget | null {
-		if (result.type !== 'success') return null;
-
-		const datos: unknown = result.data;
-
-		if (!esRegistro(datos) || typeof datos.url !== 'string' || !esWidget(datos.widget)) {
-			return null;
-		}
-
-		return { widget: datos.widget, url: datos.url };
-	}
-
-	/** Según la transacción que devuelve Wompi, espera la confirmación o avisa del rechazo. */
-	function resultadoDelPago(transaccion: WompiTransactionResult | null) {
-		if (!transaccion) return;
-
-		if (transaccion.status === 'APPROVED' || transaccion.status === 'PENDING') {
-			expirado = false;
-			confirmando = true;
-
-			return;
-		}
-
-		// DECLINED, ERROR, VOIDED y cualquier otro estado que no sea de éxito.
-		pagoRechazado = true;
-	}
-
-	/**
-	 * Abre el widget. Apenas está abierto se reactiva el botón: el widget tapa
-	 * la página, y si la clienta lo cierra sin pagar, el botón ya está listo.
-	 * Si el script de Wompi no carga, se redirige a la URL de respaldo.
-	 */
-	async function abrirPago(pago: PagoConWidget) {
-		try {
-			await openWompiWidget(pago.widget, resultadoDelPago);
-		} catch {
-			window.location.href = pago.url;
-
-			return;
-		}
-
-		abriendoPago = false;
-	}
+	const mostrarPago = $derived(
+		data.canPayOnline && !pagado && !cobro.confirmando && !cobro.expirado
+	);
 
 	/** El botón se apaga mientras se pide el enlace o se abre el pago: son unos segundos y un cobro. */
 	const pagando: SubmitFunction = () => {
-		abriendoPago = true;
-		pagoRechazado = false;
+		cobro.iniciar();
 
-		return async ({ result, update }) => {
-			const pago = pagoConWidget(result);
-
-			if (!pago) {
-				await update();
-				abriendoPago = false;
-
-				return;
-			}
-
-			await abrirPago(pago);
-		};
+		return ({ result, update }) => cobro.procesar(result, () => update());
 	};
-
-	// Mientras Wompi confirma, se vuelve a leer el pedido hasta que llegue el evento.
-	$effect(() => {
-		if (!confirmando) return;
-
-		const inicio = Date.now();
-		const timer = setInterval(() => {
-			if (pagado) {
-				confirmando = false;
-				clearInterval(timer);
-
-				return;
-			}
-
-			if (Date.now() - inicio >= TIEMPO_CONFIRMACION_MS) {
-				confirmando = false;
-				expirado = true;
-				clearInterval(timer);
-
-				return;
-			}
-
-			void invalidateAll();
-		}, INTERVALO_CONFIRMACION_MS);
-
-		return () => clearInterval(timer);
-	});
 
 	// El pedido ya está guardado: el carrito local deja de tener sentido.
 	$effect(() => {
@@ -198,31 +86,16 @@
 	</form>
 
 	<div class="mt-8 space-y-3">
-		{#if confirmando}
-			<p class="text-muted-foreground text-center text-sm">
-				Estamos confirmando tu pago con Wompi…
-			</p>
-		{:else if expirado}
-			<p class="text-muted-foreground text-center text-sm">
-				Tu pago está en proceso. Recarga esta página en unos minutos para ver si ya quedó
-				confirmado.
-			</p>
-		{/if}
+		<CobroWompiEstado {cobro} />
 
 		{#if mostrarPago}
 			<form method="POST" action="?/pagar" use:enhance={pagando}>
 				<input type="hidden" name="t" value={data.order.public_token} />
-				<Button type="submit" size="lg" class="w-full" disabled={abriendoPago}>
+				<Button type="submit" size="lg" class="w-full" disabled={cobro.abriendo}>
 					<CreditCard class="mr-2 size-5" />
-					{abriendoPago ? 'Abriendo el pago…' : `Pagar ${formatMoney(data.order.total)} en línea`}
+					{cobro.abriendo ? 'Abriendo el pago…' : `Pagar ${formatMoney(data.order.total)} en línea`}
 				</Button>
 			</form>
-
-			{#if pagoRechazado}
-				<p class="text-destructive text-center text-sm">
-					Tu pago no se aprobó. Puedes intentarlo de nuevo.
-				</p>
-			{/if}
 
 			{#if form?.error}
 				<p class="text-destructive text-center text-sm">{form.error}</p>

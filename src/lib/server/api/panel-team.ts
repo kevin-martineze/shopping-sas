@@ -7,10 +7,13 @@ import type {
 	TeamInvitation,
 	TeamMember
 } from '$lib/domain/account';
+import type { WompiWidget } from '$lib/domain/wompi';
 import type { ApiResult } from '$lib/server/api/client';
 import type { PanelContext } from '$lib/server/context';
 
 import { z } from 'zod';
+
+import { widgetSchema } from '$lib/server/api/payment-widget';
 
 import { panelRequest, segment } from '$lib/server/api/request';
 import {
@@ -207,14 +210,24 @@ export interface SubscriptionCheckout {
 	url: string;
 	reference: string;
 	amount_cop: number;
+	/** Con esto el pago se abre dentro de la plataforma; sin esto, se redirige a `url`. */
+	widget: WompiWidget | null;
 }
 
-const checkoutSchema = z
-	.object({ url: z.string().url(), reference: z.string(), amountCop: z.number() })
+/** Exportado para probarlo: la forma de la respuesta de `/subscription/checkout`. */
+export const checkoutSchema = z
+	.object({
+		url: z.string().url(),
+		reference: z.string(),
+		amountCop: z.number(),
+		// Puede faltar (API anterior) o venir null (pasarela simulada): en los dos casos, redirección.
+		widget: widgetSchema.nullish()
+	})
 	.transform((body): SubscriptionCheckout => ({
 		url: body.url,
 		reference: body.reference,
-		amount_cop: body.amountCop
+		amount_cop: body.amountCop,
+		widget: body.widget ?? null
 	}));
 
 /**

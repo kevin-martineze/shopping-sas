@@ -7,6 +7,7 @@ import type { PublicContext } from '$lib/server/context';
 
 import { z } from 'zod';
 
+import { widgetSchema } from '$lib/server/api/payment-widget';
 import { publicRequest } from '$lib/server/api/request';
 import { orderPaymentStatusSchema, orderStatusSchema } from '$lib/server/api/statuses';
 
@@ -250,26 +251,6 @@ export interface PaymentLink {
 	/** Con esto el pago se abre dentro de la tienda; sin esto, se redirige a `url`. */
 	widget: WompiWidget | null;
 }
-
-const widgetSchema = z
-	.object({
-		publicKey: z.string(),
-		currency: z.literal('COP'),
-		amountInCents: z.number(),
-		reference: z.string(),
-		integritySignature: z.string(),
-		redirectUrl: z.string(),
-		customerEmail: z.string().nullish()
-	})
-	.transform((widget): WompiWidget => ({
-		public_key: widget.publicKey,
-		currency: widget.currency,
-		amount_in_cents: widget.amountInCents,
-		reference: widget.reference,
-		integrity_signature: widget.integritySignature,
-		redirect_url: widget.redirectUrl,
-		customer_email: widget.customerEmail ?? null
-	}));
 
 export const paymentLinkSchema = z
 	.object({
