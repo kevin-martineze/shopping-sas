@@ -2,7 +2,11 @@
 	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
 
 	import type { ActionData, PageData } from './$types';
+	import type { StorefrontDraft } from '$lib/domain/preview';
+	import type { ProductFormValues } from '$lib/domain/product-form';
+	import LivePreviewLayout from '$lib/components/organisms/LivePreviewLayout.svelte';
 	import ProductForm from '$lib/components/organisms/ProductForm.svelte';
+	import { themePreviewUrl } from '$lib/template-preview';
 
 	interface Props {
 		data: PageData;
@@ -10,6 +14,43 @@
 	}
 
 	let { data, form }: Props = $props();
+
+	let live = $state<ProductFormValues>({
+		name: '',
+		slug: '',
+		description: '',
+		categoryId: '',
+		basePrice: '',
+		compareAtPrice: '',
+		status: 'draft',
+		featured: false
+	});
+
+	const draft = $derived<StorefrontDraft>({
+		template: data.settings.template,
+		theme: data.settings.theme,
+		content: {
+			kind: 'product',
+			name: live.name,
+			slug: live.slug,
+			description: live.description,
+			categoryId: live.categoryId || null,
+			basePrice: typeof live.basePrice === 'number' ? live.basePrice : 0,
+			compareAtPrice: typeof live.compareAtPrice === 'number' ? live.compareAtPrice : null,
+			status: live.status,
+			featured: live.featured,
+			image: null
+		},
+		focus: 'product-card'
+	});
+
+	const previewSrc = $derived(
+		themePreviewUrl(
+			new URL('/vista-previa/producto', data.storeUrl).toString(),
+			data.settings.template,
+			data.settings.theme
+		)
+	);
 </script>
 
 <svelte:head>
@@ -30,20 +71,14 @@
 	</p>
 </header>
 
-<div class="border-border bg-card rounded-lg max-w-3xl border p-6">
-	<ProductForm
-		categories={data.categories}
-		error={form?.error ?? null}
-		submitLabel="Crear producto"
-		values={{
-			name: '',
-			slug: '',
-			description: '',
-			categoryId: '',
-			basePrice: '',
-			compareAtPrice: '',
-			status: 'draft',
-			featured: false
-		}}
-	/>
-</div>
+<LivePreviewLayout src={previewSrc} {draft} title="Así se ve tu producto">
+	<div class="border-border bg-card rounded-lg border p-6">
+		<ProductForm
+			categories={data.categories}
+			error={form?.error ?? null}
+			submitLabel="Crear producto"
+			values={live}
+			onvalues={(values) => (live = { ...values })}
+		/>
+	</div>
+</LivePreviewLayout>

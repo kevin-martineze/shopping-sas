@@ -2,6 +2,7 @@
 	import { untrack } from 'svelte';
 
 	import type { Category } from '$lib/domain/catalog';
+	import type { ProductFormValues } from '$lib/domain/product-form';
 
 	import { enhance } from '$app/forms';
 
@@ -13,26 +14,17 @@
 	import SelectField from '$lib/components/molecules/SelectField.svelte';
 	import { slugify } from '$lib/utils/slug';
 
-	interface ProductValues {
-		name: string;
-		slug: string;
-		description: string;
-		categoryId: string;
-		basePrice: number | '';
-		compareAtPrice: number | '';
-		status: 'draft' | 'active' | 'archived';
-		featured: boolean;
-	}
-
 	interface Props {
 		categories: Category[];
-		values: ProductValues;
+		values: ProductFormValues;
 		action?: string;
 		submitLabel: string;
 		error?: string | null;
+		/** Avisa cada cambio para que el panel arme el borrador de la tienda. */
+		onvalues?: (values: ProductFormValues) => void;
 	}
 
-	let { categories, values, action = '', submitLabel, error = null }: Props = $props();
+	let { categories, values, action = '', submitLabel, error = null, onvalues }: Props = $props();
 
 	// Copia local editable: nunca se mutan las props.
 	let form = $state(
@@ -58,6 +50,15 @@
 	// El slug se deriva del nombre hasta que alguien lo escriba a mano.
 	$effect(() => {
 		if (!slugTouched) form.slug = slugify(form.name);
+	});
+
+	// Cada cambio se avisa al panel para que la tienda de al lado se actualice.
+	// El callback se lee sin seguimiento: si no, el efecto se volvería a disparar
+	// con cada render del padre y entraría en un ciclo.
+	$effect(() => {
+		const current: ProductFormValues = { ...form };
+
+		untrack(() => onvalues?.(current));
 	});
 </script>
 

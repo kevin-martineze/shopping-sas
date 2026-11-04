@@ -11,6 +11,7 @@ Disallow: /admin
 Disallow: /carrito
 Disallow: /pedido
 Disallow: /favoritos
+Disallow: /vista-previa
 
 Sitemap: ${site}/sitemap.xml
 `;

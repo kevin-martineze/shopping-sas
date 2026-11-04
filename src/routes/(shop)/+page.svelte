@@ -14,7 +14,13 @@
 
 	let { data }: Props = $props();
 
-	const hero = $derived(data.heroCollection);
+	const hero = $derived.by(() => {
+		const draft = storefrontDraft.home;
+
+		if (!draft) return data.heroCollection;
+
+		return data.collections.find((collection) => collection.id === draft.heroCollectionId) ?? null;
+	});
 	/** Con el borrador del editor de diseño, si la tienda se abrió dentro de él. */
 	const look = $derived(storefrontDraft.apply(data.settings));
 	const heroImage = $derived(
@@ -22,11 +28,41 @@
 	);
 
 	// Manda la colección elegida; si no hay, los textos de ajustes.
-	const heroTitle = $derived(
-		hero?.name ?? data.settings.hero_title ?? 'Productos que duran más de una temporada'
-	);
+	const heroTitle = $derived.by(() => {
+		const draft = storefrontDraft.home;
 
-	const heroSubtitle = $derived(hero?.description ?? data.settings.hero_subtitle ?? '');
+		if (draft) return hero?.name ?? draft.heroTitle ?? 'Productos que duran más de una temporada';
+
+		return hero?.name ?? data.settings.hero_title ?? 'Productos que duran más de una temporada';
+	});
+
+	const heroSubtitle = $derived.by(() => {
+		const draft = storefrontDraft.home;
+
+		if (draft) return hero?.description ?? draft.heroSubtitle;
+
+		return hero?.description ?? data.settings.hero_subtitle ?? '';
+	});
+
+	/**
+	 * Los mensajes que se pintan. Con borrador mandan los del panel —solo los
+	 * visibles y en su orden—, así la dueña ve el efecto antes de guardar.
+	 */
+	const highlights = $derived.by(() => {
+		const draft = storefrontDraft.home;
+
+		if (!draft) return data.highlights;
+
+		return draft.highlights
+			.filter((highlight) => highlight.active)
+			.sort((a, b) => a.sortOrder - b.sortOrder)
+			.map((highlight) => ({
+				id: highlight.id,
+				eyebrow: highlight.eyebrow,
+				title: highlight.title,
+				body: highlight.body
+			}));
+	});
 
 	// El lookbook no repite la colección que ya encabeza la portada.
 	const lookbook = $derived(
@@ -63,17 +99,22 @@
 	/>
 </svelte:head>
 
-<StoreHero
-	layout={heroOf(look.template, look.theme)}
-	eyebrow={hero ? 'Colección en curso' : 'Nueva temporada'}
-	title={heroTitle}
-	subtitle={heroSubtitle}
-	image={heroImage}
-	collectionSlug={hero?.slug ?? null}
-/>
+<div data-preview-zone={data.draftPreview ? 'hero' : undefined}>
+	<StoreHero
+		layout={heroOf(look.template, look.theme)}
+		eyebrow={hero ? 'Colección en curso' : 'Nueva temporada'}
+		title={heroTitle}
+		subtitle={heroSubtitle}
+		image={heroImage}
+		collectionSlug={hero?.slug ?? null}
+	/>
+</div>
 
 {#if data.featured.length > 0}
-	<section class="mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-28">
+	<section
+		class="mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-28"
+		data-preview-zone={data.draftPreview ? 'featured' : undefined}
+	>
 		<SectionHeading
 			index={sectionNumber('featured')}
 			eyebrow="Selección"
@@ -84,10 +125,10 @@
 	</section>
 {/if}
 
-{#if data.highlights.length > 0}
-	<section class="bg-secondary/60">
+{#if highlights.length > 0}
+	<section class="bg-secondary/60" data-preview-zone={data.draftPreview ? 'highlights' : undefined}>
 		<div class="mx-auto grid max-w-7xl gap-10 px-4 py-20 sm:px-6 md:grid-cols-3">
-			{#each data.highlights as highlight, index (highlight.id)}
+			{#each highlights as highlight, index (highlight.id)}
 				<div class="border-border space-y-2 border-t pt-6" use:reveal={{ delay: index * 80 }}>
 					<p class="eyebrow flex items-center gap-3">
 						<span class="text-muted-foreground tabular-nums">
@@ -104,7 +145,10 @@
 {/if}
 
 {#if lookbook.length > 0}
-	<section class="mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-28">
+	<section
+		class="mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-28"
+		data-preview-zone={data.draftPreview ? 'lookbook' : undefined}
+	>
 		<SectionHeading
 			index={sectionNumber('lookbook')}
 			eyebrow="Lookbook"

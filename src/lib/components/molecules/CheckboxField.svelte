@@ -12,6 +12,8 @@
 		disabled?: boolean;
 		/** Id del formulario al que pertenece, cuando el campo vive fuera de él. */
 		form?: string;
+		/** Avisa el cambio, para la vista previa. */
+		onchange?: (checked: boolean) => void;
 	}
 
 	let {
@@ -21,12 +23,13 @@
 		checked = $bindable(false),
 		value = 'on',
 		disabled = false,
-		form
+		form,
+		onchange
 	}: Props = $props();
 </script>
 
 <div class="flex items-center gap-2">
-	<Checkbox {id} {disabled} bind:checked />
+	<Checkbox {id} {disabled} bind:checked onCheckedChange={onchange} />
 
 	<!--
 		El campo que se envía es este, no el que genera bits-ui: su input oculto

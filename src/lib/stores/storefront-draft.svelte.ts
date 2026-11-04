@@ -1,5 +1,15 @@
+import type {
+	DraftCategories,
+	DraftContent,
+	DraftCoupon,
+	DraftHome,
+	DraftSettings,
+	DraftShipping,
+	PreviewZone,
+	StorefrontDraft
+} from '$lib/domain/preview';
+import type { Category } from '$lib/domain/catalog';
 import type { StoreSettings } from '$lib/domain/settings';
-import type { StorefrontDraft } from '$lib/storefront-draft';
 
 import { browser } from '$app/environment';
 
@@ -15,6 +25,51 @@ import { DRAFT_READY, readDraftMessage } from '$lib/storefront-draft';
  */
 class StorefrontDraftState {
 	current = $state<StorefrontDraft | null>(null);
+
+	/** La parte del borrador que el módulo está editando, si hay. */
+	get content(): DraftContent | null {
+		return this.current?.content ?? null;
+	}
+
+	/** La zona que conviene resaltar para que la dueña vea dónde cae. */
+	get focus(): PreviewZone | null {
+		return this.current?.focus ?? null;
+	}
+
+	/** La portada en borrador, si el módulo que edita es Portada. */
+	get home(): DraftHome | null {
+		const content = this.content;
+
+		return content?.kind === 'home' ? content : null;
+	}
+
+	/** Los ajustes en borrador, si el módulo que edita es Ajustes. */
+	get settings(): DraftSettings | null {
+		const content = this.content;
+
+		return content?.kind === 'settings' ? content : null;
+	}
+
+	/** Las categorías en borrador, si el módulo que edita es Catálogos. */
+	get categories(): DraftCategories | null {
+		const content = this.content;
+
+		return content?.kind === 'categories' ? content : null;
+	}
+
+	/** Las zonas de envío en borrador, si el módulo que edita es Envíos. */
+	get shipping(): DraftShipping | null {
+		const content = this.content;
+
+		return content?.kind === 'shipping' ? content : null;
+	}
+
+	/** El cupón en borrador, si el módulo que edita es Cupones. */
+	get coupon(): DraftCoupon | null {
+		const content = this.content;
+
+		return content?.kind === 'coupon' ? content : null;
+	}
 
 	#listening = false;
 
@@ -41,7 +96,41 @@ class StorefrontDraftState {
 	apply(settings: StoreSettings): StoreSettings {
 		if (!this.current) return settings;
 
-		return { ...settings, template: this.current.template, theme: this.current.theme };
+		const themed = { ...settings, template: this.current.template, theme: this.current.theme };
+		const draft = this.settings;
+
+		if (!draft) return themed;
+
+		return {
+			...themed,
+			store_name: draft.storeName,
+			whatsapp_phone: draft.whatsappPhone,
+			instagram_url: draft.instagramUrl || null,
+			announcement: draft.announcement || null,
+			free_shipping_threshold: draft.freeShippingThreshold
+		};
+	}
+
+	/**
+	 * Las categorías que se pintan en el menú: las del borrador si hay, si no
+	 * las guardadas. Solo las visibles, en el orden que la dueña definió.
+	 */
+	applyCategories(categories: Category[]): Category[] {
+		const draft = this.categories;
+
+		if (!draft) return categories;
+
+		return draft.categories
+			.filter((category) => category.active)
+			.sort((a, b) => a.sortOrder - b.sortOrder)
+			.map((category) => ({
+				id: category.id,
+				slug: category.slug,
+				name: category.name,
+				parent_id: null,
+				sort_order: category.sortOrder,
+				active: category.active
+			}));
 	}
 }
 

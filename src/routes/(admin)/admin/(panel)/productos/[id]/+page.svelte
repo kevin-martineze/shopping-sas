@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
+
 	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
 	import ExternalLink from '@lucide/svelte/icons/external-link';
 	import Star from '@lucide/svelte/icons/star';
@@ -7,15 +9,19 @@
 	import { enhance } from '$app/forms';
 
 	import type { ActionData, PageData } from './$types';
+	import type { StorefrontDraft } from '$lib/domain/preview';
+	import type { ProductFormValues } from '$lib/domain/product-form';
 	import { Button } from '$lib/components/atoms/button';
 	import { Input } from '$lib/components/atoms/input';
 	import { Label } from '$lib/components/atoms/label';
 	import * as Tabs from '$lib/components/atoms/tabs';
+	import LivePreviewLayout from '$lib/components/organisms/LivePreviewLayout.svelte';
 	import ProductForm from '$lib/components/organisms/ProductForm.svelte';
 	import OptionEditor from '$lib/components/organisms/OptionEditor.svelte';
 	import VariantMatrix from '$lib/components/organisms/VariantMatrix.svelte';
 	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 	import SelectField from '$lib/components/molecules/SelectField.svelte';
+	import { themePreviewUrl } from '$lib/template-preview';
 
 	interface Props {
 		data: PageData;
@@ -26,6 +32,48 @@
 
 	const product = $derived(data.product);
 	const images = $derived([...product.product_images].sort((a, b) => a.sort_order - b.sort_order));
+
+	// Copia editable de la ficha; la vista previa la lee sin tocar `data`.
+	let live = $state<ProductFormValues>(
+		untrack(() => ({
+			name: product.name,
+			slug: product.slug,
+			description: product.description ?? '',
+			categoryId: product.category_id ?? '',
+			basePrice: product.base_price,
+			compareAtPrice: product.compare_at_price ?? '',
+			status: product.status,
+			featured: product.featured
+		}))
+	);
+
+	/** La foto que se acaba de elegir, antes de subirla. */
+	let draftImage = $state<Blob | null>(null);
+
+	const draft = $derived<StorefrontDraft>({
+		template: data.settings.template,
+		theme: data.settings.theme,
+		content: {
+			kind: 'product',
+			name: live.name,
+			slug: live.slug,
+			description: live.description,
+			categoryId: live.categoryId || null,
+			basePrice: typeof live.basePrice === 'number' ? live.basePrice : 0,
+			compareAtPrice: typeof live.compareAtPrice === 'number' ? live.compareAtPrice : null,
+			status: live.status,
+			featured: live.featured,
+			image: draftImage
+		},
+		focus: 'product-card'
+	});
+
+	const previewSrc = $derived.by(() => {
+		const url = new URL('/vista-previa/producto', data.storeUrl);
+		url.searchParams.set('producto', product.slug);
+
+		return themePreviewUrl(url.toString(), data.settings.template, data.settings.theme);
+	});
 
 	let uploadOptionValueId = $state('');
 
@@ -89,24 +137,18 @@
 	</Tabs.List>
 
 	<Tabs.Content value="datos" class="pt-6">
-		<div class="border-border bg-card rounded-lg max-w-3xl border p-6">
-			<ProductForm
-				categories={data.categories}
-				action="?/actualizar"
-				submitLabel="Guardar cambios"
-				error={null}
-				values={{
-					name: product.name,
-					slug: product.slug,
-					description: product.description ?? '',
-					categoryId: product.category_id ?? '',
-					basePrice: product.base_price,
-					compareAtPrice: product.compare_at_price ?? '',
-					status: product.status,
-					featured: product.featured
-				}}
-			/>
-		</div>
+		<LivePreviewLayout src={previewSrc} {draft} title="Así se ve tu producto">
+			<div class="border-border bg-card rounded-lg border p-6">
+				<ProductForm
+					categories={data.categories}
+					action="?/actualizar"
+					submitLabel="Guardar cambios"
+					error={null}
+					values={live}
+					onvalues={(values) => (live = { ...values })}
+				/>
+			</div>
+		</LivePreviewLayout>
 
 		<div class="border-destructive/40 mt-8 max-w-3xl rounded-lg border p-6">
 			<h2 class="text-lg">Eliminar producto</h2>
@@ -141,7 +183,15 @@
 			>
 				<div class="space-y-2">
 					<Label for="file">Nueva foto</Label>
-					<Input id="file" name="file" type="file" accept="image/*" required class="w-64" />
+					<Input
+						id="file"
+						name="file"
+						type="file"
+						accept="image/*"
+						required
+						class="w-64"
+						onchange={(event) => (draftImage = event.currentTarget.files?.[0] ?? null)}
+					/>
 				</div>
 
 				<div class="space-y-2">

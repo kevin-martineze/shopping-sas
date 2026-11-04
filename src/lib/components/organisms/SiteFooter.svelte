@@ -10,9 +10,11 @@
 	interface Props {
 		settings: StoreSettings;
 		categories: Category[];
+		/** Solo dentro del editor: marca el pie para resaltarlo. */
+		draftPreview?: boolean;
 	}
 
-	let { settings, categories }: Props = $props();
+	let { settings, categories, draftPreview = false }: Props = $props();
 
 	const whatsappUrl = $derived(
 		buildWhatsAppUrl(
@@ -24,7 +26,10 @@
 	const year = new Date().getFullYear();
 </script>
 
-<footer class="border-border mt-24 border-t">
+<footer
+	data-preview-zone={draftPreview ? 'store-footer' : undefined}
+	class="border-border mt-24 border-t"
+>
 	<div class="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-3">
 		<div class="space-y-3">
 			<p class="font-display text-2xl">{settings.store_name}</p>

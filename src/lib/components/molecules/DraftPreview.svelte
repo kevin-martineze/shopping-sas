@@ -36,8 +36,10 @@
 
 	function send() {
 		// El borrador se lee siempre, aunque no se mande: así este efecto queda
-		// suscrito a sus cambios desde el primer momento.
-		const message = draftMessage(draft);
+		// suscrito a sus cambios desde el primer momento. Se manda una copia sin
+		// proxies de Svelte para que `postMessage` pueda clonarla; los `Blob` de
+		// las fotos viajan tal cual por structured clone.
+		const message = draftMessage($state.snapshot(draft));
 		const target = frame?.contentWindow;
 
 		if (target && target === listening) target.postMessage(message, targetOrigin);

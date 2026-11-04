@@ -251,7 +251,7 @@
 
 					<Separator />
 
-					<div class="space-y-2">
+					<div class="space-y-2" data-preview-zone={data.draftPreview ? 'cart-coupon' : undefined}>
 						<Label for="coupon">Cupón</Label>
 						<div class="flex gap-2">
 							<Input
@@ -280,7 +280,7 @@
 						{/if}
 					</div>
 
-					<div class="space-y-2">
+					<div class="space-y-2" data-preview-zone={data.draftPreview ? 'prodhipping' : undefined}>
 						<Label for="zone">Zona de envío</Label>
 						<select
 							id="zone"

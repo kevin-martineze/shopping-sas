@@ -763,6 +763,37 @@
 
 @layer utilities {
 	/*
+	 * La zona que el módulo está editando, resaltada dentro de la vista previa.
+	 * El anillo usa el color de marca de la plantilla y la etiqueta dice qué
+	 * se está mirando. Solo existe mientras el editor manda un `focus`.
+	 */
+	.preview-focus {
+		position: relative;
+		outline: 2px solid var(--primary);
+		outline-offset: 4px;
+		scroll-margin-block: 6rem;
+	}
+
+	.preview-focus::after {
+		content: attr(data-preview-label);
+		position: absolute;
+		top: 0.5rem;
+		left: 0.5rem;
+		z-index: 20;
+		padding: 0.25rem 0.6rem;
+		border-radius: 0.25rem;
+		background-color: var(--primary);
+		color: var(--primary-foreground);
+		font-family: var(--font-body);
+		font-size: 0.6875rem;
+		font-weight: 500;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		white-space: nowrap;
+		pointer-events: none;
+	}
+
+	/*
 	 * Marca lo que trae asistente: un borde de degradado que gira, y detrás un
 	 * resplandor del mismo degradado desenfocado.
 	 *
