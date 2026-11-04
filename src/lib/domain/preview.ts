@@ -44,7 +44,10 @@ export const PREVIEW_ZONES = [
 	'collection-header',
 	'product-card',
 	'prodhipping',
-	'cart-coupon'
+	'cart-coupon',
+	'store-header',
+	'categories-menu',
+	'store-footer'
 ] as const;
 
 export type PreviewZone = (typeof PREVIEW_ZONES)[number];
@@ -58,7 +61,10 @@ export const PREVIEW_ZONE_LABEL: Record<PreviewZone, string> = {
 	'collection-header': 'Aquí aparece tu colección',
 	'product-card': 'Aquí se ve tu producto',
 	prodhipping: 'Aquí se explica el envío',
-	'cart-coupon': 'Aquí se aplica tu cupón'
+	'cart-coupon': 'Aquí se aplica tu cupón',
+	'store-header': 'Aquí se ve el nombre de tu tienda',
+	'categories-menu': 'Aquí aparece tu menú',
+	'store-footer': 'Aquí se ven tus datos de contacto'
 };
 
 export interface DraftHighlight {

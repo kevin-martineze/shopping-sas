@@ -22,9 +22,11 @@
 		settings: StoreSettings;
 		categories: Category[];
 		collections: Collection[];
+		/** Solo dentro del editor: marca la cabecera para resaltarla. */
+		draftPreview?: boolean;
 	}
 
-	let { settings, categories, collections }: Props = $props();
+	let { settings, categories, collections, draftPreview = false }: Props = $props();
 
 	let menuOpen = $state(false);
 	let searchOpen = $state(false);
@@ -76,6 +78,7 @@
 {/if}
 
 <header
+	data-preview-zone={draftPreview ? 'store-header' : undefined}
 	class={cn(
 		'bg-background/95 border-border sticky top-0 z-40 border-b backdrop-blur transition-transform duration-500 ease-[var(--ease-editorial)]',
 		hidden && '-translate-y-full'
@@ -111,6 +114,7 @@
 		</a>
 
 		<nav
+			data-preview-zone={draftPreview ? 'categories-menu' : undefined}
 			class={cn(
 				'hidden items-center gap-6 lg:flex',
 				centered ? 'col-span-3 row-start-2 justify-center pb-4' : 'ml-8'

@@ -33,6 +33,7 @@
 	});
 
 	const settings = $derived(storefrontDraft.apply(data.settings));
+	const categories = $derived(storefrontDraft.applyCategories(data.categories));
 </script>
 
 <svelte:head>
@@ -55,13 +56,18 @@
 	style={themeStyle(settings.template, settings.theme) || undefined}
 	class="bg-background text-foreground flex min-h-screen flex-col"
 >
-	<SiteHeader {settings} categories={data.categories} collections={data.collections} />
+	<SiteHeader
+		{settings}
+		{categories}
+		collections={data.collections}
+		draftPreview={data.draftPreview}
+	/>
 
 	<main class="flex-1">
 		{@render children()}
 	</main>
 
-	<SiteFooter {settings} categories={data.categories} />
+	<SiteFooter {settings} {categories} draftPreview={data.draftPreview} />
 </div>
 
 {#if data.draftPreview}
