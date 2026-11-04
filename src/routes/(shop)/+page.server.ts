@@ -15,5 +15,5 @@ export const load: PageServerLoad = async (event) => {
 	const heroCollection =
 		collections.find((collection) => collection.id === settings.hero_collection_id) ?? null;
 
-	return { ...result.data, heroCollection };
+	return { ...result.data, heroCollection, collections };
 };

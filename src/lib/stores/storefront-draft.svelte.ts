@@ -1,4 +1,4 @@
-import type { DraftContent, PreviewZone, StorefrontDraft } from '$lib/domain/preview';
+import type { DraftContent, DraftHome, PreviewZone, StorefrontDraft } from '$lib/domain/preview';
 import type { StoreSettings } from '$lib/domain/settings';
 
 import { browser } from '$app/environment';
@@ -24,6 +24,13 @@ class StorefrontDraftState {
 	/** La zona que conviene resaltar para que la dueña vea dónde cae. */
 	get focus(): PreviewZone | null {
 		return this.current?.focus ?? null;
+	}
+
+	/** La portada en borrador, si el módulo que edita es Portada. */
+	get home(): DraftHome | null {
+		const content = this.content;
+
+		return content?.kind === 'home' ? content : null;
 	}
 
 	#listening = false;

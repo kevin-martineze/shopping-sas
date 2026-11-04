@@ -17,6 +17,8 @@
 		form?: string;
 		class?: string;
 		invalid?: boolean;
+		/** Avisa el valor mientras se escribe, para la vista previa. */
+		onchange?: (value: number) => void;
 		'aria-label'?: string;
 	}
 
@@ -30,12 +32,14 @@
 		form,
 		class: className,
 		invalid = false,
+		onchange,
 		'aria-label': ariaLabel
 	}: Props = $props();
 
 	function bump(delta: number) {
 		const next = Math.min(max, Math.max(min, (Number(value) || 0) + delta));
 		value = next;
+		onchange?.(next);
 	}
 </script>
 
@@ -67,6 +71,7 @@
 		{step}
 		type="number"
 		bind:value
+		oninput={(event) => onchange?.(Number(event.currentTarget.value))}
 		aria-label={ariaLabel}
 		class="h-8 border-0 bg-transparent px-0 text-center tabular-nums shadow-none focus-visible:ring-0"
 	/>
