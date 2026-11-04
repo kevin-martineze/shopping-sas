@@ -1,5 +1,5 @@
+import type { DraftContent, PreviewZone, StorefrontDraft } from '$lib/domain/preview';
 import type { StoreSettings } from '$lib/domain/settings';
-import type { StorefrontDraft } from '$lib/storefront-draft';
 
 import { browser } from '$app/environment';
 
@@ -15,6 +15,16 @@ import { DRAFT_READY, readDraftMessage } from '$lib/storefront-draft';
  */
 class StorefrontDraftState {
 	current = $state<StorefrontDraft | null>(null);
+
+	/** La parte del borrador que el módulo está editando, si hay. */
+	get content(): DraftContent | null {
+		return this.current?.content ?? null;
+	}
+
+	/** La zona que conviene resaltar para que la dueña vea dónde cae. */
+	get focus(): PreviewZone | null {
+		return this.current?.focus ?? null;
+	}
 
 	#listening = false;
 

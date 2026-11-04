@@ -1,8 +1,10 @@
-import type { StorefrontTemplate } from '$lib/domain/templates';
-import type { StoreTheme } from '$lib/domain/theme';
+import type { StorefrontDraft } from '$lib/domain/preview';
 
-import { STOREFRONT_TEMPLATES } from '$lib/domain/templates';
-import { readUnknownTheme } from '$lib/domain/theme';
+import { DRAFT_READY, DRAFT_UPDATE } from '$lib/domain/preview';
+import { readStorefrontDraftMessage } from '$lib/schemas/storefront-draft';
+
+export type { StorefrontDraft };
+export { DRAFT_READY, DRAFT_UPDATE };
 
 /**
  * El contrato entre el editor de diseño del panel y la tienda que muestra.
@@ -17,19 +19,17 @@ import { readUnknownTheme } from '$lib/domain/theme';
  * 2. El editor contesta con el borrador (`UPDATE`), y lo vuelve a mandar con
  *    cada cambio.
  *
- * Lo que llega se lee campo a campo: nada que no sea una plantilla o un
- * ajuste conocido llega a pintarse.
+ * Lo que llega se lee campo a campo en `$lib/schemas/storefront-draft`: nada
+ * que no sea una plantilla, un ajuste o un contenido conocido llega a pintarse.
  */
-export const DRAFT_READY = 'globerce:borrador-listo';
-export const DRAFT_UPDATE = 'globerce:borrador';
-
-export interface StorefrontDraft {
-	template: StorefrontTemplate;
-	theme: StoreTheme;
-}
-
 export function draftMessage(draft: StorefrontDraft) {
-	return { type: DRAFT_UPDATE, template: draft.template, theme: { ...draft.theme } };
+	return {
+		type: DRAFT_UPDATE,
+		template: draft.template,
+		theme: { ...draft.theme },
+		content: draft.content,
+		focus: draft.focus
+	};
 }
 
 function field(data: unknown, key: string): unknown {
@@ -44,11 +44,5 @@ export function isReadyMessage(data: unknown): boolean {
 
 /** El borrador de un mensaje, o null si el mensaje no es eso. */
 export function readDraftMessage(data: unknown): StorefrontDraft | null {
-	if (field(data, 'type') !== DRAFT_UPDATE) return null;
-
-	const template = STOREFRONT_TEMPLATES.find((code) => code === field(data, 'template'));
-
-	if (!template) return null;
-
-	return { template, theme: readUnknownTheme(field(data, 'theme')) };
+	return readStorefrontDraftMessage(data);
 }

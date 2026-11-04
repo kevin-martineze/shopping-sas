@@ -44,7 +44,9 @@
 
 	const draft = $derived<StorefrontDraft>({
 		template,
-		theme: readTheme({ accent, fonts, corners, hero })
+		theme: readTheme({ accent, fonts, corners, hero }),
+		content: null,
+		focus: null
 	});
 
 	const saved = $derived(data.settings);

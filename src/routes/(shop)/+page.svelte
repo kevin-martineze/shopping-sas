@@ -63,17 +63,22 @@
 	/>
 </svelte:head>
 
-<StoreHero
-	layout={heroOf(look.template, look.theme)}
-	eyebrow={hero ? 'Colección en curso' : 'Nueva temporada'}
-	title={heroTitle}
-	subtitle={heroSubtitle}
-	image={heroImage}
-	collectionSlug={hero?.slug ?? null}
-/>
+<div data-preview-zone={data.draftPreview ? 'hero' : undefined}>
+	<StoreHero
+		layout={heroOf(look.template, look.theme)}
+		eyebrow={hero ? 'Colección en curso' : 'Nueva temporada'}
+		title={heroTitle}
+		subtitle={heroSubtitle}
+		image={heroImage}
+		collectionSlug={hero?.slug ?? null}
+	/>
+</div>
 
 {#if data.featured.length > 0}
-	<section class="mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-28">
+	<section
+		class="mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-28"
+		data-preview-zone={data.draftPreview ? 'featured' : undefined}
+	>
 		<SectionHeading
 			index={sectionNumber('featured')}
 			eyebrow="Selección"
@@ -85,7 +90,7 @@
 {/if}
 
 {#if data.highlights.length > 0}
-	<section class="bg-secondary/60">
+	<section class="bg-secondary/60" data-preview-zone={data.draftPreview ? 'highlights' : undefined}>
 		<div class="mx-auto grid max-w-7xl gap-10 px-4 py-20 sm:px-6 md:grid-cols-3">
 			{#each data.highlights as highlight, index (highlight.id)}
 				<div class="border-border space-y-2 border-t pt-6" use:reveal={{ delay: index * 80 }}>
@@ -104,7 +109,10 @@
 {/if}
 
 {#if lookbook.length > 0}
-	<section class="mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-28">
+	<section
+		class="mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-28"
+		data-preview-zone={data.draftPreview ? 'lookbook' : undefined}
+	>
 		<SectionHeading
 			index={sectionNumber('lookbook')}
 			eyebrow="Lookbook"

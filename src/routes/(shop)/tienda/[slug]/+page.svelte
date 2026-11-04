@@ -161,7 +161,10 @@
 		{/if}
 	</nav>
 
-	<div class="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+	<div
+		class="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16"
+		data-preview-zone={data.draftPreview ? 'product-card' : undefined}
+	>
 		<ProductGallery
 			images={product.images}
 			productName={product.name}
@@ -273,7 +276,10 @@
 						</Accordion.Item>
 					{/each}
 
-					<Accordion.Item value="envios">
+					<Accordion.Item
+						value="envios"
+						data-preview-zone={data.draftPreview ? 'prodhipping' : undefined}
+					>
 						<Accordion.Trigger>Envíos y pedido</Accordion.Trigger>
 						<Accordion.Content>
 							El pedido se confirma por WhatsApp. Elegimos juntos la forma de pago y el envío según

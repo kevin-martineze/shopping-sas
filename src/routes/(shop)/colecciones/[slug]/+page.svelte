@@ -24,7 +24,7 @@
 	<meta name="description" content={collection.description ?? collection.name} />
 </svelte:head>
 
-<section class="relative">
+<section class="relative" data-preview-zone={data.draftPreview ? 'collection-header' : undefined}>
 	<div class="relative min-h-[75vh] overflow-hidden">
 		{#if collection.hero_image_url}
 			<img

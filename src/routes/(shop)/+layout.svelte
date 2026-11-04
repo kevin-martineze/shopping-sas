@@ -2,6 +2,7 @@
 	import type { Snippet } from 'svelte';
 
 	import type { LayoutData } from './$types';
+	import PreviewFocus from '$lib/components/molecules/PreviewFocus.svelte';
 	import CartDrawer from '$lib/components/organisms/CartDrawer.svelte';
 	import SiteFooter from '$lib/components/organisms/SiteFooter.svelte';
 	import SiteHeader from '$lib/components/organisms/SiteHeader.svelte';
@@ -62,6 +63,11 @@
 
 	<SiteFooter {settings} categories={data.categories} />
 </div>
+
+{#if data.draftPreview}
+	<!-- Solo dentro del editor: resalta la zona que el módulo está editando. -->
+	<PreviewFocus />
+{/if}
 
 <CartDrawer />
 
