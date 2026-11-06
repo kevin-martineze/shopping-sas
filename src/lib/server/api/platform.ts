@@ -13,6 +13,7 @@ import type { AccountContext } from '$lib/server/context';
 
 import { z } from 'zod';
 
+import { DOMAIN_STATUSES } from '$lib/domain/domain';
 import { apiRequest } from '$lib/server/api/client';
 import { planSchema } from '$lib/server/api/panel-team';
 import {
@@ -99,12 +100,16 @@ const storeDetailSchema = z
 	.object({
 		...storeFields,
 		subscriptionNotes: z.string().nullable(),
-		payments: z.array(paymentSchema)
+		payments: z.array(paymentSchema),
+		publicUrl: z.string(),
+		customDomainStatus: z.enum(DOMAIN_STATUSES).nullable()
 	})
 	.transform((store): PlatformStoreDetail => ({
 		...toStore(store),
 		subscription_notes: store.subscriptionNotes,
-		payments: store.payments
+		payments: store.payments,
+		public_url: store.publicUrl,
+		custom_domain_status: store.customDomainStatus
 	}));
 
 function platformRequest<T>(
