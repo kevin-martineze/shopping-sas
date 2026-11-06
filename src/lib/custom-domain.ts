@@ -61,7 +61,8 @@ export function redirectToCustomDomain({
 	pathname,
 	search,
 	rootDomain,
-	platformHosts
+	platformHosts,
+	skip = false
 }: {
 	currentHost: string;
 	publicUrl: string;
@@ -69,7 +70,10 @@ export function redirectToCustomDomain({
 	search: string;
 	rootDomain: string | undefined;
 	platformHosts: readonly string[];
+	/** Si la visita no debe moverse (vista previa o iframe). Ver `esVistaPrevia`. */
+	skip?: boolean;
 }): string | null {
+	if (skip) return null;
 	if (resolveHost(currentHost, rootDomain, platformHosts).kind !== 'store') return null;
 
 	const destination = resolveHost(new URL(publicUrl).host, rootDomain, platformHosts);
@@ -77,4 +81,27 @@ export function redirectToCustomDomain({
 	if (destination.kind !== 'custom') return null;
 
 	return `${publicUrl.replace(/\/+$/, '')}${pathname}${search}`;
+}
+
+/**
+ * Una visita que no debe moverse al dominio propio: la vista previa del panel
+ * (iframe de otro sitio sin cookies) o una plantilla o tema en prueba. Si se
+ * moviera, el borrador se mandaría a un origen que el panel no espera y el
+ * navegador lo descartaría en silencio.
+ */
+export function esVistaPrevia({
+	secFetchDest,
+	pathname,
+	preview
+}: {
+	secFetchDest: string | null;
+	pathname: string;
+	preview: boolean;
+}): boolean {
+	return (
+		secFetchDest === 'iframe' ||
+		pathname === '/vista-previa' ||
+		pathname.startsWith('/vista-previa/') ||
+		preview
+	);
 }

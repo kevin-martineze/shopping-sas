@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { customDomainRedirect, redirectToCustomDomain } from '$lib/custom-domain';
+import { customDomainRedirect, esVistaPrevia, redirectToCustomDomain } from '$lib/custom-domain';
 
 const base = {
 	slug: 'boutique',
@@ -79,5 +79,49 @@ describe('redirectToCustomDomain', () => {
 				publicUrl: 'https://www.sutienda.com'
 			})
 		).toBeNull();
+	});
+});
+
+describe('esVistaPrevia', () => {
+	const sinPreview = { secFetchDest: null, pathname: '/tienda', preview: false };
+
+	it('una visita normal no es vista previa', () => {
+		expect(esVistaPrevia(sinPreview)).toBe(false);
+	});
+
+	it('un iframe es vista previa, aunque la ruta sea de la tienda', () => {
+		expect(esVistaPrevia({ ...sinPreview, secFetchDest: 'iframe' })).toBe(true);
+		expect(esVistaPrevia({ ...sinPreview, secFetchDest: 'document' })).toBe(false);
+	});
+
+	it('las rutas /vista-previa son vista previa', () => {
+		expect(esVistaPrevia({ ...sinPreview, pathname: '/vista-previa' })).toBe(true);
+		expect(esVistaPrevia({ ...sinPreview, pathname: '/vista-previa/carrito' })).toBe(true);
+		expect(esVistaPrevia({ ...sinPreview, pathname: '/vista-previas' })).toBe(false);
+	});
+
+	it('una plantilla o tema en prueba es vista previa', () => {
+		expect(esVistaPrevia({ ...sinPreview, preview: true })).toBe(true);
+	});
+});
+
+describe('redirectToCustomDomain con skip', () => {
+	const args = {
+		currentHost: 'boutique.globerce.store',
+		publicUrl: 'https://www.sutienda.com',
+		pathname: '/tienda',
+		search: '',
+		rootDomain: 'globerce.store',
+		platformHosts: []
+	};
+
+	it('con skip no redirige, aunque el dominio propio esté activo', () => {
+		expect(redirectToCustomDomain({ ...args, skip: true })).toBeNull();
+	});
+
+	it('sin skip redirige', () => {
+		expect(redirectToCustomDomain({ ...args, skip: false })).toBe(
+			'https://www.sutienda.com/tienda'
+		);
 	});
 });

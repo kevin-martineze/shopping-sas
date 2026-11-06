@@ -5,7 +5,7 @@ import { getSettings } from '$lib/server/api/panel-content';
 import { listSupportTickets } from '$lib/server/api/panel-support';
 import { getSubscription } from '$lib/server/api/panel-team';
 import { requireAdmin } from '$lib/server/auth';
-import { orFail, panelContext } from '$lib/server/context';
+import { orFail, panelContext, storeUrl } from '$lib/server/context';
 
 export const load: LayoutServerLoad = async (event) => {
 	const { account, store } = await requireAdmin(event);
@@ -25,6 +25,8 @@ export const load: LayoutServerLoad = async (event) => {
 		storeSlug: store.slug,
 		// "Ver tienda": la dirección pública (dominio propio si lo tiene), no el subdominio.
 		storeUrl: orFail(settings).public_url,
+		// Vistas previas en iframe: siempre el subdominio, que es del mismo sitio que el panel.
+		previewUrl: storeUrl(store.slug),
 		// Para el selector de la barra: las otras tiendas de esta cuenta.
 		otherStores: account.stores
 			.filter((candidate) => candidate.id !== store.id)

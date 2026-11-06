@@ -1,7 +1,7 @@
 import { error, redirect } from '@sveltejs/kit';
 
 import type { LayoutServerLoad } from './$types';
-import { redirectToCustomDomain } from '$lib/custom-domain';
+import { esVistaPrevia, redirectToCustomDomain } from '$lib/custom-domain';
 import { getStorefront } from '$lib/server/api/storefront';
 import { publicContext } from '$lib/server/context';
 import { serverEnv } from '$lib/server/env';
@@ -16,8 +16,13 @@ export const load: LayoutServerLoad = async (event) => {
 		error(503, result.message);
 	}
 
-	// Si la tienda ya tiene dominio propio activo, el subdominio le manda a él.
-	// Es un 302: el navegador no guarda el cambio y, si después se quita el
+	// Una plantilla en prueba viste esta visita y nada más: la de verdad sigue
+	// en la API hasta que la dueña la elija en el panel.
+	const preview = resolveTemplatePreview(event.url, event.cookies);
+
+	// Si la tienda ya tiene dominio propio activo, el subdominio le manda a él,
+	// salvo en vistas previas: el panel las carga en un iframe del subdominio y
+	// un salto a otro sitio rompe el borrador. Es un 302: si después se quita el
 	// dominio, el subdominio vuelve a servir.
 	const env = serverEnv();
 	const moved = redirectToCustomDomain({
@@ -26,14 +31,16 @@ export const load: LayoutServerLoad = async (event) => {
 		pathname: event.url.pathname,
 		search: event.url.search,
 		rootDomain: env.PUBLIC_STORE_ROOT_DOMAIN,
-		platformHosts: parsePlatformHosts(env.PUBLIC_PLATFORM_HOSTS)
+		platformHosts: parsePlatformHosts(env.PUBLIC_PLATFORM_HOSTS),
+		skip: esVistaPrevia({
+			secFetchDest: event.request.headers.get('sec-fetch-dest'),
+			pathname: event.url.pathname,
+			preview: preview.template !== null || preview.theme !== null
+		})
 	});
 
 	if (moved) redirect(302, moved);
 
-	// Una plantilla en prueba viste esta visita y nada más: la de verdad sigue
-	// en la API hasta que la dueña la elija en el panel.
-	const preview = resolveTemplatePreview(event.url, event.cookies);
 	const settings = {
 		...result.data.settings,
 		template: preview.template ?? result.data.settings.template,

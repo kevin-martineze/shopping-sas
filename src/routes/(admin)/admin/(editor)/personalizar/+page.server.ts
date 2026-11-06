@@ -5,7 +5,7 @@ import { accentProblem, isEmptyTheme } from '$lib/domain/theme';
 import { storeThemeSchema, templateSchema } from '$lib/schemas/admin';
 import { getSettings, updateSettings } from '$lib/server/api/panel-content';
 import { requireAdmin } from '$lib/server/auth';
-import { failWith, orFail, panelContext } from '$lib/server/context';
+import { failWith, orFail, panelContext, storeUrl } from '$lib/server/context';
 
 /**
  * El editor de diseño: plantilla y ajustes, con la tienda al lado.
@@ -14,11 +14,16 @@ import { failWith, orFail, panelContext } from '$lib/server/context';
  * su `load`: pide `requireAdmin` por su cuenta, igual que la action.
  */
 export const load: PageServerLoad = async (event) => {
-	await requireAdmin(event);
+	const { store } = await requireAdmin(event);
 
 	const settings = orFail(await getSettings(panelContext(event)));
 
-	return { settings, storeUrl: settings.public_url };
+	return {
+		settings,
+		// "Ver tienda": la dirección pública. La vista previa va al subdominio, en iframe.
+		storeUrl: settings.public_url,
+		previewUrl: storeUrl(store.slug)
+	};
 };
 
 const firstIssue = (issues: { message: string }[]) => issues.at(0)?.message ?? 'Revisa los datos.';

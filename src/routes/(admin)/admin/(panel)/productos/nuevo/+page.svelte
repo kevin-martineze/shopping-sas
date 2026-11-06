@@ -46,7 +46,7 @@
 
 	const previewSrc = $derived(
 		themePreviewUrl(
-			new URL('/vista-previa/producto', data.storeUrl).toString(),
+			new URL('/vista-previa/producto', data.previewUrl).toString(),
 			data.settings.template,
 			data.settings.theme
 		)

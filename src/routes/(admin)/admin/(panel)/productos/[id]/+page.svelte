@@ -69,7 +69,7 @@
 	});
 
 	const previewSrc = $derived.by(() => {
-		const url = new URL('/vista-previa/producto', data.storeUrl);
+		const url = new URL('/vista-previa/producto', data.previewUrl);
 		url.searchParams.set('producto', product.slug);
 
 		return themePreviewUrl(url.toString(), data.settings.template, data.settings.theme);

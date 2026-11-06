@@ -6,7 +6,7 @@ import { getSettings, updateSettings } from '$lib/server/api/panel-content';
 import { failWith, orFail, panelContext } from '$lib/server/context';
 
 export const load: PageServerLoad = async (event) => {
-	const [settings, { storeSlug, storeUrl }] = await Promise.all([
+	const [settings, { storeSlug, storeUrl, previewUrl }] = await Promise.all([
 		getSettings(panelContext(event)),
 		event.parent()
 	]);
@@ -14,7 +14,8 @@ export const load: PageServerLoad = async (event) => {
 	return {
 		settings: orFail(settings),
 		storeSlug,
-		storeUrl
+		storeUrl,
+		previewUrl
 	};
 };
 
