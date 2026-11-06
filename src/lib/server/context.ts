@@ -4,7 +4,7 @@ import type { ApiFailure, ApiResult } from '$lib/server/api/client';
 import { error, fail, redirect } from '@sveltejs/kit';
 
 import { serverEnv } from '$lib/server/env';
-import { storefrontUrl, storeSlugFromHost } from '$lib/tenant';
+import { parsePlatformHosts, storefrontUrl, storeSlugFromHost } from '$lib/tenant';
 
 /** Con qué tienda y desde dónde habla la tienda pública con la API. */
 export interface PublicContext {
@@ -35,10 +35,18 @@ export function clientAddress(event: Pick<RequestEvent, 'getClientAddress'>): st
 }
 
 /** La tienda que sirve este host (subdominio o la de por defecto), o null si el host es el dominio raíz. */
-export function storeSlugFor(event: Pick<RequestEvent, 'url'>): string | null {
+export function storeSlugFor(event: Pick<RequestEvent, 'locals' | 'url'>): string | null {
+	// Un dominio propio ya trae su tienda resuelta por `hooks.server.ts`.
+	if (event.locals.storeSlug) return event.locals.storeSlug;
+
 	const env = serverEnv();
 
-	return storeSlugFromHost(event.url.host, env.PUBLIC_STORE_ROOT_DOMAIN, env.PUBLIC_STORE_SLUG);
+	return storeSlugFromHost(
+		event.url.host,
+		env.PUBLIC_STORE_ROOT_DOMAIN,
+		env.PUBLIC_STORE_SLUG,
+		parsePlatformHosts(env.PUBLIC_PLATFORM_HOSTS)
+	);
 }
 
 /** Dirección pública de una tienda, para los enlaces "ver tienda". */
@@ -53,7 +61,7 @@ export function storeUrl(slug: string): string {
  * `PUBLIC_STORE_ROOT_DOMAIN`, o la tienda por defecto en cualquier otro host.
  */
 export function publicContext(
-	event: Pick<RequestEvent, 'getClientAddress' | 'url'>
+	event: Pick<RequestEvent, 'getClientAddress' | 'locals' | 'url'>
 ): PublicContext {
 	const storeSlug = storeSlugFor(event);
 

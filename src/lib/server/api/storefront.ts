@@ -12,7 +12,9 @@ import type { PublicContext } from '$lib/server/context';
 
 import { z } from 'zod';
 
+import { DOMAIN_STATUSES } from '$lib/domain/domain';
 import { isProductSort } from '$lib/domain/catalog';
+import { apiRequest } from '$lib/server/api/client';
 import { publicRequest, segment } from '$lib/server/api/request';
 import { templateSchema, themeSchema } from '$lib/server/api/statuses';
 
@@ -139,6 +141,29 @@ const storefrontSchema = z
 
 		return { settings, categories: storefront.categories, collections: storefront.collections };
 	});
+
+// ---------------------------------------------------------------------------
+// Dominio propio: qué tienda sirve un host
+// ---------------------------------------------------------------------------
+
+const storeByDomainSchema = z.object({
+	slug: z.string(),
+	status: z.enum(DOMAIN_STATUSES)
+});
+
+/**
+ * La tienda que sirve un dominio propio. Es una ruta de la API sin
+ * `:storeSlug`, así que va por el cliente base y no por `publicRequest`.
+ *
+ * 404 si el host no coincide o la tienda está suspendida. `disabled` llega
+ * como 200: el plan ya no incluye el dominio.
+ */
+export function findStoreByDomain(
+	host: string,
+	clientIp: string | null
+): Promise<ApiResult<z.infer<typeof storeByDomainSchema>>> {
+	return apiRequest(`/store-domains/${segment(host)}`, storeByDomainSchema, { clientIp });
+}
 
 const homeSchema = z.object({
 	featured: z.array(cardSchema),
