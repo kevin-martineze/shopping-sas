@@ -1,21 +1,22 @@
 import type { RequestHandler } from './$types';
-import { getSitemap } from '$lib/server/api/storefront';
+import { getSitemap, getStorefront } from '$lib/server/api/storefront';
 import { publicContext } from '$lib/server/context';
-import { serverEnv } from '$lib/server/env';
 
 export const GET: RequestHandler = async (event) => {
-	const site = serverEnv().PUBLIC_SITE_URL.replace(/\/$/, '');
-	const result = await getSitemap(publicContext(event));
+	const ctx = publicContext(event);
+	const [storefront, result] = await Promise.all([getStorefront(ctx), getSitemap(ctx)]);
 
 	// Un 503 con Retry-After hace que el buscador vuelva luego. Un sitemap vacío
 	// le diría que la tienda no tiene páginas.
-	if (!result.ok) {
+	if (!storefront.ok || !result.ok) {
 		return new Response('No pudimos armar el sitemap.', {
 			status: 503,
 			headers: { 'retry-after': '300' }
 		});
 	}
 
+	// Las direcciones de la tienda salen de su dirección pública, no de `PUBLIC_SITE_URL`.
+	const site = storefront.data.public_url.replace(/\/$/, '');
 	const { products, collections, categories } = result.data;
 
 	const urls = [

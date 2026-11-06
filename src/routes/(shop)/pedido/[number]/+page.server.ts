@@ -4,8 +4,8 @@ import type { PublicOrderView } from '$lib/domain/orders';
 import type { Actions, PageServerLoad } from './$types';
 import { getPublicOrder, markWhatsappOpened, startOrderPayment } from '$lib/server/api/checkout';
 import { getOrderByNumber } from '$lib/server/api/panel-commerce';
+import { getStorefront } from '$lib/server/api/storefront';
 import { panelContext, publicContext } from '$lib/server/context';
-import { serverEnv } from '$lib/server/env';
 import { buildOrderMessage, buildWhatsAppUrl } from '$lib/utils/whatsapp';
 
 export const load: PageServerLoad = async (event) => {
@@ -39,10 +39,10 @@ export const load: PageServerLoad = async (event) => {
 		);
 	}
 
-	const { settings } = await event.parent();
+	const { settings, public_url } = await event.parent();
 	const orderUrl = new URL(
 		`/pedido/${order.number}?t=${order.public_token}`,
-		serverEnv().PUBLIC_SITE_URL
+		public_url
 	).toString();
 
 	const message = buildOrderMessage(order, { storeName: settings.store_name, orderUrl });
@@ -72,9 +72,14 @@ export const actions: Actions = {
 			return fail(400, { error: 'Este enlace de pedido no es válido.' });
 		}
 
+		// Las acciones no corren el `load` del layout: la dirección pública va a buscarla.
+		const storefront = await getStorefront(publicContext(event));
+
+		if (!storefront.ok) return fail(storefront.status || 503, { error: storefront.message });
+
 		const volver = new URL(
 			`/pedido/${orderNumber}?t=${token}`,
-			serverEnv().PUBLIC_SITE_URL
+			storefront.data.public_url
 		).toString();
 
 		const result = await startOrderPayment(publicContext(event), orderNumber, token, volver);

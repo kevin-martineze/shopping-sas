@@ -106,7 +106,7 @@ function toCollection(collection: z.infer<z.ZodObject<typeof collectionShape>>):
 
 const storefrontSchema = z
 	.object({
-		store: z.object({ name: z.string() }),
+		store: z.object({ name: z.string(), publicUrl: z.string() }),
 		settings: z.object({
 			whatsappPhone: z.string(),
 			instagramUrl: z.string().nullable(),
@@ -136,10 +136,17 @@ const storefrontSchema = z
 			template: storefront.settings.template,
 			theme: storefront.settings.theme,
 			assistant: storefront.settings.assistant,
-			online_payments: storefront.settings.onlinePayments
+			online_payments: storefront.settings.onlinePayments,
+			public_url: storefront.store.publicUrl
 		};
 
-		return { settings, categories: storefront.categories, collections: storefront.collections };
+		return {
+			settings,
+			categories: storefront.categories,
+			collections: storefront.collections,
+			// Dominio propio si está activo; si no, el subdominio. Nunca `PUBLIC_SITE_URL`.
+			public_url: storefront.store.publicUrl
+		};
 	});
 
 // ---------------------------------------------------------------------------

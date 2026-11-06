@@ -4,7 +4,6 @@ import type { Actions, PageServerLoad } from './$types';
 import { isOrderStatus } from '$lib/domain/orders';
 import { getOrder, updateOrder } from '$lib/server/api/panel-commerce';
 import { failWith, orFail, panelContext } from '$lib/server/context';
-import { serverEnv } from '$lib/server/env';
 import { buildOrderMessage, buildWhatsAppUrl } from '$lib/utils/whatsapp';
 
 export const load: PageServerLoad = async (event) => {
@@ -19,7 +18,7 @@ export const load: PageServerLoad = async (event) => {
 
 	const orderUrl = new URL(
 		`/pedido/${order.number}?t=${order.public_token}`,
-		serverEnv().PUBLIC_SITE_URL
+		settings.public_url
 	).toString();
 
 	// Enlace para volver a escribirle a el cliente con el pedido a la vista.

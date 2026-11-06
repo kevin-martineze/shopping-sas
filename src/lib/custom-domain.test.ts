@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { customDomainRedirect } from '$lib/custom-domain';
+import { customDomainRedirect, redirectToCustomDomain } from '$lib/custom-domain';
 
 const base = {
 	slug: 'boutique',
@@ -47,5 +47,37 @@ describe('customDomainRedirect', () => {
 			status: 302,
 			location: 'http://localhost:5173/tienda/vestidos?orden=precio'
 		});
+	});
+});
+
+describe('redirectToCustomDomain', () => {
+	const args = {
+		currentHost: 'boutique.globerce.store',
+		pathname: '/tienda',
+		search: '?q=1',
+		rootDomain: 'globerce.store',
+		platformHosts: []
+	};
+
+	it('un subdominio con dominio propio activo va al dominio propio, con 302', () => {
+		expect(redirectToCustomDomain({ ...args, publicUrl: 'https://www.sutienda.com' })).toBe(
+			'https://www.sutienda.com/tienda?q=1'
+		);
+	});
+
+	it('si la tienda sigue en el subdominio, no redirige', () => {
+		expect(
+			redirectToCustomDomain({ ...args, publicUrl: 'https://boutique.globerce.store' })
+		).toBeNull();
+	});
+
+	it('un dominio propio que pide la tienda no vuelve a redirigir', () => {
+		expect(
+			redirectToCustomDomain({
+				...args,
+				currentHost: 'www.sutienda.com',
+				publicUrl: 'https://www.sutienda.com'
+			})
+		).toBeNull();
 	});
 });

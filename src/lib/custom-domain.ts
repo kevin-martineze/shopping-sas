@@ -1,6 +1,6 @@
 import type { DomainStatus } from '$lib/domain/domain';
 
-import { storefrontUrl } from '$lib/tenant';
+import { resolveHost, storefrontUrl } from '$lib/tenant';
 
 /**
  * Qué hacer con una petición a un dominio propio, antes de servir nada.
@@ -46,4 +46,35 @@ export function customDomainRedirect({
 		status: isSharedPath ? 308 : 302,
 		location: `${storefrontUrl(slug, rootDomain, siteUrl)}${pathname}${search}`
 	};
+}
+
+/**
+ * Un subdominio de tienda cuyo dominio propio ya está activo: a dónde mandar
+ * la visita, o `null` si se queda. Solo para rutas de la tienda: el panel y el
+ * registro no pasan por aquí.
+ *
+ * 302, nunca 308: la misma regla que en `customDomainRedirect`.
+ */
+export function redirectToCustomDomain({
+	currentHost,
+	publicUrl,
+	pathname,
+	search,
+	rootDomain,
+	platformHosts
+}: {
+	currentHost: string;
+	publicUrl: string;
+	pathname: string;
+	search: string;
+	rootDomain: string | undefined;
+	platformHosts: readonly string[];
+}): string | null {
+	if (resolveHost(currentHost, rootDomain, platformHosts).kind !== 'store') return null;
+
+	const destination = resolveHost(new URL(publicUrl).host, rootDomain, platformHosts);
+
+	if (destination.kind !== 'custom') return null;
+
+	return `${publicUrl.replace(/\/+$/, '')}${pathname}${search}`;
 }
