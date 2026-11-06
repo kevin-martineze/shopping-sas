@@ -63,6 +63,9 @@ export function storeUrl(slug: string): string {
 export function publicContext(
 	event: Pick<RequestEvent, 'getClientAddress' | 'locals' | 'url'>
 ): PublicContext {
+	// La API no respondió al buscar el dominio propio: 503, no un 404 engañoso.
+	if (event.locals.storeLookupError) error(503, event.locals.storeLookupError);
+
 	const storeSlug = storeSlugFor(event);
 
 	if (!storeSlug) error(404, 'Esta tienda no existe.');

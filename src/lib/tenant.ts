@@ -59,7 +59,7 @@ function limpiar(value: string | undefined): string | undefined {
  * `Boutique.Localhost:5173.` → `boutique.localhost`.
  */
 export function normalizeHost(host: string): string {
-	return host.trim().toLowerCase().replace(/\.$/, '').replace(/:\d+$/, '');
+	return host.trim().toLowerCase().replace(/:\d+$/, '').replace(/\.$/, '');
 }
 
 function dominioRaiz(raw: string | undefined): string | undefined {
@@ -84,7 +84,9 @@ export function parsePlatformHosts(raw: string | undefined): string[] {
  *   reservados), `localhost`, `*.localhost`, `*.vercel.app` y los de
  *   `platformHosts`.
  * - `custom`: cualquier otro host. Un dominio propio no cae en la tienda por
- *   defecto: se busca en la API.
+ *   defecto: se busca en la API. Sin dominio raíz no hay multitienda, así que
+ *   nada es `custom`: todo host es la plataforma (y la tienda por defecto, si
+ *   hay `PUBLIC_STORE_SLUG`).
  */
 export function resolveHost(
 	host: string,
@@ -94,7 +96,9 @@ export function resolveHost(
 	const normalized = normalizeHost(host);
 	const rootDomain = dominioRaiz(rootDomainRaw);
 
-	if (rootDomain && normalized.endsWith(`.${rootDomain}`)) {
+	if (!rootDomain) return { kind: 'platform' };
+
+	if (normalized.endsWith(`.${rootDomain}`)) {
 		const label = normalized.slice(0, -(rootDomain.length + 1));
 
 		if (SLUG.test(label) && !RESERVED.has(label)) return { kind: 'store', slug: label };

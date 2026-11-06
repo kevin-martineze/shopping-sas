@@ -61,12 +61,14 @@ describe('resolveHost', () => {
 		});
 	});
 
-	it('sin dominio raíz, los hosts de la plataforma siguen siendo la plataforma', () => {
+	it('sin dominio raíz, ningún host es un dominio propio ni un subdominio de tienda', () => {
 		expect(resolveHost('localhost:5173', undefined)).toEqual({ kind: 'platform' });
-		expect(resolveHost('sutienda.com', undefined)).toEqual({
-			kind: 'custom',
-			host: 'sutienda.com'
-		});
+		expect(resolveHost('sutienda.com', undefined)).toEqual({ kind: 'platform' });
+		expect(resolveHost('boutique.globerce.com', undefined)).toEqual({ kind: 'platform' });
+	});
+
+	it('quita el puerto antes que el punto final', () => {
+		expect(resolveHost('x.com.:443', 'globerce.com')).toEqual({ kind: 'custom', host: 'x.com' });
 	});
 });
 
@@ -85,8 +87,10 @@ describe('storeSlugFromHost', () => {
 		expect(storeSlugFromHost('sutienda.com', 'globerce.com', 'nombre')).toBeNull();
 	});
 
-	it('sin dominio raíz, todo subdominio se lee como un host propio', () => {
-		expect(storeSlugFromHost('boutique.globerce.com', undefined, 'nombre')).toBeNull();
+	it('sin dominio raíz, la tienda por defecto sirve a cualquier host (instalación de una sola tienda)', () => {
+		expect(storeSlugFromHost('mitienda.com', undefined, 'boutique')).toBe('boutique');
+		expect(storeSlugFromHost('boutique.globerce.com', undefined, 'boutique')).toBe('boutique');
+		expect(storeSlugFromHost('mitienda.com', undefined, undefined)).toBeNull();
 	});
 });
 
