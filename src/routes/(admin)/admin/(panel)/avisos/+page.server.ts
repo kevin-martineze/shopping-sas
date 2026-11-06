@@ -1,13 +1,12 @@
 import type { Actions, PageServerLoad } from './$types';
 import { listRestock, markRestockNotified } from '$lib/server/api/panel-commerce';
 import { failWith, orFail, panelContext } from '$lib/server/context';
-import { serverEnv } from '$lib/server/env';
 import { buildRestockUrl } from '$lib/utils/whatsapp';
 
 export const load: PageServerLoad = async (event) => {
 	const { settings } = await event.parent();
 	const requests = orFail(await listRestock(panelContext(event)));
-	const siteUrl = serverEnv().PUBLIC_SITE_URL;
+	const siteUrl = settings.public_url;
 
 	return {
 		requests: requests.map((request) => {

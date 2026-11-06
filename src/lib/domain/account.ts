@@ -1,3 +1,5 @@
+import type { DomainStatus } from '$lib/domain/domain';
+
 /** Cuenta, equipo, plan y plataforma. Los estados van en minúsculas, como el resto del dominio. */
 
 export type MemberRole = 'owner' | 'staff';
@@ -125,6 +127,10 @@ export interface PlatformPayment {
 export interface PlatformStoreDetail extends PlatformStore {
 	subscription_notes: string | null;
 	payments: PlatformPayment[];
+	/** Dirección pública: dominio propio si está activo, o el subdominio. */
+	public_url: string;
+	/** Estado del dominio propio, o null si la tienda no tiene. Solo lectura en la consola. */
+	custom_domain_status: DomainStatus | null;
 }
 
 export type NoticeTone = 'danger' | 'warning' | 'info';

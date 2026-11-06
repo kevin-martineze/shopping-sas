@@ -1,9 +1,11 @@
 /**
- * Qué tienda sirve un host.
+ * Qué es cada host: la plataforma, una tienda o un dominio propio.
  *
  * Función pura para probarla sin SvelteKit. Con dominio raíz, cada tienda es
- * un subdominio de un solo nivel (`boutique.mitienda.com`); el dominio raíz y
- * cualquier otro host caen en la tienda por defecto, si la hay.
+ * un subdominio de un solo nivel (`boutique.mitienda.com`). Los hosts de la
+ * plataforma (el raíz, `www`, `localhost`, `*.vercel.app`, los de
+ * `PUBLIC_PLATFORM_HOSTS`) sirven el sitio comercial o la tienda por defecto.
+ * Cualquier otro host es un dominio propio: su tienda se busca en la API.
  */
 
 const SLUG = /^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/;
@@ -35,6 +37,9 @@ const RESERVED = new Set([
 	'globerce'
 ]);
 
+export type HostTarget =
+	{ kind: 'platform' } | { kind: 'store'; slug: string } | { kind: 'custom'; host: string };
+
 /**
  * Una variable vacía vale lo mismo que una ausente.
  *
@@ -49,26 +54,98 @@ function limpiar(value: string | undefined): string | undefined {
 	return trimmed ? trimmed : undefined;
 }
 
+/**
+ * Host en su forma canónica: minúsculas, sin puerto y sin punto final.
+ * `Boutique.Localhost:5173.` → `boutique.localhost`.
+ */
+export function normalizeHost(host: string): string {
+	return host.trim().toLowerCase().replace(/:\d+$/, '').replace(/\.$/, '');
+}
+
+function dominioRaiz(raw: string | undefined): string | undefined {
+	const trimmed = raw?.trim();
+
+	return trimmed ? normalizeHost(trimmed) || undefined : undefined;
+}
+
+/** `PUBLIC_PLATFORM_HOSTS`: hosts separados por comas. Vacío → ninguno. */
+export function parsePlatformHosts(raw: string | undefined): string[] {
+	return (raw ?? '')
+		.split(',')
+		.map((entry) => normalizeHost(entry))
+		.filter((entry) => entry !== '');
+}
+
+/**
+ * Qué es un host.
+ *
+ * - `store`: subdominio válido y no reservado de `rootDomain`.
+ * - `platform`: el raíz, `www.<raíz>`, cualquier otro subdominio del raíz (los
+ *   reservados), `localhost`, `*.localhost`, `*.vercel.app` y los de
+ *   `platformHosts`.
+ * - `custom`: cualquier otro host. Un dominio propio no cae en la tienda por
+ *   defecto: se busca en la API. Sin dominio raíz no hay multitienda, así que
+ *   nada es `custom`: todo host es la plataforma (y la tienda por defecto, si
+ *   hay `PUBLIC_STORE_SLUG`).
+ */
+export function resolveHost(
+	host: string,
+	rootDomainRaw: string | undefined,
+	platformHosts: readonly string[] = []
+): HostTarget {
+	const normalized = normalizeHost(host);
+	const rootDomain = dominioRaiz(rootDomainRaw);
+
+	if (!rootDomain) return { kind: 'platform' };
+
+	if (normalized.endsWith(`.${rootDomain}`)) {
+		const label = normalized.slice(0, -(rootDomain.length + 1));
+
+		if (SLUG.test(label) && !RESERVED.has(label)) return { kind: 'store', slug: label };
+
+		return { kind: 'platform' };
+	}
+
+	if (rootDomain && (normalized === rootDomain || normalized === `www.${rootDomain}`)) {
+		return { kind: 'platform' };
+	}
+
+	if (normalized === 'localhost' || normalized.endsWith('.localhost')) return { kind: 'platform' };
+	if (normalized === 'vercel.app' || normalized.endsWith('.vercel.app'))
+		return { kind: 'platform' };
+	if (platformHosts.some((entry) => normalizeHost(entry) === normalized))
+		return { kind: 'platform' };
+
+	return { kind: 'custom', host: normalized };
+}
+
+/**
+ * Si el host sirve una tienda sin pasar por la API: un subdominio, o la
+ * tienda por defecto en un host de la plataforma. Un dominio propio también
+ * sirve tienda, pero su slug se busca después; aquí cuenta como `true`.
+ */
+export function hostServesStore(target: HostTarget, fallbackRaw: string | undefined): boolean {
+	if (target.kind !== 'platform') return true;
+
+	return limpiar(fallbackRaw) !== undefined;
+}
+
+/**
+ * Slug de la tienda que sirve el host, o `null`. Un dominio propio da `null`:
+ * su slug lo resuelve la API en `hooks.server.ts`, no esta función.
+ */
 export function storeSlugFromHost(
 	host: string,
 	rootDomainRaw: string | undefined,
-	fallbackRaw: string | undefined
+	fallbackRaw: string | undefined,
+	platformHosts: readonly string[] = []
 ): string | null {
-	const normalized = host.trim().toLowerCase();
-	const rootDomain = limpiar(rootDomainRaw);
-	const fallback = limpiar(fallbackRaw);
+	const target = resolveHost(host, rootDomainRaw, platformHosts);
 
-	if (rootDomain) {
-		const suffix = `.${rootDomain}`;
+	if (target.kind === 'store') return target.slug;
+	if (target.kind === 'platform') return limpiar(fallbackRaw) ?? null;
 
-		if (normalized.endsWith(suffix)) {
-			const label = normalized.slice(0, -suffix.length);
-
-			if (SLUG.test(label) && !RESERVED.has(label)) return label;
-		}
-	}
-
-	return fallback ?? null;
+	return null;
 }
 
 /**

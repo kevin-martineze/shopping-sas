@@ -16,9 +16,13 @@ import { failWith, orFail, panelContext, storeUrl } from '$lib/server/context';
 export const load: PageServerLoad = async (event) => {
 	const { store } = await requireAdmin(event);
 
+	const settings = orFail(await getSettings(panelContext(event)));
+
 	return {
-		settings: orFail(await getSettings(panelContext(event))),
-		storeUrl: storeUrl(store.slug)
+		settings,
+		// "Ver tienda": la dirección pública. La vista previa va al subdominio, en iframe.
+		storeUrl: settings.public_url,
+		previewUrl: storeUrl(store.slug)
 	};
 };
 

@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { env as privateEnv } from '$env/dynamic/private';
 import { env as publicEnv } from '$env/dynamic/public';
 
+import { parsePlatformHosts } from '$lib/tenant';
+
 /**
  * Se valida en tiempo de ejecución (no de build) para que el proyecto arranque
  * y muestre un error legible cuando falta configuración, en vez de romper el
@@ -75,6 +77,22 @@ const schema = z.object({
 			)
 	),
 	/**
+	 * Hosts extra que son de la plataforma y no un dominio propio, separados por
+	 * comas (`globerce.store,globerce.dev`). Sin valor, solo valen el dominio
+	 * raíz, `www`, `localhost` y `*.vercel.app`.
+	 */
+	PUBLIC_PLATFORM_HOSTS: optional(
+		z
+			.string()
+			.refine(
+				(value) =>
+					parsePlatformHosts(value).every((host) =>
+						/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/.test(host)
+					),
+				'PUBLIC_PLATFORM_HOSTS tiene hosts separados por comas, sin protocolo, barras ni puerto.'
+			)
+	),
+	/**
 	 * Tienda de ejemplo que el sitio comercial enseña. Sin ella no se ofrece:
 	 * un enlace a una demo que no existe es peor que no tener demo.
 	 */
@@ -107,6 +125,7 @@ export function serverEnv(): ServerEnv {
 		API_SHARED_SECRET: privateEnv.API_SHARED_SECRET,
 		PUBLIC_STORE_ROOT_DOMAIN: publicEnv.PUBLIC_STORE_ROOT_DOMAIN,
 		PUBLIC_STORE_SLUG: publicEnv.PUBLIC_STORE_SLUG,
+		PUBLIC_PLATFORM_HOSTS: publicEnv.PUBLIC_PLATFORM_HOSTS,
 		PUBLIC_DEMO_STORE_SLUG: publicEnv.PUBLIC_DEMO_STORE_SLUG
 	});
 

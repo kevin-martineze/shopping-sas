@@ -53,4 +53,18 @@ describe('serverEnv', () => {
 
 		expect(() => serverEnv()).toThrow(/API_SHARED_SECRET/);
 	});
+
+	it('PUBLIC_PLATFORM_HOSTS acepta hosts separados por comas y rechaza URLs', () => {
+		privateEnv.API_SHARED_SECRET = '';
+		publicEnv.PUBLIC_PLATFORM_HOSTS = 'globerce.store, globerce.dev';
+		resetServerEnv();
+
+		expect(serverEnv().PUBLIC_PLATFORM_HOSTS).toBe('globerce.store, globerce.dev');
+
+		publicEnv.PUBLIC_PLATFORM_HOSTS = 'https://globerce.store';
+		resetServerEnv();
+
+		expect(() => serverEnv()).toThrow(/PUBLIC_PLATFORM_HOSTS/);
+		delete publicEnv.PUBLIC_PLATFORM_HOSTS;
+	});
 });

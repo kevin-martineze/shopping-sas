@@ -46,9 +46,28 @@ cp .env.example .env
 | `PUBLIC_SITE_URL`          | URL pública, para los enlaces de WhatsApp y el sitemap.                               |
 | `PUBLIC_STORE_ROOT_DOMAIN` | Dominio de las tiendas: cada una es un subdominio suyo.                               |
 | `PUBLIC_STORE_SLUG`        | Tienda que sirve el dominio raíz. Sin ella, el raíz muestra el sitio comercial.       |
+| `PUBLIC_PLATFORM_HOSTS`    | Hosts extra de la plataforma, separados por comas. No son dominios propios.           |
 
 En local, `boutique.localhost:5173` sirve la tienda `boutique` sin tocar
 `/etc/hosts`.
+
+### Qué es cada host
+
+- **Plataforma**: el dominio raíz, `www.<raíz>`, `localhost`, `*.localhost`,
+  `*.vercel.app` y los de `PUBLIC_PLATFORM_HOSTS`. Sirven el sitio comercial o,
+  si hay `PUBLIC_STORE_SLUG`, la tienda por defecto.
+- **Tienda**: un subdominio de un nivel de `PUBLIC_STORE_ROOT_DOMAIN`
+  (`boutique.<raíz>`), que no sea reservado.
+- **Dominio propio**: cualquier otro host. Su tienda se busca en la API
+  (`GET /v1/store-domains/:host`). Solo se sirve si está activo; el panel,
+  el login y el registro nunca se sirven en un dominio propio.
+
+Sin `PUBLIC_STORE_ROOT_DOMAIN` no hay multitienda ni dominios propios: todo
+host es la plataforma, y `PUBLIC_STORE_SLUG` sirve a todos.
+
+`PUBLIC_STORE_ROOT_DOMAIN` tiene que ser el mismo host que `FRONTEND_URL` de la
+API. El proyecto de Vercel recibe los dominios desde la API: aquí no hay que
+registrarlos a mano.
 
 ### 4. Desarrollo
 

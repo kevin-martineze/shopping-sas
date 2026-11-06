@@ -66,7 +66,7 @@
 	 * la URL solo cambia al cambiar de página, así no se recarga con cada ajuste.
 	 */
 	const previewSrc = $derived(
-		themePreviewUrl(new URL(path, data.storeUrl).toString(), saved.template, saved.theme)
+		themePreviewUrl(new URL(path, data.previewUrl).toString(), saved.template, saved.theme)
 	);
 
 	function discard() {

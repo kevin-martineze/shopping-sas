@@ -2,6 +2,8 @@
 	import type { Snippet } from 'svelte';
 
 	import type { LayoutData } from './$types';
+	import { page } from '$app/state';
+
 	import PreviewFocus from '$lib/components/molecules/PreviewFocus.svelte';
 	import CartDrawer from '$lib/components/organisms/CartDrawer.svelte';
 	import SiteFooter from '$lib/components/organisms/SiteFooter.svelte';
@@ -34,9 +36,13 @@
 
 	const settings = $derived(storefrontDraft.apply(data.settings));
 	const categories = $derived(storefrontDraft.applyCategories(data.categories));
+
+	// La dirección canónica es la pública de la tienda (dominio propio si lo tiene), nunca `PUBLIC_SITE_URL`.
+	const canonical = $derived(`${data.public_url.replace(/\/+$/, '')}${page.url.pathname}`);
 </script>
 
 <svelte:head>
+	<link rel="canonical" href={canonical} />
 	{#if data.previewTemplate}
 		<!-- Una tienda con un vestido de prueba no es la tienda: que no la indexen. -->
 		<meta name="robots" content="noindex" />

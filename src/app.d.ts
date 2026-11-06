@@ -23,6 +23,10 @@ declare global {
 			 * Comprobar que la membresía sigue viva es trabajo de `requireAdmin`.
 			 */
 			session: AdminSession | null;
+			/** Tienda de un dominio propio, resuelta en `hooks.server.ts`. Los demás hosts la leen del subdominio. */
+			storeSlug?: string;
+			/** Mensaje de un fallo al consultar el dominio propio. `publicContext` lo muestra como 503. */
+			storeLookupError?: string;
 		}
 
 		// interface Error {}

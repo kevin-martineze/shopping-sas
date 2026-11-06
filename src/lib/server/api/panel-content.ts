@@ -24,6 +24,7 @@ const settingsSchema = z
 		template: templateSchema,
 		theme: themeSchema,
 		assistant: z.boolean(),
+		publicUrl: z.string(),
 		// Los ajustes del panel no hablan de cobros: eso vive en su propia
 		// pantalla. Se completa para que el tipo del dominio sea uno solo.
 		onlinePayments: z.boolean().optional()
@@ -40,7 +41,8 @@ const settingsSchema = z
 		template: settings.template,
 		theme: settings.theme,
 		assistant: settings.assistant,
-		online_payments: settings.onlinePayments ?? false
+		online_payments: settings.onlinePayments ?? false,
+		public_url: settings.publicUrl
 	}));
 
 /** Lo que se cambia; lo que no viene, no se toca. En los opcionales, null o vacío lo quita. */

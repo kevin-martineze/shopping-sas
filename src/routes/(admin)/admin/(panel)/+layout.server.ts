@@ -23,7 +23,10 @@ export const load: LayoutServerLoad = async (event) => {
 		adminEmail: account.user.email,
 		role: store.role,
 		storeSlug: store.slug,
-		storeUrl: storeUrl(store.slug),
+		// "Ver tienda": la dirección pública (dominio propio si lo tiene), no el subdominio.
+		storeUrl: orFail(settings).public_url,
+		// Vistas previas en iframe: siempre el subdominio, que es del mismo sitio que el panel.
+		previewUrl: storeUrl(store.slug),
 		// Para el selector de la barra: las otras tiendas de esta cuenta.
 		otherStores: account.stores
 			.filter((candidate) => candidate.id !== store.id)

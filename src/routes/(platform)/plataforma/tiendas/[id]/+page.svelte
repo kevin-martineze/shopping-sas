@@ -16,6 +16,7 @@
 	import SelectField from '$lib/components/molecules/SelectField.svelte';
 	import StoreStatusBadge from '$lib/components/molecules/StoreStatusBadge.svelte';
 	import { MEMBER_ROLE_LABEL } from '$lib/domain/account';
+	import { DOMAIN_STATUS_LABEL } from '$lib/domain/domain';
 	import { formatMoney } from '$lib/utils/money';
 
 	interface Props {
@@ -80,6 +81,14 @@
 			{store.slug}
 			<ExternalLink class="size-3.5" />
 		</a>
+		{#if store.custom_domain}
+			<p class="text-muted-foreground text-sm">
+				Dominio propio: {store.custom_domain}
+				{#if store.custom_domain_status}
+					· {DOMAIN_STATUS_LABEL[store.custom_domain_status]}
+				{/if}
+			</p>
+		{/if}
 	</div>
 
 	<form method="POST" action="?/estado" use:enhance>

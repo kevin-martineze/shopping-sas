@@ -9,14 +9,15 @@ import {
 	recordPayment,
 	setStoreStatus
 } from '$lib/server/api/platform';
-import { accountContext, failWith, orFail, storeUrl } from '$lib/server/context';
+import { accountContext, failWith, orFail } from '$lib/server/context';
 
 export const load: PageServerLoad = async (event) => {
 	const ctx = accountContext(event);
 	const [store, plans] = await Promise.all([getStore(ctx, event.params.id), listPlans(ctx)]);
 	const detail = orFail(store);
 
-	return { store: detail, plans: orFail(plans), storeUrl: storeUrl(detail.slug) };
+	// Enlace a la tienda: su dirección pública (dominio propio si lo tiene).
+	return { store: detail, plans: orFail(plans), storeUrl: detail.public_url };
 };
 
 export const actions: Actions = {

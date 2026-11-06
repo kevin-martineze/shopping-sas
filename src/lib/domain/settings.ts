@@ -19,6 +19,8 @@ export interface StoreSettings {
 	assistant: boolean;
 	/** Si cobra en línea, además del pedido por WhatsApp. */
 	online_payments: boolean;
+	/** Dirección pública de la tienda: dominio propio si está activo, o el subdominio. Nunca `PUBLIC_SITE_URL`. */
+	public_url: string;
 }
 
 /** Bloques cortos que van bajo el hero de la portada. */

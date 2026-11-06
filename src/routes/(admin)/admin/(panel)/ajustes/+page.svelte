@@ -49,7 +49,7 @@
 
 	const previewSrc = $derived(
 		themePreviewUrl(
-			new URL('/', data.storeUrl).toString(),
+			new URL('/', data.previewUrl).toString(),
 			data.current.template,
 			data.current.theme
 		)

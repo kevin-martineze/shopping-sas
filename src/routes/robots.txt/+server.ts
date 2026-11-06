@@ -1,8 +1,18 @@
 import type { RequestHandler } from './$types';
-import { serverEnv } from '$lib/server/env';
+import { getStorefront } from '$lib/server/api/storefront';
+import { publicContext } from '$lib/server/context';
 
-export const GET: RequestHandler = async () => {
-	const site = serverEnv().PUBLIC_SITE_URL.replace(/\/$/, '');
+export const GET: RequestHandler = async (event) => {
+	const result = await getStorefront(publicContext(event));
+
+	if (!result.ok) {
+		return new Response('No pudimos armar robots.txt.', {
+			status: 503,
+			headers: { 'retry-after': '300' }
+		});
+	}
+
+	const site = result.data.public_url.replace(/\/$/, '');
 
 	// El panel, el carrito y los pedidos no se indexan.
 	const body = `User-agent: *

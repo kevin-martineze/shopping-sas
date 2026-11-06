@@ -85,7 +85,7 @@
 
 	const previewSrc = $derived(
 		themePreviewUrl(
-			new URL('/vista-previa/carrito', data.storeUrl).toString(),
+			new URL('/vista-previa/carrito', data.previewUrl).toString(),
 			data.settings.template,
 			data.settings.theme
 		)
