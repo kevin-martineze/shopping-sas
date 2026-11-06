@@ -5,6 +5,7 @@
 	import Boxes from '@lucide/svelte/icons/boxes';
 	import CreditCard from '@lucide/svelte/icons/credit-card';
 	import ExternalLink from '@lucide/svelte/icons/external-link';
+	import Globe from '@lucide/svelte/icons/globe';
 	import Images from '@lucide/svelte/icons/images';
 	import LayoutTemplate from '@lucide/svelte/icons/layout-template';
 	import Paintbrush from '@lucide/svelte/icons/paintbrush';
@@ -45,7 +46,7 @@
 	 * título, lo que se configura una vez en «Tienda», y lo administrativo
 	 * en «Cuenta». La lista plana sirve al menú horizontal del celular.
 	 */
-	const grupos = [
+	const gruposBase = [
 		{
 			titulo: null,
 			links: [
@@ -64,6 +65,7 @@
 				{ href: '/admin/catalogos', label: 'Catálogos', icon: Palette },
 				{ href: '/admin/cupones', label: 'Cupones', icon: Ticket },
 				{ href: '/admin/envios', label: 'Envíos', icon: Truck },
+				{ href: '/admin/dominio', label: 'Dominio', icon: Globe },
 				{ href: '/admin/avisos', label: 'Avisos', icon: BellRing }
 			]
 		},
@@ -80,7 +82,17 @@
 		}
 	];
 
-	const links = grupos.flatMap((grupo) => grupo.links);
+	/** Lo que solo administra la dueña: el resto de la tienda no lo ve en el menú. */
+	const soloDuena = new Set(['/admin/dominio']);
+
+	const grupos = $derived(
+		gruposBase.map((grupo) => ({
+			...grupo,
+			links: grupo.links.filter((link) => !soloDuena.has(link.href) || data.role === 'owner')
+		}))
+	);
+
+	const links = $derived(grupos.flatMap((grupo) => grupo.links));
 
 	const platformLink = { href: '/plataforma', label: 'Plataforma', icon: Shield };
 
