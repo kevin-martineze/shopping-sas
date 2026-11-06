@@ -28,18 +28,19 @@ const SHARED_PATHS = ['/registro', '/admin', '/plataforma'];
 
 export interface RerouteInput {
 	pathname: string;
-	/** La tienda que resuelve el host, o null si es el dominio raíz. */
-	storeSlug: string | null;
+	/** Si el host sirve una tienda (subdominio, dominio propio o tienda por defecto). */
+	isStore: boolean;
 }
 
 /**
  * La ruta que se va a enrutar de verdad, o `undefined` para dejarla igual.
  *
  * - Dominio raíz: `/` muestra el sitio comercial.
- * - Host de una tienda: `/inicio` no existe; esa tienda no vende Globerce.
+ * - Host de una tienda, sea subdominio o dominio propio: `/inicio` no existe;
+ *   esa tienda no vende Globerce.
  */
-export function rerouteForHost({ pathname, storeSlug }: RerouteInput): string | undefined {
-	if (storeSlug === null) {
+export function rerouteForHost({ pathname, isStore }: RerouteInput): string | undefined {
+	if (!isStore) {
 		return pathname === '/' ? MARKETING_HOME : undefined;
 	}
 

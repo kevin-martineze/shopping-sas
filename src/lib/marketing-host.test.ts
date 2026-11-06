@@ -4,21 +4,21 @@ import { isSharedPath, MARKETING_HOME, rerouteForHost } from '$lib/marketing-hos
 
 describe('rerouteForHost', () => {
 	it('en el dominio raíz, la portada es el sitio comercial', () => {
-		expect(rerouteForHost({ pathname: '/', storeSlug: null })).toBe(MARKETING_HOME);
+		expect(rerouteForHost({ pathname: '/', isStore: false })).toBe(MARKETING_HOME);
 	});
 
 	it('en el host de una tienda, la portada sigue siendo la tienda', () => {
-		expect(rerouteForHost({ pathname: '/', storeSlug: 'casaoliva' })).toBeUndefined();
+		expect(rerouteForHost({ pathname: '/', isStore: true })).toBeUndefined();
 	});
 
 	it('el sitio comercial no se abre desde una tienda', () => {
-		expect(rerouteForHost({ pathname: MARKETING_HOME, storeSlug: 'casaoliva' })).toBe('/no-existe');
+		expect(rerouteForHost({ pathname: MARKETING_HOME, isStore: true })).toBe('/no-existe');
 	});
 
 	it('las demás rutas quedan como están', () => {
-		for (const slug of [null, 'casaoliva']) {
-			expect(rerouteForHost({ pathname: '/registro', storeSlug: slug })).toBeUndefined();
-			expect(rerouteForHost({ pathname: '/admin/productos', storeSlug: slug })).toBeUndefined();
+		for (const isStore of [false, true]) {
+			expect(rerouteForHost({ pathname: '/registro', isStore })).toBeUndefined();
+			expect(rerouteForHost({ pathname: '/admin/productos', isStore })).toBeUndefined();
 		}
 	});
 });
@@ -39,8 +39,8 @@ describe('isSharedPath', () => {
 
 describe('las páginas legales', () => {
 	it('se sirven en el dominio raíz y no existen en una tienda', () => {
-		expect(rerouteForHost({ pathname: '/terminos', storeSlug: null })).toBeUndefined();
-		expect(rerouteForHost({ pathname: '/privacidad', storeSlug: 'boutique' })).toBe('/no-existe');
-		expect(rerouteForHost({ pathname: '/contacto', storeSlug: 'boutique' })).toBe('/no-existe');
+		expect(rerouteForHost({ pathname: '/terminos', isStore: false })).toBeUndefined();
+		expect(rerouteForHost({ pathname: '/privacidad', isStore: true })).toBe('/no-existe');
+		expect(rerouteForHost({ pathname: '/contacto', isStore: true })).toBe('/no-existe');
 	});
 });
