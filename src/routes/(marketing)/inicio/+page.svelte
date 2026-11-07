@@ -19,15 +19,11 @@
 	import StockCard from '$lib/components/molecules/StockCard.svelte';
 	import StoreShowcase from '$lib/components/molecules/StoreShowcase.svelte';
 	import VariantDemo from '$lib/components/molecules/VariantDemo.svelte';
+	import HeroCommercial from '$lib/components/organisms/HeroCommercial.svelte';
 	import MarketingFooter from '$lib/components/organisms/MarketingFooter.svelte';
 	import MarketingHeader from '$lib/components/organisms/MarketingHeader.svelte';
 	import SmoothScroll from '$lib/components/organisms/SmoothScroll.svelte';
-	import {
-		CAPTURA_CATALOGO_CELULAR,
-		CAPTURA_DESTACADOS,
-		CAPTURA_PORTADA,
-		CAPTURA_PRODUCTO_CELULAR
-	} from '$lib/config/capturas';
+	import { CAPTURA_DESTACADOS, CAPTURA_PRODUCTO_CELULAR } from '$lib/config/capturas';
 	import { FOTO_CLIENTA_NOCHE, FOTO_EMPRENDEDORA, FOTO_RUBRO } from '$lib/config/fotos';
 	import { TRIAL_DAYS } from '$lib/domain/account';
 	import { cn } from '$lib/utils';
@@ -189,15 +185,16 @@
 
 	<SmoothScroll>
 		<main>
-			<!-- Portada en pizarra. Arriba, lo que se promete: la tienda hecha en
-			     minutos. El titular dice para qué sirve, el subtítulo cómo se hace
-			     y los tres pasos lo confirman de un vistazo. Debajo, una tienda de
-			     verdad —lo que ve la clienta— con el pedido que acaba de llegar
-			     flotando encima —lo que ve la dueña—. La tienda es una foto
-			     (`StoreShowcase`); el pedido es HTML. -->
-			<section
-				class="marketing-dark bg-background text-foreground overflow-hidden pt-28 pb-16 md:pt-36 md:pb-24"
-			>
+			<!-- Portada en pizarra, en dos tiempos. Primero, el comercial a
+			     pantalla completa: la tienda sale del celular, la clienta compra
+			     sola y a la dueña le llega el pedido pagado (`HeroCommercial`).
+			     Al bajar, lo que se promete: el titular dice para qué sirve, el
+			     subtítulo cómo se hace y los tres pasos lo confirman. -->
+			<section class="marketing-dark">
+				<HeroCommercial siguiente="empieza" />
+			</section>
+
+			<section id="empieza" class="marketing-dark bg-background text-foreground py-16 md:py-24">
 				<div class="mx-auto max-w-6xl px-4 text-center sm:px-6" data-reveal>
 					<p
 						class="border-primary/30 bg-primary/10 text-primary inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-medium"
@@ -250,15 +247,6 @@
 							</li>
 						{/each}
 					</ol>
-				</div>
-
-				<div class="relative mx-auto mt-12 max-w-5xl px-4 sm:px-6 lg:mt-16">
-					<StoreShowcase desktop={CAPTURA_PORTADA} mobile={CAPTURA_CATALOGO_CELULAR} eager />
-
-					<!-- Solo en pantallas grandes: en el celular taparía la tienda. -->
-					<div class="float absolute -bottom-4 -left-10 hidden w-80 lg:block xl:-left-24">
-						<OrderCard />
-					</div>
 				</div>
 			</section>
 
