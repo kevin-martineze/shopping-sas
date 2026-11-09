@@ -106,11 +106,15 @@ esquema y los datos viven en la API.
 27. **Schemas zod en `$lib/schemas/`**, uno por dominio.
 28. **Validación en el servidor siempre**, aunque el input tenga `required`.
 29. **Botones de submit deshabilitados mientras se envía.**
+30. **El resultado de una acción del panel se avisa con toast.** La acción devuelve
+    `{ message }` o `fail(status, { error })` y `ActionToasts` (en el layout) lo
+    muestra. `FormFeedback` solo para errores que deban quedarse junto a un formulario
+    largo.
 
 ### Imports
 
-30. **Alias `$lib/`** para todo lo de `src/lib/`. Cero `../../`.
-31. **Orden:** tipos → `svelte`/`@sveltejs/*` → librerías externas → `$app/*` →
+31. **Alias `$lib/`** para todo lo de `src/lib/`. Cero `../../`.
+32. **Orden:** tipos → `svelte`/`@sveltejs/*` → librerías externas → `$app/*` →
     `$lib/*` → relativos. Línea en blanco entre grupos.
 
 ---
