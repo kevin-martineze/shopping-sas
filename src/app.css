@@ -1229,3 +1229,27 @@
 	letter-spacing: 0.08em;
 	font-weight: 700;
 }
+
+/* Tarjeta retail: foto 3:4, esquinas rectas, precio en negrita y el descuento
+   solo sobre la foto (el de junto al precio se oculta para no repetirlo). */
+[data-storefront-template='moda'] .product-card > a > div:first-child {
+	aspect-ratio: 3 / 4;
+}
+
+[data-storefront-template='moda'] .product-card > a > div:first-child img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+[data-storefront-template='moda'] .product-card .rounded-full {
+	border-radius: 0;
+}
+
+[data-storefront-template='moda'] .product-card .price-tag > span:first-child {
+	font-weight: 700;
+}
+
+[data-storefront-template='moda'] .product-card .price-tag > .text-sale {
+	display: none;
+}

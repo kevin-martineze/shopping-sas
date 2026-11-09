@@ -3,8 +3,11 @@
 	import { reveal } from '$lib/actions/reveal';
 	import SectionHeading from '$lib/components/molecules/SectionHeading.svelte';
 	import CollectionBand from '$lib/components/organisms/CollectionBand.svelte';
+	import CollectionMosaic from '$lib/components/organisms/CollectionMosaic.svelte';
 	import ProductGrid from '$lib/components/organisms/ProductGrid.svelte';
+	import ProductShelf from '$lib/components/organisms/ProductShelf.svelte';
 	import StoreHero from '$lib/components/organisms/StoreHero.svelte';
+	import { templateOf } from '$lib/domain/templates';
 	import { heroOf } from '$lib/domain/theme';
 	import { storefrontDraft } from '$lib/stores/storefront-draft.svelte';
 
@@ -64,10 +67,20 @@
 			}));
 	});
 
+	/**
+	 * Con `shelves: 'carousel'` (la plantilla Moda) la portada se arma en filas:
+	 * un mosaico de colecciones bajo el hero y los productos en carruseles. Con
+	 * `grid`, todo sigue como siempre: mismo contenido, otro armado.
+	 */
+	const carousel = $derived(templateOf(look.template).shelves === 'carousel');
+
 	// El lookbook no repite la colección que ya encabeza la portada.
 	const lookbook = $derived(
 		data.collections.filter((collection) => collection.id !== hero?.id).slice(0, 3)
 	);
+
+	// En carrusel, el mosaico muestra hasta seis colecciones, incluida la del hero.
+	const mosaic = $derived(data.collections.slice(0, 6));
 
 	// Novedades no repite lo que ya salió en la selección: además de aburrir,
 	// dos tarjetas de la misma producto comparten nombre de transición y el
@@ -78,12 +91,13 @@
 	});
 
 	// La numeración cuenta solo las secciones que se pintan: sin colecciones
-	// propias, Novedades es 02 y no queda un hueco en la serie.
+	// propias, Novedades es 02 y no queda un hueco en la serie. El mosaico no
+	// lleva número: es una fila bajo el hero, no una sección.
 	const sectionNumber = $derived.by(() => {
 		const order: string[] = [];
 
 		if (data.featured.length > 0) order.push('featured');
-		if (lookbook.length > 0) order.push('lookbook');
+		if (!carousel && lookbook.length > 0) order.push('lookbook');
 		if (fresh.length > 0) order.push('newest');
 
 		return (name: string) => String(order.indexOf(name) + 1).padStart(2, '0');
@@ -110,6 +124,16 @@
 	/>
 </div>
 
+{#if carousel && mosaic.length > 0}
+	<section
+		class="mx-auto max-w-7xl px-4 pt-10 sm:px-6 md:pt-14"
+		aria-label="Colecciones"
+		data-preview-zone={data.draftPreview ? 'lookbook' : undefined}
+	>
+		<CollectionMosaic collections={mosaic} />
+	</section>
+{/if}
+
 {#if data.featured.length > 0}
 	<section
 		class="mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-28"
@@ -121,7 +145,11 @@
 			title="Lo que más nos piden"
 			href="/tienda"
 		/>
-		<ProductGrid products={data.featured} />
+		{#if carousel}
+			<ProductShelf products={data.featured} label="Lo que más nos piden" />
+		{:else}
+			<ProductGrid products={data.featured} />
+		{/if}
 	</section>
 {/if}
 
@@ -144,7 +172,7 @@
 	</section>
 {/if}
 
-{#if lookbook.length > 0}
+{#if !carousel && lookbook.length > 0}
 	<section
 		class="mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-28"
 		data-preview-zone={data.draftPreview ? 'lookbook' : undefined}
@@ -177,6 +205,10 @@
 			title="Novedades"
 			href="/tienda"
 		/>
-		<ProductGrid products={fresh} />
+		{#if carousel}
+			<ProductShelf products={fresh} label="Novedades" />
+		{:else}
+			<ProductGrid products={fresh} />
+		{/if}
 	</section>
 {/if}

@@ -1,10 +1,13 @@
 <script lang="ts">
 	import type { ProductCard } from '$lib/domain/catalog';
 
+	import { getContext } from 'svelte';
+
 	import Heart from '@lucide/svelte/icons/heart';
 
 	import ProductImage from '$lib/components/molecules/ProductImage.svelte';
 	import PriceTag from '$lib/components/molecules/PriceTag.svelte';
+	import { CARD_LOOK, type CardLook } from '$lib/domain/card-look';
 	import { favorites } from '$lib/stores/favorites.svelte';
 	import { cn } from '$lib/utils';
 	import { discountPercent } from '$lib/utils/money';
@@ -20,6 +23,13 @@
 	const secondary = $derived(product.images.at(1));
 	const isFavorite = $derived(favorites.has(product.slug));
 	const percent = $derived(discountPercent(product.price, product.compareAtPrice));
+
+	// Las muestras que caben en la plantilla; el resto se cuenta como "+N".
+	const look = getContext<CardLook | undefined>(CARD_LOOK);
+	const shownSwatches = $derived(
+		look?.swatchLimit == null ? product.swatches : product.swatches.slice(0, look.swatchLimit)
+	);
+	const hiddenSwatches = $derived(product.swatches.length - shownSwatches.length);
 </script>
 
 <!-- `product-card` es el gancho con que cada plantilla viste la tarjeta desde
@@ -87,13 +97,16 @@
 	</a>
 
 	<div class="mt-2 flex items-center gap-1.5">
-		{#each product.swatches as color (color.value)}
+		{#each shownSwatches as color (color.value)}
 			<span
 				class="border-border size-3 rounded-full border"
 				style="background-color: {color.hex}"
 				title={color.value}
 			></span>
 		{/each}
+		{#if hiddenSwatches > 0}
+			<span class="text-muted-foreground text-xs">+{hiddenSwatches}</span>
+		{/if}
 	</div>
 
 	<button
