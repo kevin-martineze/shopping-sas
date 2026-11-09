@@ -19,7 +19,9 @@ export const load: PageServerLoad = async (event) => {
 };
 
 export const actions: Actions = {
-	default: async (event) => {
+	// Con acciones con nombre (`subirLogo`, `quitarLogo`) SvelteKit no admite `default`:
+	// cualquier envío de la página respondería 500.
+	guardar: async (event) => {
 		const ctx = panelContext(event);
 		const formData = await event.request.formData();
 

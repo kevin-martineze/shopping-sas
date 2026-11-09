@@ -80,6 +80,7 @@
 	<div class="border-border bg-card rounded-lg border p-6">
 		<form
 			method="POST"
+			action="?/guardar"
 			class="space-y-5"
 			use:enhance={() => {
 				saving = true;
