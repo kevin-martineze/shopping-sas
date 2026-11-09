@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Category, CategoryNode } from '$lib/domain/catalog';
-	import type { StoreSettings } from '$lib/domain/settings';
+	import type { Collection, StoreSettings } from '$lib/domain/settings';
 
 	import Heart from '@lucide/svelte/icons/heart';
 	import Menu from '@lucide/svelte/icons/menu';
@@ -21,13 +21,18 @@
 	interface Props {
 		settings: StoreSettings;
 		categories: Category[];
+		collections: Collection[];
 		/** Solo dentro del editor: marca la cabecera para resaltarla. */
 		draftPreview?: boolean;
 	}
 
-	let { settings, categories, draftPreview = false }: Props = $props();
+	let { settings, categories, collections, draftPreview = false }: Props = $props();
 
 	const tree = $derived(buildCategoryTree(categories));
+
+	/** El grupo de colecciones no es una categoría: su id no choca con ninguna. */
+	const COLLECTIONS_ID = 'colecciones';
+	const COLLECTIONS_PANEL = 'mega-colecciones';
 
 	/** La categoría raíz cuyo panel está abierto, o null. */
 	let openId = $state<string | null>(null);
@@ -69,10 +74,7 @@
 	 * listeners van sobre el elemento y no como atributos, porque un li no es
 	 * interactivo para el lector de pantalla.
 	 */
-	function attachGroup(element: HTMLLIElement, node: CategoryNode) {
-		const id = node.category.id;
-		const hasChildren = node.children.length > 0;
-
+	function attachGroup(element: HTMLLIElement, id: string, hasChildren: boolean) {
 		const enter = () => {
 			if (hasChildren) openPanel(id);
 		};
@@ -149,7 +151,10 @@
 		>
 			<ul class="flex items-center gap-6">
 				{#each tree as node (node.category.id)}
-					<li {@attach (element: HTMLLIElement) => attachGroup(element, node)}>
+					<li
+						{@attach (element: HTMLLIElement) =>
+							attachGroup(element, node.category.id, node.children.length > 0)}
+					>
 						{#if node.children.length > 0}
 							<button
 								type="button"
@@ -217,6 +222,49 @@
 						{/if}
 					</li>
 				{/each}
+				{#if collections.length > 0}
+					<li {@attach (element: HTMLLIElement) => attachGroup(element, COLLECTIONS_ID, true)}>
+						<button
+							type="button"
+							class="hover:text-foreground text-sm font-medium tracking-wide uppercase"
+							aria-expanded={openId === COLLECTIONS_ID}
+							aria-controls={openId === COLLECTIONS_ID ? COLLECTIONS_PANEL : undefined}
+							{@attach (element: HTMLButtonElement) => register(element, COLLECTIONS_ID)}
+							onfocus={() => openPanel(COLLECTIONS_ID)}
+							onclick={() =>
+								openId === COLLECTIONS_ID ? closePanel(false) : openPanel(COLLECTIONS_ID)}
+						>
+							Colecciones
+						</button>
+
+						{#if openId === COLLECTIONS_ID}
+							<div
+								id={COLLECTIONS_PANEL}
+								class="bg-background border-border absolute inset-x-0 top-full z-50 border-t shadow-sm"
+							>
+								<div
+									class="mx-auto grid max-w-7xl grid-cols-2 gap-x-10 gap-y-3 px-6 py-8 lg:grid-cols-4"
+								>
+									{#each collections as collection (collection.id)}
+										<a
+											href="/colecciones/{collection.slug}"
+											class="hover:text-foreground text-sm font-semibold tracking-wide uppercase"
+										>
+											{collection.name}
+										</a>
+									{/each}
+
+									<a
+										href="/colecciones"
+										class="text-muted-foreground hover:text-foreground col-span-full text-sm underline underline-offset-4"
+									>
+										Ver todas
+									</a>
+								</div>
+							</div>
+						{/if}
+					</li>
+				{/if}
 			</ul>
 		</nav>
 
@@ -326,6 +374,35 @@
 						</a>
 					{/if}
 				{/each}
+				{#if collections.length > 0}
+					<Accordion.Item value={COLLECTIONS_ID}>
+						<Accordion.Trigger>Colecciones</Accordion.Trigger>
+						<Accordion.Content>
+							<ul class="flex flex-col gap-1">
+								{#each collections as collection (collection.id)}
+									<li>
+										<a
+											href="/colecciones/{collection.slug}"
+											class="hover:bg-accent block px-2 py-2 text-sm"
+											onclick={() => (menuOpen = false)}
+										>
+											{collection.name}
+										</a>
+									</li>
+								{/each}
+								<li>
+									<a
+										href="/colecciones"
+										class="hover:bg-accent text-muted-foreground block px-2 py-2 text-sm"
+										onclick={() => (menuOpen = false)}
+									>
+										Ver todas
+									</a>
+								</li>
+							</ul>
+						</Accordion.Content>
+					</Accordion.Item>
+				{/if}
 			</Accordion.Root>
 
 			<a

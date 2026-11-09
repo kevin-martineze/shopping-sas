@@ -78,7 +78,12 @@
 	class="bg-background text-foreground flex min-h-screen flex-col"
 >
 	{#if megaHeader}
-		<MegaMenuHeader {settings} {categories} draftPreview={data.draftPreview} />
+		<MegaMenuHeader
+			{settings}
+			{categories}
+			collections={data.collections}
+			draftPreview={data.draftPreview}
+		/>
 	{:else}
 		<SiteHeader
 			{settings}
