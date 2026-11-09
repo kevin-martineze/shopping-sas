@@ -8,6 +8,7 @@
 
 	import type { LayoutData } from './$types';
 	import { Button } from '$lib/components/atoms/button';
+	import ActionToasts from '$lib/components/molecules/ActionToasts.svelte';
 	import { cn } from '$lib/utils';
 
 	interface Props {
@@ -75,6 +76,7 @@
 	</header>
 
 	<main class="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+		<ActionToasts />
 		{@render children()}
 	</main>
 </div>

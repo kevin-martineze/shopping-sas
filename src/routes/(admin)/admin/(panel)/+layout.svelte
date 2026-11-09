@@ -29,6 +29,7 @@
 	import type { LayoutData } from './$types';
 	import { Badge } from '$lib/components/atoms/badge';
 	import { Button } from '$lib/components/atoms/button';
+	import ActionToasts from '$lib/components/molecules/ActionToasts.svelte';
 	import GloberceMark from '$lib/components/molecules/GloberceMark.svelte';
 	import SubscriptionBanner from '$lib/components/molecules/SubscriptionBanner.svelte';
 	import { MEMBER_ROLE_LABEL } from '$lib/domain/account';
@@ -232,6 +233,7 @@
 
 		<main class="mx-auto max-w-6xl px-4 py-8 sm:px-6">
 			<SubscriptionBanner notice={data.notice} />
+			<ActionToasts />
 			{@render children()}
 		</main>
 	</div>
