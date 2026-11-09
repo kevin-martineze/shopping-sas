@@ -21,7 +21,8 @@ export const STOREFRONT_TEMPLATES = [
 	'galeria',
 	'noche',
 	'vibrante',
-	'atelier'
+	'atelier',
+	'moda'
 ] as const;
 
 export type StorefrontTemplate = (typeof STOREFRONT_TEMPLATES)[number];
@@ -41,11 +42,24 @@ export const HERO_LAYOUTS = ['cover', 'split', 'typographic', 'centered', 'block
 
 export type HeroLayout = (typeof HERO_LAYOUTS)[number];
 
-/** La cabecera: la barra de siempre, o el nombre centrado en versalitas. */
-export type HeaderLayout = 'bar' | 'centered';
+/**
+ * La cabecera: la barra de siempre, el nombre centrado en versalitas, o `mega`:
+ * categorías a la vista con un panel de subcategorías al pasar sobre ellas.
+ */
+export type HeaderLayout = 'bar' | 'centered' | 'mega';
 
-/** La tarjeta de producto: sola, con marco fino, o con el precio como sticker. */
-export type CardStyle = 'plain' | 'framed' | 'sticker';
+/**
+ * La tarjeta de producto: sola, con marco fino, con el precio como sticker, o
+ * `retail`: foto alta, descuento sobre la foto y precio tachado al lado.
+ */
+export type CardStyle = 'plain' | 'framed' | 'sticker' | 'retail';
+
+/**
+ * Cómo se muestran las filas de productos y colecciones de la portada:
+ * - `grid`: la grilla de siempre.
+ * - `carousel`: una fila horizontal que se desliza.
+ */
+export type ShelfLayout = 'grid' | 'carousel';
 
 export interface TemplateInfo {
 	code: StorefrontTemplate;
@@ -57,6 +71,8 @@ export interface TemplateInfo {
 	hero: HeroLayout;
 	header: HeaderLayout;
 	card: CardStyle;
+	/** Cómo se arman las filas de la portada. */
+	shelves: ShelfLayout;
 	/**
 	 * El `--background` de `app.css` en hex. Contra él se mide si el color de
 	 * marca que elija la dueña se lee (`accentFits`); si cambia allá, cambia acá.
@@ -77,6 +93,7 @@ export const TEMPLATES: TemplateInfo[] = [
 		hero: 'cover',
 		header: 'bar',
 		card: 'plain',
+		shelves: 'grid',
 		background: '#FFFFFF'
 	},
 	{
@@ -93,6 +110,7 @@ export const TEMPLATES: TemplateInfo[] = [
 		hero: 'split',
 		header: 'bar',
 		card: 'plain',
+		shelves: 'grid',
 		background: '#FEFAF1'
 	},
 	{
@@ -107,6 +125,7 @@ export const TEMPLATES: TemplateInfo[] = [
 		hero: 'typographic',
 		header: 'bar',
 		card: 'plain',
+		shelves: 'grid',
 		background: '#FFFFFF'
 	},
 	{
@@ -121,6 +140,7 @@ export const TEMPLATES: TemplateInfo[] = [
 		hero: 'cover',
 		header: 'bar',
 		card: 'framed',
+		shelves: 'grid',
 		background: '#0F0F10'
 	},
 	{
@@ -135,6 +155,7 @@ export const TEMPLATES: TemplateInfo[] = [
 		hero: 'block',
 		header: 'bar',
 		card: 'sticker',
+		shelves: 'grid',
 		background: '#FFFDF7'
 	},
 	{
@@ -149,7 +170,24 @@ export const TEMPLATES: TemplateInfo[] = [
 		hero: 'centered',
 		header: 'centered',
 		card: 'framed',
+		shelves: 'grid',
 		background: '#F7F3EA'
+	},
+	{
+		code: 'moda',
+		name: 'Moda',
+		tagline:
+			'Para tiendas con muchas referencias: menú por categorías, grilla apretada y descuentos a la vista.',
+		features: [
+			'Cabecera con el menú de categorías a la vista',
+			'Tarjetas rectas, con el descuento sobre la foto',
+			'Portada con carruseles de colecciones y productos'
+		],
+		hero: 'cover',
+		header: 'mega',
+		card: 'retail',
+		shelves: 'carousel',
+		background: '#FFFFFF'
 	}
 ];
 
