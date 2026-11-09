@@ -5,6 +5,7 @@
 	import Camera from '@lucide/svelte/icons/camera';
 	import MessageCircle from '@lucide/svelte/icons/message-circle';
 
+	import StoreBrand from '$lib/components/molecules/StoreBrand.svelte';
 	import { buildWhatsAppUrl } from '$lib/utils/whatsapp';
 
 	interface Props {
@@ -32,7 +33,9 @@
 >
 	<div class="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-3">
 		<div class="space-y-3">
-			<p class="font-display text-2xl">{settings.store_name}</p>
+			<p class="font-display text-2xl">
+				<StoreBrand name={settings.store_name} logoUrl={settings.logo_url} />
+			</p>
 			<p class="text-muted-foreground max-w-xs text-sm">
 				Escríbenos por WhatsApp: te ayudamos con variaciones, disponibilidad y envíos.
 			</p>

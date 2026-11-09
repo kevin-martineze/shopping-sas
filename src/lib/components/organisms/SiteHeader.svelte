@@ -14,6 +14,7 @@
 	import { Input } from '$lib/components/atoms/input';
 	import * as Sheet from '$lib/components/atoms/sheet';
 	import { templateOf } from '$lib/domain/templates';
+	import StoreBrand from '$lib/components/molecules/StoreBrand.svelte';
 	import { cart } from '$lib/stores/cart.svelte';
 	import { favorites } from '$lib/stores/favorites.svelte';
 	import { cn } from '$lib/utils';
@@ -110,7 +111,7 @@
 					: 'text-2xl sm:text-3xl'
 			)}
 		>
-			{settings.store_name}
+			<StoreBrand name={settings.store_name} logoUrl={settings.logo_url} />
 		</a>
 
 		<nav
@@ -209,7 +210,9 @@
 <Sheet.Root bind:open={menuOpen}>
 	<Sheet.Content side="left" class="w-80">
 		<Sheet.Header>
-			<Sheet.Title class="font-display text-2xl">{settings.store_name}</Sheet.Title>
+			<Sheet.Title class="font-display text-2xl">
+				<StoreBrand name={settings.store_name} logoUrl={settings.logo_url} />
+			</Sheet.Title>
 		</Sheet.Header>
 
 		<nav class="flex flex-col gap-1 px-4 pb-8">

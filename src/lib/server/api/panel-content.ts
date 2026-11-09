@@ -21,6 +21,8 @@ const settingsSchema = z
 		heroCollectionId: z.string().nullable(),
 		heroTitle: z.string().nullable(),
 		heroSubtitle: z.string().nullable(),
+		// Opcional a propósito: si el panel sale antes que la API, no se cae.
+		logoUrl: z.string().nullable().optional(),
 		template: templateSchema,
 		theme: themeSchema,
 		assistant: z.boolean(),
@@ -38,6 +40,7 @@ const settingsSchema = z
 		hero_collection_id: settings.heroCollectionId,
 		hero_title: settings.heroTitle,
 		hero_subtitle: settings.heroSubtitle,
+		logo_url: settings.logoUrl ?? null,
 		template: settings.template,
 		theme: settings.theme,
 		assistant: settings.assistant,
@@ -69,6 +72,20 @@ export function updateSettings(
 	patch: SettingsPatch
 ): Promise<ApiResult<StoreSettings>> {
 	return panelRequest(ctx, '/settings', settingsSchema, { method: 'PATCH', body: patch });
+}
+
+/** La API convierte el logo, lo guarda y borra el anterior. */
+export function uploadStoreLogo(ctx: PanelContext, file: File): Promise<ApiResult<StoreSettings>> {
+	const formData = new FormData();
+
+	formData.set('file', file, file.name);
+
+	return panelRequest(ctx, '/settings/logo', settingsSchema, { method: 'PUT', formData });
+}
+
+/** Quita el logo: la tienda vuelve a mostrar el nombre. */
+export function removeStoreLogo(ctx: PanelContext): Promise<ApiResult<StoreSettings>> {
+	return panelRequest(ctx, '/settings/logo', settingsSchema, { method: 'DELETE' });
 }
 
 // ---------------------------------------------------------------------------
