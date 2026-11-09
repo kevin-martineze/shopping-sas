@@ -29,6 +29,8 @@
 	);
 
 	let saving = $state(false);
+	let logoSaving = $state(false);
+	let logoRemoving = $state(false);
 
 	/** La zona de la tienda que se resalta según el campo que se está editando. */
 	let focus = $state<PreviewZone>('store-header');
@@ -165,3 +167,77 @@
 		</form>
 	</div>
 </LivePreviewLayout>
+
+<section class="border-border bg-card mt-6 rounded-lg border p-6">
+	<h2 class="mb-1 text-lg">Logo</h2>
+	<p class="text-muted-foreground mb-4 text-sm">
+		Si subes un logo, la tienda lo muestra en vez del nombre: en la cabecera, en el menú y en el
+		pie.
+	</p>
+
+	{#if data.current.logo_url}
+		<div class="mb-4 grid place-items-center rounded-md bg-white p-4">
+			<img
+				src={data.current.logo_url}
+				alt={data.current.store_name}
+				class="h-16 w-auto max-w-full object-contain"
+			/>
+		</div>
+	{:else}
+		<p class="text-muted-foreground mb-4 text-sm">
+			Todavía no tienes logo: la tienda muestra el nombre.
+		</p>
+	{/if}
+
+	<form
+		method="POST"
+		action="?/subirLogo"
+		enctype="multipart/form-data"
+		class="space-y-3"
+		use:enhance={() => {
+			logoSaving = true;
+
+			return async ({ update }) => {
+				await update();
+				logoSaving = false;
+			};
+		}}
+	>
+		<Label for="logo">Archivo del logo</Label>
+		<Input
+			id="logo"
+			name="file"
+			type="file"
+			accept="image/png,image/jpeg,image/webp,image/svg+xml"
+			required
+		/>
+		<p class="text-muted-foreground text-xs">
+			Mejor en PNG o SVG con fondo transparente, horizontal. Máximo 2 MB.
+		</p>
+		<Button type="submit" disabled={logoSaving}>{logoSaving ? 'Subiendo…' : 'Subir logo'}</Button>
+	</form>
+
+	{#if data.current.logo_url}
+		<form
+			method="POST"
+			action="?/quitarLogo"
+			class="mt-3"
+			use:enhance={() => {
+				logoRemoving = true;
+
+				return async ({ update }) => {
+					await update();
+					logoRemoving = false;
+				};
+			}}
+		>
+			<Button type="submit" variant="ghost" disabled={logoRemoving}>Quitar logo</Button>
+		</form>
+	{/if}
+
+	{#if form?.logoError}
+		<p class="text-destructive mt-3 text-sm">{form.logoError}</p>
+	{:else if form?.logoMessage}
+		<p class="text-success mt-3 text-sm">{form.logoMessage}</p>
+	{/if}
+</section>

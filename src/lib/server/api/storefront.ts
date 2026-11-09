@@ -115,6 +115,8 @@ const storefrontSchema = z
 			heroCollectionId: z.string().nullable(),
 			heroTitle: z.string().nullable(),
 			heroSubtitle: z.string().nullable(),
+			// Opcional a propósito: si la tienda sale antes que la API, no se cae.
+			logoUrl: z.string().nullable().optional(),
 			template: templateSchema,
 			theme: themeSchema,
 			assistant: z.boolean(),
@@ -133,6 +135,7 @@ const storefrontSchema = z
 			hero_collection_id: storefront.settings.heroCollectionId,
 			hero_title: storefront.settings.heroTitle,
 			hero_subtitle: storefront.settings.heroSubtitle,
+			logo_url: storefront.settings.logoUrl ?? null,
 			template: storefront.settings.template,
 			theme: storefront.settings.theme,
 			assistant: storefront.settings.assistant,
