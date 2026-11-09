@@ -156,3 +156,63 @@ export interface ProductFilters {
 }
 
 export const PRODUCTS_PER_PAGE = 12;
+
+/** Una categoría con sus hijas, ya ordenadas. Para el menú por categorías. */
+export interface CategoryNode {
+	category: Category;
+	children: CategoryNode[];
+}
+
+/**
+ * El árbol de categorías para el menú. Las raíces y las hijas van por
+ * `sort_order` y, a igualdad, por nombre.
+ *
+ * Una categoría cuyo padre no está en la lista sube a la raíz: mejor aparecer
+ * en el primer nivel que desaparecer. Un ciclo (A es padre de B y B de A) no
+ * tiene raíz; sus miembros también suben, una sola vez cada uno.
+ */
+export function buildCategoryTree(categories: Category[]): CategoryNode[] {
+	const byId = new Map(categories.map((category) => [category.id, category]));
+	const childrenOf = new Map<string, Category[]>();
+	const roots: Category[] = [];
+
+	for (const category of categories) {
+		const parent = category.parent_id ? byId.get(category.parent_id) : undefined;
+
+		if (parent && parent.id !== category.id) {
+			childrenOf.set(parent.id, [...(childrenOf.get(parent.id) ?? []), category]);
+		} else {
+			roots.push(category);
+		}
+	}
+
+	const visited = new Set<string>();
+
+	function build(category: Category): CategoryNode {
+		visited.add(category.id);
+
+		const children = sortCategories(childrenOf.get(category.id) ?? [])
+			.filter((child) => !visited.has(child.id))
+			.map(build);
+
+		return { category, children };
+	}
+
+	const nodes = sortCategories(roots).map(build);
+
+	// Los que no llegaron desde ninguna raíz están en un ciclo: suben a raíz.
+	// Se revisa `visited` en cada vuelta: construir uno puede construir a sus compañeros.
+	const extra: CategoryNode[] = [];
+
+	for (const category of sortCategories(categories)) {
+		if (!visited.has(category.id)) extra.push(build(category));
+	}
+
+	return [...nodes, ...extra];
+}
+
+function sortCategories(categories: Category[]): Category[] {
+	return [...categories].sort(
+		(a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name, 'es')
+	);
+}

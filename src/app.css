@@ -1199,3 +1199,57 @@
 		opacity: 0;
 	}
 }
+
+/* Moda: blanco, casi negro, esquinas rectas y titulares sans en mayúsculas.
+   Solo tokens. El rojo de oferta da 6.6:1 sobre el blanco (AA). */
+[data-storefront-template='moda'] {
+	--background: oklch(1 0 0);
+	--foreground: oklch(0.15 0 0);
+	--card: oklch(1 0 0);
+	--card-foreground: oklch(0.15 0 0);
+	--primary: oklch(0.15 0 0);
+	--primary-foreground: oklch(1 0 0);
+	--secondary: oklch(0.96 0 0);
+	--secondary-foreground: oklch(0.15 0 0);
+	--muted: oklch(0.96 0 0);
+	--muted-foreground: oklch(0.45 0 0);
+	--accent: oklch(0.96 0 0);
+	--accent-foreground: oklch(0.15 0 0);
+	--border: oklch(0.88 0 0);
+	--input: oklch(0.88 0 0);
+	--ring: oklch(0.15 0 0);
+	--sale: oklch(0.5 0.19 25);
+	--sale-foreground: oklch(1 0 0);
+	--font-title: var(--font-body);
+	--radius: 0;
+}
+
+[data-storefront-template='moda'] :is(h1, h2, h3) {
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	font-weight: 700;
+}
+
+/* Tarjeta retail: foto 3:4, esquinas rectas, precio en negrita y el descuento
+   solo sobre la foto (el de junto al precio se oculta para no repetirlo). */
+[data-storefront-template='moda'] .product-card > a > div:first-child {
+	aspect-ratio: 3 / 4;
+}
+
+[data-storefront-template='moda'] .product-card > a > div:first-child img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+[data-storefront-template='moda'] .product-card .rounded-full {
+	border-radius: 0;
+}
+
+[data-storefront-template='moda'] .product-card .price-tag > span:first-child {
+	font-weight: 700;
+}
+
+[data-storefront-template='moda'] .product-card .price-tag > .text-sale {
+	display: none;
+}
