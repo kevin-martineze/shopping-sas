@@ -6,10 +6,9 @@
 
 	import { enhance } from '$app/forms';
 
-	import type { ActionData, PageData } from './$types';
+	import type { PageData } from './$types';
 	import { Badge } from '$lib/components/atoms/badge';
 	import { Button } from '$lib/components/atoms/button';
-	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 	import * as Card from '$lib/components/atoms/card';
 	import { Separator } from '$lib/components/atoms/separator';
 	import { Textarea } from '$lib/components/atoms/textarea';
@@ -18,10 +17,9 @@
 
 	interface Props {
 		data: PageData;
-		form: ActionData;
 	}
 
-	let { data, form }: Props = $props();
+	let { data }: Props = $props();
 
 	const order = $derived(data.order);
 
@@ -78,8 +76,6 @@
 		</Button>
 	</div>
 </div>
-
-<FormFeedback error={form?.error ?? null} />
 
 <div class="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
 	<div class="space-y-6">

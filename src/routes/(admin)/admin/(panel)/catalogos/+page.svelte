@@ -5,7 +5,7 @@
 
 	import { enhance } from '$app/forms';
 
-	import type { ActionData, PageData } from './$types';
+	import type { PageData } from './$types';
 	import type { StorefrontDraft } from '$lib/domain/preview';
 	import { Button } from '$lib/components/atoms/button';
 	import * as Card from '$lib/components/atoms/card';
@@ -13,7 +13,6 @@
 	import { Label } from '$lib/components/atoms/label';
 	import * as Table from '$lib/components/atoms/table';
 	import CheckboxField from '$lib/components/molecules/CheckboxField.svelte';
-	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 	import NumberField from '$lib/components/molecules/NumberField.svelte';
 	import LivePreviewLayout from '$lib/components/organisms/LivePreviewLayout.svelte';
 	import { themePreviewUrl } from '$lib/template-preview';
@@ -21,13 +20,9 @@
 
 	interface Props {
 		data: PageData;
-		form: ActionData;
 	}
 
-	let { data, form }: Props = $props();
-
-	const message = $derived(form && 'message' in form ? form.message : null);
-	const error = $derived(form && 'error' in form ? form.error : null);
+	let { data }: Props = $props();
 
 	/** El siguiente lugar libre, para que dos filas no compartan orden. */
 	function nextOrder(rows: { sort_order: number }[]): number {
@@ -116,8 +111,6 @@
 		nada.
 	</p>
 </header>
-
-<FormFeedback {error} {message} />
 
 <LivePreviewLayout src={previewSrc} {draft} title="Así se ve tu menú">
 	<div class="space-y-8">

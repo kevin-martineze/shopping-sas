@@ -6,7 +6,7 @@
 
 	import { enhance } from '$app/forms';
 
-	import type { ActionData, PageData } from './$types';
+	import type { PageData } from './$types';
 	import type { DraftHighlight, PreviewZone, StorefrontDraft } from '$lib/domain/preview';
 	import { Badge } from '$lib/components/atoms/badge';
 	import { Button } from '$lib/components/atoms/button';
@@ -16,7 +16,6 @@
 	import * as Table from '$lib/components/atoms/table';
 	import { Textarea } from '$lib/components/atoms/textarea';
 	import CheckboxField from '$lib/components/molecules/CheckboxField.svelte';
-	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 	import NumberField from '$lib/components/molecules/NumberField.svelte';
 	import SelectField from '$lib/components/molecules/SelectField.svelte';
 	import LivePreviewLayout from '$lib/components/organisms/LivePreviewLayout.svelte';
@@ -26,10 +25,9 @@
 
 	interface Props {
 		data: PageData;
-		form: ActionData;
 	}
 
-	let { data, form }: Props = $props();
+	let { data }: Props = $props();
 
 	// Copia editable del estado guardado; no se sincroniza sola.
 	let heroCollectionId = $state(untrack(() => data.settings.hero_collection_id ?? ''));
@@ -62,9 +60,6 @@
 		)
 	);
 	let newActive = $state(true);
-
-	const message = $derived(form && 'message' in form ? form.message : null);
-	const error = $derived(form && 'error' in form ? form.error : null);
 
 	const collectionOptions = $derived([
 		{ value: '', label: 'Ninguna: usar mi propio título' },
@@ -142,8 +137,6 @@
 		abajo.
 	</p>
 </header>
-
-<FormFeedback {error} {message} />
 
 <LivePreviewLayout src={previewSrc} {draft} title="Así se ve tu portada">
 	<div class="space-y-8">

@@ -38,7 +38,7 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		return { ok: true };
+		return { message: 'Cupón creado.' };
 	},
 
 	alternar: async (event) => {
@@ -53,7 +53,7 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		return { ok: true };
+		return { message: 'Cupón actualizado.' };
 	},
 
 	eliminar: async (event) => {
@@ -68,6 +68,6 @@ export const actions: Actions = {
 			return fail(409, { error: 'Ese cupón ya se usó, así que lo desactivamos.' });
 		}
 
-		return { ok: true };
+		return { message: 'Cupón eliminado.' };
 	}
 };

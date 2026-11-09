@@ -26,6 +26,6 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		return { ok: true };
+		return { message: 'Respuesta enviada.' };
 	}
 };

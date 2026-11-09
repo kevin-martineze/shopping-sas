@@ -49,7 +49,7 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		return { ok: true };
+		return { message: 'Zona de envío creada.' };
 	},
 
 	actualizar: async (event) => {
@@ -65,7 +65,7 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		return { ok: true };
+		return { message: 'Zona de envío actualizada.' };
 	},
 
 	eliminar: async (event) => {
@@ -80,6 +80,6 @@ export const actions: Actions = {
 			return fail(409, { error: 'Esa zona ya se usó en pedidos, así que la desactivamos.' });
 		}
 
-		return { ok: true };
+		return { message: 'Zona de envío eliminada.' };
 	}
 };

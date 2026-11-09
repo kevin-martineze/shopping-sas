@@ -1,19 +1,17 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 
-	import type { ActionData, PageData } from './$types';
+	import type { PageData } from './$types';
 	import { Button } from '$lib/components/atoms/button';
 	import * as Card from '$lib/components/atoms/card';
 	import * as Table from '$lib/components/atoms/table';
-	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 	import { formatMoney } from '$lib/utils/money';
 
 	interface Props {
 		data: PageData;
-		form: ActionData;
 	}
 
-	let { data, form }: Props = $props();
+	let { data }: Props = $props();
 
 	const dashboard = $derived(data.dashboard);
 
@@ -59,11 +57,6 @@
 		<Button type="submit" variant="outline">Revisar vencimientos</Button>
 	</form>
 </header>
-
-<FormFeedback
-	error={form?.error ?? null}
-	message={form && 'message' in form ? (form.message ?? null) : null}
-/>
 
 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 	<Card.Root>

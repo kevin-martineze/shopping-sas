@@ -79,7 +79,7 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		return { ok: true };
+		return { message: 'Producto guardado.' };
 	},
 
 	/**
@@ -118,7 +118,7 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		return { ok: true, message: 'Ejes guardados.' };
+		return { message: 'Ejes guardados.' };
 	},
 
 	atributos: async (event) => {
@@ -146,7 +146,7 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		return { ok: true, message: 'Datos guardados.' };
+		return { message: 'Datos guardados.' };
 	},
 
 	variantes: async (event) => {
@@ -168,7 +168,12 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		return { ok: true, created: result.data.created };
+		const created = result.data.created;
+
+		return {
+			message: created > 0 ? `${created} variantes nuevas.` : 'No faltaba ninguna variante.',
+			created
+		};
 	},
 
 	stock: async (event) => {
@@ -200,7 +205,7 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		return { ok: true };
+		return { message: 'Stock actualizado.' };
 	},
 
 	borrarVariante: async (event) => {
@@ -212,7 +217,12 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		return { ok: true, deactivated: result.data.result === 'deactivated' };
+		const deactivated = result.data.result === 'deactivated';
+
+		return {
+			message: deactivated ? 'Variante desactivada: está en pedidos.' : 'Variante borrada.',
+			deactivated
+		};
 	},
 
 	subirImagen: async (event) => {
@@ -230,7 +240,7 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		return { ok: true };
+		return { message: 'Foto subida.' };
 	},
 
 	borrarImagen: async (event) => {
@@ -241,7 +251,7 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		return { ok: true };
+		return { message: 'Foto borrada.' };
 	},
 
 	imagenPrincipal: async (event) => {
@@ -265,7 +275,7 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		return { ok: true };
+		return { message: 'Foto principal cambiada.' };
 	},
 
 	eliminar: async (event) => {

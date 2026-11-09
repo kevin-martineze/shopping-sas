@@ -3,7 +3,7 @@
 
 	import { enhance } from '$app/forms';
 
-	import type { ActionData, PageData } from './$types';
+	import type { PageData } from './$types';
 	import type { StorefrontDraft } from '$lib/domain/preview';
 	import { Badge } from '$lib/components/atoms/badge';
 	import { Button } from '$lib/components/atoms/button';
@@ -11,7 +11,6 @@
 	import { Label } from '$lib/components/atoms/label';
 	import * as Table from '$lib/components/atoms/table';
 	import CheckboxField from '$lib/components/molecules/CheckboxField.svelte';
-	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 	import SelectField from '$lib/components/molecules/SelectField.svelte';
 	import LivePreviewLayout from '$lib/components/organisms/LivePreviewLayout.svelte';
 	import { themePreviewUrl } from '$lib/template-preview';
@@ -19,10 +18,9 @@
 
 	interface Props {
 		data: PageData;
-		form: ActionData;
 	}
 
-	let { data, form }: Props = $props();
+	let { data }: Props = $props();
 
 	let type = $state<'percent' | 'fixed'>('percent');
 
@@ -68,8 +66,6 @@
 		El código se valida en el carrito y el descuento lo recalcula el servidor.
 	</p>
 </header>
-
-<FormFeedback error={form?.error ?? null} />
 
 <LivePreviewLayout src={previewSrc} {draft} title="Así se ve tu cupón">
 	<section class="border-border bg-card rounded-lg mb-8 border p-6">

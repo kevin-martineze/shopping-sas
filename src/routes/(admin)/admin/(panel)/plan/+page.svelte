@@ -6,12 +6,11 @@
 	import { invalidateAll } from '$app/navigation';
 
 	import type { SubmitFunction } from '@sveltejs/kit';
-	import type { ActionData, PageData } from './$types';
+	import type { PageData } from './$types';
 	import { Badge } from '$lib/components/atoms/badge';
 	import { Button } from '$lib/components/atoms/button';
 	import * as Table from '$lib/components/atoms/table';
 	import CobroWompiEstado from '$lib/components/molecules/CobroWompiEstado.svelte';
-	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 	import UsageMeter from '$lib/components/molecules/UsageMeter.svelte';
 	import PaymentCard from '$lib/components/organisms/PaymentCard.svelte';
 	import { planFeatures, STORE_STATUS_LABEL } from '$lib/domain/account';
@@ -21,10 +20,9 @@
 
 	interface Props {
 		data: PageData;
-		form: ActionData;
 	}
 
-	let { data, form }: Props = $props();
+	let { data }: Props = $props();
 
 	const subscription = $derived(data.subscription);
 	const plan = $derived(subscription.plan);
@@ -88,11 +86,6 @@
 <!-- El error de cualquier acción, y el mensaje de la tarjeta. Del cobro a mano
      no hay mensaje que dar: cuando sale bien esta página ya no está —se fue a
      la pasarela— y quien confirma es su evento. -->
-<FormFeedback
-	error={form && 'error' in form ? (form.error ?? null) : null}
-	message={form && 'message' in form ? (form.message ?? null) : null}
-/>
-
 <div class="mb-6">
 	<PaymentCard
 		method={subscription.payment_method}

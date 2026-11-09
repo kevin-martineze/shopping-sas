@@ -3,20 +3,18 @@
 
 	import { enhance } from '$app/forms';
 
-	import type { ActionData, PageData } from './$types';
+	import type { PageData } from './$types';
 	import { Badge } from '$lib/components/atoms/badge';
 	import { Button } from '$lib/components/atoms/button';
-	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 	import PasswordField from '$lib/components/molecules/PasswordField.svelte';
 	import { MEMBER_ROLE_LABEL } from '$lib/domain/account';
 	import { PASSWORD_MIN } from '$lib/schemas/account';
 
 	interface Props {
 		data: PageData;
-		form: ActionData;
 	}
 
-	let { data, form }: Props = $props();
+	let { data }: Props = $props();
 
 	let submitting = $state(false);
 	let passwordForm = $state<HTMLFormElement>();
@@ -32,11 +30,6 @@
 		{data.user.full_name ?? data.user.email} · {data.user.email}
 	</p>
 </header>
-
-<FormFeedback
-	error={form?.error ?? null}
-	message={form && 'message' in form ? (form.message ?? null) : null}
-/>
 
 <div class="grid gap-6 lg:grid-cols-2">
 	<section class="border-border bg-card rounded-lg border p-6">

@@ -1,19 +1,17 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 
-	import type { ActionData, PageData } from './$types';
+	import type { PageData } from './$types';
 	import { Button } from '$lib/components/atoms/button';
 	import * as Card from '$lib/components/atoms/card';
 	import * as Table from '$lib/components/atoms/table';
-	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 	import NumberField from '$lib/components/molecules/NumberField.svelte';
 
 	interface Props {
 		data: PageData;
-		form: ActionData;
 	}
 
-	let { data, form }: Props = $props();
+	let { data }: Props = $props();
 </script>
 
 <svelte:head>
@@ -41,8 +39,6 @@
 		</Button>
 	</div>
 </header>
-
-<FormFeedback error={form?.error ?? null} />
 
 {#if data.groups.length === 0}
 	<Card.Root>

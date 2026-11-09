@@ -3,7 +3,7 @@
 
 	import { enhance } from '$app/forms';
 
-	import type { ActionData, PageData } from './$types';
+	import type { PageData } from './$types';
 	import type { StorefrontDraft } from '$lib/domain/preview';
 	import { Button } from '$lib/components/atoms/button';
 	import * as Card from '$lib/components/atoms/card';
@@ -11,7 +11,6 @@
 	import { Label } from '$lib/components/atoms/label';
 	import * as Table from '$lib/components/atoms/table';
 	import CheckboxField from '$lib/components/molecules/CheckboxField.svelte';
-	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 	import NumberField from '$lib/components/molecules/NumberField.svelte';
 	import LivePreviewLayout from '$lib/components/organisms/LivePreviewLayout.svelte';
 	import { themePreviewUrl } from '$lib/template-preview';
@@ -19,10 +18,9 @@
 
 	interface Props {
 		data: PageData;
-		form: ActionData;
 	}
 
-	let { data, form }: Props = $props();
+	let { data }: Props = $props();
 
 	interface ZoneEdit {
 		name?: string;
@@ -106,8 +104,6 @@
 		El cliente elige una en el carrito y su costo entra en el total del pedido.
 	</p>
 </header>
-
-<FormFeedback error={form?.error ?? null} />
 
 <LivePreviewLayout src={previewSrc} {draft} title="Así se ve tu envío">
 	<Card.Root>

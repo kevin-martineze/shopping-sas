@@ -4,19 +4,17 @@
 
 	import { enhance } from '$app/forms';
 
-	import type { ActionData, PageData } from './$types';
+	import type { PageData } from './$types';
 	import { Badge } from '$lib/components/atoms/badge';
 	import { Button } from '$lib/components/atoms/button';
 	import * as Card from '$lib/components/atoms/card';
 	import * as Table from '$lib/components/atoms/table';
-	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 
 	interface Props {
 		data: PageData;
-		form: ActionData;
 	}
 
-	let { data, form }: Props = $props();
+	let { data }: Props = $props();
 
 	const pending = $derived(data.requests.filter((request) => request.notified_at === null));
 	const done = $derived(data.requests.filter((request) => request.notified_at !== null));
@@ -34,8 +32,6 @@
 		Clientes que pidieron aviso cuando su variación vuelva. Son ventas casi hechas.
 	</p>
 </header>
-
-<FormFeedback error={form?.error ?? null} />
 
 <div class="space-y-8">
 	<Card.Root>
