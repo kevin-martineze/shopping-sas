@@ -4,18 +4,16 @@
 
 	import { enhance } from '$app/forms';
 
-	import type { ActionData, PageData } from './$types';
+	import type { PageData } from './$types';
 	import { Button } from '$lib/components/atoms/button';
-	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 	import WompiKeysPaste from '$lib/components/molecules/WompiKeysPaste.svelte';
 	import { cn } from '$lib/utils';
 
 	interface Props {
 		data: PageData;
-		form: ActionData;
 	}
 
-	let { data, form }: Props = $props();
+	let { data }: Props = $props();
 
 	let submitting = $state(false);
 	/** Abierto cuando la dueña quiere reemplazar las llaves de una cuenta ya conectada. */
@@ -42,9 +40,6 @@
 		cuenta.mode === 'test' ? 'Pruebas' : cuenta.mode === 'prod' ? 'Producción' : 'Sin reconocer'
 	);
 
-	const error = $derived(form && 'error' in form ? (form.error ?? null) : null);
-	const message = $derived(form && 'message' in form ? (form.message ?? null) : null);
-
 	async function copiar() {
 		if (!cuenta.events_url) return;
 
@@ -66,8 +61,6 @@
 		venta.
 	</p>
 </header>
-
-<FormFeedback {error} {message} />
 
 {#if !data.canManage}
 	<p class="text-muted-foreground text-sm">

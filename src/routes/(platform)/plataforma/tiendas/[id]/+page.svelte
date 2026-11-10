@@ -6,13 +6,12 @@
 
 	import { enhance } from '$app/forms';
 
-	import type { ActionData, PageData } from './$types';
+	import type { PageData } from './$types';
 	import { Button } from '$lib/components/atoms/button';
 	import { Input } from '$lib/components/atoms/input';
 	import { Label } from '$lib/components/atoms/label';
 	import * as Table from '$lib/components/atoms/table';
 	import { Textarea } from '$lib/components/atoms/textarea';
-	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 	import SelectField from '$lib/components/molecules/SelectField.svelte';
 	import StoreStatusBadge from '$lib/components/molecules/StoreStatusBadge.svelte';
 	import { MEMBER_ROLE_LABEL } from '$lib/domain/account';
@@ -21,10 +20,9 @@
 
 	interface Props {
 		data: PageData;
-		form: ActionData;
 	}
 
-	let { data, form }: Props = $props();
+	let { data }: Props = $props();
 
 	const store = $derived(data.store);
 
@@ -111,11 +109,6 @@
 		{/if}
 	</form>
 </header>
-
-<FormFeedback
-	error={form?.error ?? null}
-	message={form && 'message' in form ? (form.message ?? null) : null}
-/>
 
 <div class="grid gap-6 lg:grid-cols-3">
 	<section class="border-border bg-card rounded-lg space-y-3 border p-6 text-sm">

@@ -49,26 +49,25 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		return { ok: true };
+		return { message: 'Ajustes guardados.' };
 	},
 
-	// El logo tiene sus propias claves (`logoError`, `logoMessage`): el formulario
-	// de arriba ya usa `error` y `ok`, y no deben pisarse.
+	// Mismas claves que el resto del panel: `error` y `message` se avisan con toast.
 	subirLogo: async (event) => {
 		const ctx = panelContext(event);
 		const formData = await event.request.formData();
 		const file = formData.get('file');
 
 		if (!(file instanceof File) || file.size === 0) {
-			return fail(400, { logoError: 'Elige una imagen para el logo.' });
+			return fail(400, { error: 'Elige una imagen para el logo.' });
 		}
 
 		if (!LOGO_TYPES.includes(file.type)) {
-			return fail(400, { logoError: 'El logo debe ser PNG, JPG, WebP o SVG.' });
+			return fail(400, { error: 'El logo debe ser PNG, JPG, WebP o SVG.' });
 		}
 
 		if (file.size > LOGO_MAX_BYTES) {
-			return fail(400, { logoError: 'El logo pesa más de 2 MB. Pruébalo más liviano.' });
+			return fail(400, { error: 'El logo pesa más de 2 MB. Pruébalo más liviano.' });
 		}
 
 		const result = await uploadStoreLogo(ctx, file);
@@ -76,10 +75,10 @@ export const actions: Actions = {
 		if (!result.ok) {
 			const failure = failWith(result);
 
-			return fail(failure.status, { logoError: result.message });
+			return fail(failure.status, { error: result.message });
 		}
 
-		return { logoMessage: 'Logo guardado. La tienda ya lo muestra.' };
+		return { message: 'Logo guardado. La tienda ya lo muestra.' };
 	},
 
 	quitarLogo: async (event) => {
@@ -88,9 +87,9 @@ export const actions: Actions = {
 		if (!result.ok) {
 			const failure = failWith(result);
 
-			return fail(failure.status, { logoError: result.message });
+			return fail(failure.status, { error: result.message });
 		}
 
-		return { logoMessage: 'Quitaste el logo: la tienda vuelve a mostrar el nombre.' };
+		return { message: 'Quitaste el logo: la tienda vuelve a mostrar el nombre.' };
 	}
 };

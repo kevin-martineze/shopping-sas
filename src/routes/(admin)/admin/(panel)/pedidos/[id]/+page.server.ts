@@ -46,7 +46,7 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		return { ok: true };
+		return { message: 'Estado del pedido actualizado.' };
 	},
 
 	notas: async (event) => {
@@ -58,6 +58,6 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		return { ok: true };
+		return { message: 'Notas guardadas.' };
 	}
 };

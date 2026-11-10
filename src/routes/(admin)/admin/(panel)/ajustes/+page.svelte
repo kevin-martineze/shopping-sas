@@ -3,7 +3,7 @@
 
 	import { enhance } from '$app/forms';
 
-	import type { ActionData, PageData } from './$types';
+	import type { PageData } from './$types';
 	import type { PreviewZone, StorefrontDraft } from '$lib/domain/preview';
 	import { Button } from '$lib/components/atoms/button';
 	import { Input } from '$lib/components/atoms/input';
@@ -14,10 +14,9 @@
 
 	interface Props {
 		data: PageData;
-		form: ActionData;
 	}
 
-	let { data, form }: Props = $props();
+	let { data }: Props = $props();
 
 	// Copia editable de los ajustes; no se sincroniza sola.
 	let storeName = $state(untrack(() => data.current.store_name));
@@ -158,12 +157,6 @@
 				/>
 			</div>
 
-			{#if form?.error}
-				<p class="text-destructive text-sm">{form.error}</p>
-			{:else if form?.ok}
-				<p class="text-success text-sm">Ajustes guardados.</p>
-			{/if}
-
 			<Button type="submit" disabled={saving}>{saving ? 'Guardando…' : 'Guardar ajustes'}</Button>
 		</form>
 	</div>
@@ -234,11 +227,5 @@
 		>
 			<Button type="submit" variant="ghost" disabled={logoRemoving}>Quitar logo</Button>
 		</form>
-	{/if}
-
-	{#if form?.logoError}
-		<p class="text-destructive mt-3 text-sm">{form.logoError}</p>
-	{:else if form?.logoMessage}
-		<p class="text-success mt-3 text-sm">{form.logoMessage}</p>
 	{/if}
 </section>

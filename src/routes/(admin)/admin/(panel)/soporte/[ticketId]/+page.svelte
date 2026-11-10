@@ -5,12 +5,11 @@
 
 	import { enhance } from '$app/forms';
 
-	import type { ActionData, PageData } from './$types';
+	import type { PageData } from './$types';
 	import { Badge } from '$lib/components/atoms/badge';
 	import { Button } from '$lib/components/atoms/button';
 	import { Label } from '$lib/components/atoms/label';
 	import { Textarea } from '$lib/components/atoms/textarea';
-	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 	import {
 		SUPPORT_CATEGORY_LABEL,
 		SUPPORT_STATUS_LABEL,
@@ -19,10 +18,9 @@
 
 	interface Props {
 		data: PageData;
-		form: ActionData;
 	}
 
-	let { data, form }: Props = $props();
+	let { data }: Props = $props();
 
 	let submitting = $state(false);
 
@@ -92,8 +90,6 @@
 
 <section class="border-border bg-card rounded-lg border p-6">
 	<h2 class="mb-4 text-lg">Responder</h2>
-
-	<FormFeedback error={form?.error ?? null} />
 
 	<form method="POST" action="?/responder" class="space-y-4" use:enhance={submit}>
 		<div class="space-y-2">

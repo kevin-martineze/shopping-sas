@@ -1,14 +1,12 @@
 <script lang="ts">
-	import type { ActionData, PageData } from './$types';
-	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
+	import type { PageData } from './$types';
 	import TemplatePicker from '$lib/components/organisms/TemplatePicker.svelte';
 
 	interface Props {
 		data: PageData;
-		form: ActionData;
 	}
 
-	let { data, form }: Props = $props();
+	let { data }: Props = $props();
 </script>
 
 <svelte:head>
@@ -23,8 +21,6 @@
 		nunca tus productos ni tus pedidos—, así que puedes cambiarla cuando quieras desde Portada.
 	</p>
 </header>
-
-<FormFeedback error={form?.error ?? null} message={null} />
 
 <TemplatePicker
 	current={data.settings.template}

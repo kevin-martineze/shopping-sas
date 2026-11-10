@@ -83,7 +83,7 @@ export const actions: Actions = {
 			}
 		}
 
-		return { ok: true };
+		return { message: 'Colección creada.' };
 	},
 
 	/** Etiqueta un producto sobre la foto editorial, o mueve su punto si ya estaba. */
@@ -104,7 +104,7 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		return { ok: true };
+		return { message: 'Prenda agregada a la colección.' };
 	},
 
 	cambiarFoto: async (event) => {
@@ -122,7 +122,7 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		return { ok: true };
+		return { message: 'Foto de portada actualizada.' };
 	},
 
 	quitarProducto: async (event) => {
@@ -137,7 +137,7 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		return { ok: true };
+		return { message: 'Prenda quitada de la colección.' };
 	},
 
 	eliminar: async (event) => {
@@ -148,6 +148,6 @@ export const actions: Actions = {
 
 		if (!result.ok) return failWith(result);
 
-		return { ok: true };
+		return { message: 'Colección eliminada.' };
 	}
 };

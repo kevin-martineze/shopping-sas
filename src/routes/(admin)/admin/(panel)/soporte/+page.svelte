@@ -5,13 +5,12 @@
 
 	import { enhance } from '$app/forms';
 
-	import type { ActionData, PageData } from './$types';
+	import type { PageData } from './$types';
 	import { Badge } from '$lib/components/atoms/badge';
 	import { Button } from '$lib/components/atoms/button';
 	import { Input } from '$lib/components/atoms/input';
 	import { Label } from '$lib/components/atoms/label';
 	import { Textarea } from '$lib/components/atoms/textarea';
-	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 	import SelectField from '$lib/components/molecules/SelectField.svelte';
 	import {
 		SUPPORT_CATEGORIES,
@@ -21,10 +20,9 @@
 
 	interface Props {
 		data: PageData;
-		form: ActionData;
 	}
 
-	let { data, form }: Props = $props();
+	let { data }: Props = $props();
 
 	let category = $state('');
 	let submitting = $state(false);
@@ -60,8 +58,6 @@
 
 <section class="border-border bg-card mb-8 rounded-lg border p-6">
 	<h2 class="mb-4 text-lg">Abrir un caso</h2>
-
-	<FormFeedback error={form?.error ?? null} />
 
 	<form method="POST" action="?/crear" class="grid gap-4 sm:grid-cols-2" use:enhance={submit}>
 		<div class="space-y-2">

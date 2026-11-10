@@ -4,7 +4,7 @@
 
 	import { enhance } from '$app/forms';
 
-	import type { ActionData, PageData } from './$types';
+	import type { PageData } from './$types';
 	import type { StorefrontDraft } from '$lib/domain/preview';
 	import { Badge } from '$lib/components/atoms/badge';
 	import { Button } from '$lib/components/atoms/button';
@@ -14,7 +14,6 @@
 	import * as Table from '$lib/components/atoms/table';
 	import { Textarea } from '$lib/components/atoms/textarea';
 	import CheckboxField from '$lib/components/molecules/CheckboxField.svelte';
-	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 	import NumberField from '$lib/components/molecules/NumberField.svelte';
 	import SelectField from '$lib/components/molecules/SelectField.svelte';
 	import LivePreviewLayout from '$lib/components/organisms/LivePreviewLayout.svelte';
@@ -23,10 +22,9 @@
 
 	interface Props {
 		data: PageData;
-		form: ActionData;
 	}
 
-	let { data, form }: Props = $props();
+	let { data }: Props = $props();
 
 	const productOptions = $derived(
 		data.products.map((product) => ({ value: product.id, label: product.name }))
@@ -78,8 +76,6 @@
 		Páginas editoriales con una foto grande y productos etiquetadas encima.
 	</p>
 </header>
-
-<FormFeedback error={form?.error ?? null} />
 
 <LivePreviewLayout src={previewSrc} {draft} title="Así se ve tu colección">
 	<Card.Root class="mb-8">

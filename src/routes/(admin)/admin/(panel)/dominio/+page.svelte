@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 
-	import type { ActionData, PageData } from './$types';
+	import type { PageData } from './$types';
 	import { DOMAIN_STATUS_LABEL } from '$lib/domain/domain';
 	import * as Alert from '$lib/components/atoms/alert';
 	import { Badge } from '$lib/components/atoms/badge';
@@ -10,14 +10,12 @@
 	import { Input } from '$lib/components/atoms/input';
 	import { Label } from '$lib/components/atoms/label';
 	import * as Table from '$lib/components/atoms/table';
-	import FormFeedback from '$lib/components/molecules/FormFeedback.svelte';
 
 	interface Props {
 		data: PageData;
-		form: ActionData;
 	}
 
-	let { data, form }: Props = $props();
+	let { data }: Props = $props();
 
 	let host = $state('');
 	let enviando = $state(false);
@@ -55,8 +53,6 @@
 		Tu tienda en tu propio dominio, por ejemplo www.mitienda.com.
 	</p>
 </header>
-
-<FormFeedback error={form?.error ?? null} message={form?.message ?? null} />
 
 {#if !data.allowed}
 	<section class="border-border bg-card mb-6 rounded-lg border p-6">
